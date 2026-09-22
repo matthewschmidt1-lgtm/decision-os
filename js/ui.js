@@ -43,10 +43,19 @@ export function deltaText(v) {
   if (typeof v !== "number") return String(v);
   return `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)}%`;
 }
+export function signedTone(label, value) {
+  // Infer tone from a signed string like "−8%", "+3 pts", "−2 vs LY". Neutral when unsigned or ambiguous.
+  if (typeof value !== "string") return "";
+  const m = value.trim().match(/^([+\-−–])\s*\d/);
+  if (!m) return "";
+  const neg = m[1] !== "+";
+  const invert = /spend|inventory|cost|gap|days out|out of stock/i.test(label);
+  return (neg !== invert) ? "bad" : "good";
+}
 export function metric(label, value, tone) {
   let cls = "v";
-  const invert = /spend|inventory|cost/i.test(label);
-  const t = tone || toneFor(value, invert);
+  const invert = /spend|inventory|cost|gap|days out|out of stock/i.test(label);
+  const t = tone || toneFor(value, invert) || signedTone(label, value);
   if (typeof value === "number") cls += ` delta ${value > 0 ? "up" : value < 0 ? "down" : "flat"} ${t}`;
   else if (t) cls += ` ${t}`;
   return h("div", { class: "metric" }, h("span", { class: "k" }, label), h("span", { class: cls }, deltaText(value)));
