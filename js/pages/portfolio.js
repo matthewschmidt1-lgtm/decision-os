@@ -16,7 +16,7 @@ export default function Portfolio({ params }) {
   const focus = brandById[params.get("brand")] || brandById.A;
 
   // Commercial chain
-  let measure = "depletion";
+  let measure = "shipment";
   const chainBars = h("div", { class: "bars" });
   const chainSays = says("");
   const renderChain = () => {
@@ -58,7 +58,7 @@ export default function Portfolio({ params }) {
 
     h("section", { class: "section", id: "chain" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("The commercial chain"), h("h2", { style: { marginTop: "10px" } }, "Where does the growth actually come from?")),
-        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Company → Distributor → Account → Consumer. Shipments fill the distributor, depletion fills the account, sell-through is what people actually buy. Start at depletion, then step up the chain to see where the growth was invented.")),
+        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Company → Distributor → Account → Consumer. Shipments fill the distributor, depletion fills the account, sell-through is what people actually buy. Start at shipments, then follow the growth down the chain and see where it stops.")),
       h("div", { class: "card reveal" },
         h("div", { style: { marginBottom: "20px" } }, segmented(Object.entries(chainMeasures).map(([k, v]) => ({ value: k, label: v.label })), measure, v => { measure = v; renderChain(); renderChainViz(); })),
         h("div", { class: "grid grid-2", style: { alignItems: "start" } }, chainViz, h("div", { class: "stack" }, chainBars, chainSays)))),
