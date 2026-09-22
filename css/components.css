@@ -184,3 +184,15 @@ input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac
 /* Toast */
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:var(--r-pill);font-size:var(--fs-small);opacity:0;transition:opacity .3s,transform .4s var(--ease);z-index:90;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%)}
+
+/* Practice choices */
+.choices{display:grid;gap:10px}
+.option.choice{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:center;font-size:var(--fs-body);padding:18px 20px}
+.option.choice:disabled{cursor:default}
+.option.choice:disabled:not([aria-pressed="true"]):not(.preferred){opacity:.55}
+.option.choice[aria-pressed="true"]{padding-right:52px}
+.option.choice[aria-pressed="true"]::after{top:50%;transform:translateY(-50%)}
+.option.choice.preferred::before{top:-9px}
+.choice-letter{width:28px;height:28px;border-radius:50%;border:1px solid var(--line-strong);display:grid;place-items:center;font-family:var(--mono);font-size:var(--fs-micro);color:var(--muted)}
+.option.choice[aria-pressed="true"] .choice-letter{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media (max-width:600px){.card[style*="grid-template-columns: 1fr auto"]{grid-template-columns:1fr!important}}

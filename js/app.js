@@ -3,6 +3,9 @@ import { initPalette } from "./palette.js";
 
 const routes = [
   { path: /^\/$/, load: () => import("./pages/home.js") },
+  { path: /^\/practice\/?$/, load: () => import("./pages/practice.js") },
+  { path: /^\/practice\/summary$/, load: () => import("./pages/scenario.js").then(m => ({ default: m.Summary })) },
+  { path: /^\/practice\/([\w-]+)$/, load: () => import("./pages/scenario.js") },
   { path: /^\/decisions\/?$/, load: () => import("./pages/decisions.js") },
   { path: /^\/decisions\/([\w-]+)$/, load: () => import("./pages/decision.js") },
   { path: /^\/portfolio\/?$/, load: () => import("./pages/portfolio.js") },

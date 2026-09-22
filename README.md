@@ -6,6 +6,8 @@ A decision-making operating system for CPG sales. It doesn't show salespeople al
 
 ## What it is
 
+- **Practice.** Fifteen scenario-first CPG cases (Kroger down 8%, a Publix promo request, a distributor loading before quarter-end, a Safeway facings cut). Choose, get immediate feedback, then reveal progressively: evidence → reasoning → principle → next move. Progress by skill is remembered on the device. A 5-minute challenge strings five together.
+
 - **Decisions.** Four territory decisions (Protect, Shift, Investigate, Capture), each with the same structure: what the model sees, the trade-off, your options, and *why the model is showing this*, in plain language and in algorithm language.
 - **Algorithm underneath.** Every decision opens a 30-second interactive experiment: move a slider, watch the recommendation recalculate.
 - **Portfolio.** Fifteen brands as a system: attention allocation (multi-armed bandit), the commercial chain (company → distributor → account → consumer), and the economic fingerprint.

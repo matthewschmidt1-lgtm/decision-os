@@ -2,18 +2,37 @@ import { h, link, arrow, eyebrow } from "../ui.js";
 import { decisions, brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
 import { reviewed, getChoice } from "../store.js";
+import { scenarioById, challengeIds, skills } from "../scenarios.js";
+import { progress, nextUnplayed } from "./practice.js";
 
 const hour = new Date().getHours();
 const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
 export default function Home() {
   setMeta({ title: null });
+  const p = progress(); const next = p.done ? nextUnplayed() : scenarioById[challengeIds[0]];
+  const startHref = p.done ? `/practice/${next.id}` : `/practice/${challengeIds[0]}?set=challenge&i=0`;
   return h("div", {},
     h("section", { class: "reveal" },
-      h("p", { class: "eyebrow" }, `${greet}.`),
-      h("h1", { class: "hero", style: { marginTop: "16px" } }, "Your territory has ", h("span", { class: "num" }, decisions.length), " decisions worth looking at."),
+      h("p", { class: "eyebrow" }, `${greet}. You've got 5 minutes. Let's practice.`),
+      h("h1", { class: "hero", style: { marginTop: "16px" } }, "You're reviewing a customer. What should you do next?"),
+      h("p", { class: "hero-sub" }, "Practice the decisions you make in the field. Short CPG cases with imperfect numbers. Choose, then see the reasoning, the principle, and your next move."),
     ),
-    h("section", { class: "reveal", style: { marginTop: "48px" } },
+    h("section", { class: "reveal", style: { marginTop: "36px" } },
+      h("div", { class: "card", style: { display: "grid", gridTemplateColumns: "1fr auto", gap: "24px", alignItems: "center" } },
+        h("div", { class: "stack", style: { "--gap": "6px" } },
+          h("p", {}, h("span", { class: "tag" }, "Customer "), h("b", { style: { fontWeight: 500 } }, next.customer)),
+          h("p", {}, h("span", { class: "tag" }, "Situation "), `${next.situation.split(". ")[0]}.`),
+          h("p", {}, h("span", { class: "tag" }, "Skill "), skills[next.skill].name)),
+        link(startHref, h("span", { class: "btn btn-lg" }, p.done ? "Continue training " : "Start training ", arrow()))),
+      h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, p.done ? `${p.done} of ${p.total} scenarios completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : "15 scenarios · 4 skills · 5 levels, from recognizing a pattern to defending a recommendation."),
+    ),
+    h("section", { class: "section reveal" },
+      eyebrow("Your territory"),
+      h("h2", { style: { marginTop: "10px" } }, "Four live decisions worth looking at."),
+      h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "The same reasoning, applied to your real accounts and brands."),
+    ),
+    h("section", { class: "reveal", style: { marginTop: "24px" } },
       decisions.map(d => { const c = getChoice(d.id); return link(`/decisions/${d.id}`, h("span", { class: "decision-row" },
         h("span", { class: `verb verb-${d.verb.toLowerCase()}` }, d.verb),
         h("span", { class: "body" }, d.headline, c ? h("span", { class: "chip", style: { marginLeft: "10px", verticalAlign: "middle" } }, `You chose ${c.option}`) : null),
@@ -21,7 +40,7 @@ export default function Home() {
       reviewed().length ? h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, `You've reviewed ${reviewed().length} of ${decisions.length}. Your choices are remembered on this device.`) : null,
     ),
     h("section", { class: "reveal", style: { marginTop: "40px", display: "flex", gap: "20px 32px", alignItems: "center", flexWrap: "wrap" } },
-      link("/decisions", h("span", { class: "btn btn-lg" }, "Review decisions ", arrow())),
+      link("/decisions", h("span", { class: "btn btn-ghost" }, "Review decisions ", arrow())),
       h("div", { class: "facts" },
         h("span", {}, h("b", {}, brands.length), "Brands"),
         h("span", {}, h("b", {}, accounts.length), "Accounts"),

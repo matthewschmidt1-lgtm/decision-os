@@ -1,6 +1,7 @@
 import { h } from "./ui.js";
 import { brands, accounts, decisions } from "./data.js";
 import { rankByEV } from "./models.js";
+import { scenarios } from "./scenarios.js";
 const roi20 = rankByEV(accounts).filter(a => (a.ev / a.value) * 100 >= 20).length;
 import { navigate } from "./app.js";
 
@@ -9,6 +10,8 @@ const canned = [
   { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
   { t: "Where are we overspending?", s: "Brand B holds 31% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
   { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
+  { t: "Practice a customer meeting", s: "A buyer pushes back. What do you say?", k: "practice", href: "/practice/facings-cut?set=meeting&i=0" },
+  { t: "Try a 5-minute challenge", s: "Five cases, immediate feedback.", k: "practice", href: "/practice/kroger-decline?set=challenge&i=0" },
   { t: "Where should I spend my next 10 hours?", s: "Attention allocation across 15 brands.", k: "portfolio", href: "/portfolio#attention" },
   { t: "What should I learn before I decide?", s: "Value of information.", k: "learn", href: "/learn/value-of-information" },
 ];
@@ -23,6 +26,7 @@ export function initPalette() {
   const index = () => [
     ...canned,
     ...decisions.map(d => ({ t: `${d.verb} — ${d.headline}`, s: d.question, k: "decision", href: `/decisions/${d.id}` })),
+    ...scenarios.map(s => ({ t: `${s.customer}: ${s.question}`, s: `${s.level} · ${s.category}`, k: "practice", href: `/practice/${s.id}` })),
     ...brands.map(b => ({ t: b.name, s: `${b.role} · ${b.growth > 0 ? "+" : ""}${b.growth}% growth`, k: "brand", href: `/portfolio?brand=${b.id}` })),
     ...accounts.map(a => ({ t: a.name, s: `${a.channel === "on" ? "On-premise" : "Off-premise"} · velocity ${a.velocity > 0 ? "+" : ""}${a.velocity}%`, k: "account", href: `/accounts/${a.id}` })),
     { t: "Algorithm library", s: "How machines make decisions under uncertainty.", k: "learn", href: "/learn" },

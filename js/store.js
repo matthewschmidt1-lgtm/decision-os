@@ -6,3 +6,8 @@ export function getChoice(decisionId) { return read().choices?.[decisionId] || n
 export function setChoice(decisionId, option) { const s = read(); s.choices = { ...(s.choices || {}), [decisionId]: { option, at: Date.now() } }; write(s); }
 export function reviewed() { return Object.keys(read().choices || {}); }
 export function clearAll() { write({}); }
+
+// Practice progress
+export function recordResult(scenarioId, { option, quality, skill }) { const s = read(); s.results = { ...(s.results || {}), [scenarioId]: { option, quality, skill, at: Date.now() } }; write(s); }
+export function getResult(scenarioId) { return read().results?.[scenarioId] || null; }
+export function allResults() { return read().results || {}; }
