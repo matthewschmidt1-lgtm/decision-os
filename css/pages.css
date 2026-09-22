@@ -1,0 +1,13 @@
+/* Page-specific refinements */
+.hero .num{font-variant-numeric:tabular-nums}
+.decision-row{transition:background var(--dur-fast)}
+.table tbody tr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+@media (max-width:600px){
+  .options .option[aria-pressed="true"]::after{top:12px;right:12px}
+  .metrics{grid-template-columns:1fr}
+  .tree .node{min-width:88px;padding:10px 12px}
+  .tree .node .v{font-size:1rem}
+  .step{grid-template-columns:1fr;gap:6px}
+  .decision-row .arrow{grid-column:2;grid-row:1}
+}
+@media print{.topbar,.footer,.palette-backdrop,.btn{display:none!important}.reveal{opacity:1;transform:none}}

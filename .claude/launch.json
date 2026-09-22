@@ -1,0 +1,1 @@
+{ "version": "0.0.1", "configurations": [ { "name": "decision-os", "runtimeExecutable": "python3", "runtimeArgs": ["/Users/matthewschmidt/Desktop/Projects/decision-os/scripts/dev.py", "4173"], "port": 4173 } ] }

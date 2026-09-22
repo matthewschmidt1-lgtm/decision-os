@@ -1,0 +1,207 @@
+// Interactive "algorithm underneath" experiments. Each returns a DOM node. Shared by decisions and lessons.
+import { h, slider, segmented, says, bar, tween, metric } from "../ui.js";
+import { lineChart, beforeAfter } from "../charts.js";
+import * as M from "../models.js";
+import { brands } from "../data.js";
+
+/* Marginal analysis: slide promo change, watch volume/contribution, see curve */
+export function marginalWidget({ compact = false } = {}) {
+  const base = { spend: 40, vmax: 1200, k: 60, unitMargin: 0.11 };
+  const pts = []; for (let sp = 0; sp <= 160; sp += 4) pts.push([sp, M.contributionAt(sp, base)]);
+  const mpts = []; for (let sp = 0; sp <= 160; sp += 4) mpts.push([sp, M.marginalContribution(sp, base) * 40]);
+  const sc0 = M.promoScenario(0, base);
+  const chart = lineChart({ series: [{ pts, cls: "" }], marker: [base.spend, sc0.contribution, "now"], xLabel: "Trade spend ($K)", yLabel: "Incremental contribution ($K)", zeroLine: true, annotate: { aria: "Contribution rises with trade spend, peaks, then falls: diminishing returns." } });
+  const ba = beforeAfter([
+    { label: "Volume", before: sc0.volume, after: sc0.volume, max: 1200, format: v => `${Math.round(v)} cases` },
+    { label: "Contribution", before: sc0.contribution, after: sc0.contribution, max: 90, format: v => `$${v.toFixed(1)}K` },
+  ]);
+  const line = says("Move the slider. Watch what each extra dollar buys.");
+  const opt = M.optimalSpend(base);
+  const sl = slider({ label: "Change in promotion spend", min: -40, max: 80, step: 5, value: 0, format: v => `${v > 0 ? "+" : ""}${v}%`, onInput: (v) => {
+    const sc = M.promoScenario(v, base);
+    chart.setMarker(sc.spend, sc.contribution, `$${sc.spend.toFixed(0)}K`);
+    ba.update([sc.volume, sc.contribution]);
+    const extra = sc.spend - base.spend;
+    if (v === 0) line.set("This is where you are now. Each additional dollar still returns slightly more than it costs.");
+    else if (sc.spend > opt + 2) line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume, but reduces expected contribution by ${M.pct(Math.abs(sc.contributionPct))}. You are past the point of diminishing return.`, "warn");
+    else if (v < 0) line.set(`Cutting $${Math.abs(extra).toFixed(0)}K loses ${M.pct(sc.volumePct)} volume and ${sc.contributionPct < 0 ? "reduces" : "improves"} contribution by ${M.pct(Math.abs(sc.contributionPct))}.`, sc.contributionPct < 0 ? "warn" : "good");
+    else line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume and ${M.pct(sc.contributionPct)} contribution. Still worth it, barely.`, "good");
+  } });
+  return h("div", { class: "stack", style: { "--gap": "22px" } }, compact ? null : chart, sl, ba, line, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `The model's optimum is about $${opt.toFixed(0)}K, where the marginal contribution of the next dollar reaches zero.`));
+}
+
+/* Utility: adjust objective weights, watch the ranking change */
+export function utilityWidget(options, { initial = { volume: 30, revenue: 30, margin: 40 } } = {}) {
+  const w = { ...initial };
+  const list = h("div", { class: "bars" });
+  const line = says("");
+  const render = () => {
+    const ranked = M.utilityRank(options, w);
+    list.replaceChildren(...ranked.map((o, i) => bar(o.name, o.utility, 100, { tone: i === 0 ? "accent" : "muted", format: v => v.toFixed(0) })));
+    const top = ranked[0];
+    const dominant = Object.entries(w).sort((a, b) => b[1] - a[1])[0][0];
+    line.set(`With ${dominant} weighted highest, ${top.name} scores best. The recommendation depends on the objective, not just the data.`);
+  };
+  const sliders = ["volume", "revenue", "margin"].map(k => slider({ label: k[0].toUpperCase() + k.slice(1), min: 0, max: 100, step: 5, value: w[k], format: v => `${v}%`, onInput: v => { w[k] = v; render(); } }));
+  render();
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Ranking"), list, line));
+}
+
+/* Bandit: allocate 10 hours across brands; exploration slider */
+export function banditWidget({ hours = 10 } = {}) {
+  const arms = brands.map(b => ({ id: b.id, name: b.name, mean: b.mean, n: b.n, sd: b.sd }));
+  let c = 0.5;
+  const list = h("div", { class: "bars" });
+  const line = says("");
+  const render = () => {
+    const alloc = M.allocateHours(arms, hours, c);
+    const top = alloc.slice(0, 6); const rest = alloc.slice(6).reduce((a, x) => a + x.hours, 0);
+    list.replaceChildren(...top.map((a, i) => bar(a.name, a.hours, 4, { tone: i === 0 ? "accent" : "", format: M.hours })), bar("Others", rest, 4, { tone: "muted", format: M.hours }));
+    const explore = alloc.filter(a => a.n < 20).reduce((a, x) => a + x.hours, 0);
+    const lead = alloc[0];
+    line.set(c < 0.25 ? `Pure exploitation. ${lead.name} gets the most time because its proven return is highest. Brands with little data get almost nothing, so you never learn whether they'd work.` : c > 1 ? `Heavy exploration. ${explore.toFixed(1)} hours go to brands with little evidence. You'll learn a lot, at the cost of known return.` : `Balanced. ${lead.name} leads on proven return, while ${explore.toFixed(1)} hours are spent learning whether Brand M and Brand O are real opportunities.`);
+  };
+  const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: 0.5, format: v => v === 0 ? "exploit only" : v >= 1.2 ? "explore heavily" : v.toFixed(1), onInput: v => { c = v; render(); } });
+  render();
+  return h("div", { class: "stack", style: { "--gap": "22px" } }, h("p", { class: "eyebrow" }, `Your next ${hours} hours`), list, sl, line);
+}
+
+/* Bayesian updating: toggle evidence and watch the belief move */
+export function bayesWidget() {
+  const prior = 0.35;
+  const evidence = [
+    { name: "New distribution data: two nearby accounts added the brand", lr: 1.9, on: true },
+    { name: "Velocity up 14% in comparable on-premise accounts", lr: 1.6, on: true },
+    { name: "Buyer says they're happy with the current brand", lr: 0.55, on: true },
+    { name: "Distributor says the account isn't interested", lr: 0.7, on: false },
+  ];
+  const big = h("span", { class: "num", style: { fontSize: "clamp(2.5rem,6vw,4rem)", fontWeight: 500, letterSpacing: "-0.03em" } }, `${Math.round(prior * 100)}%`);
+  const trail = h("div", { class: "bars" });
+  const line = says("");
+  let last = prior;
+  const render = () => {
+    const steps = M.bayesUpdate(prior, evidence);
+    const p = steps.at(-1).p;
+    tween(big, last * 100, p * 100, v => `${Math.round(v)}%`); last = p;
+    trail.replaceChildren(...steps.map((st, i) => bar(i === 0 ? "Prior" : `After evidence ${i}`, st.p * 100, 100, { tone: i === steps.length - 1 ? "accent" : "muted", format: v => `${v.toFixed(0)}%` })));
+    const on = evidence.filter(e => e.on).length;
+    line.set(on === 0 ? "No evidence yet. Your belief is just the base rate for accounts like this one." : `${on} pieces of evidence moved the estimate from ${Math.round(prior * 100)}% to ${Math.round(p * 100)}%. Negative buyer feedback matters, but it is weaker evidence than it feels: buyers often say this and switch anyway.`);
+  };
+  const toggles = evidence.map(e => h("button", { type: "button", class: "pill", "aria-pressed": String(e.on), onClick: (ev) => { e.on = !e.on; ev.currentTarget.setAttribute("aria-pressed", String(e.on)); render(); } }, `${e.name} · ×${e.lr}`));
+  render();
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } },
+    h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Probability the account accepts"), big, h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, "Toggle evidence. Each item multiplies the odds by its likelihood ratio."), h("div", { class: "pill-list" }, ...toggles)),
+    h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Prior → evidence → updated belief"), trail, line));
+}
+
+/* Expected value: probability × value − cost */
+export function evWidget({ p = 0.84, value = 21000, cost = 1500 } = {}) {
+  const st = { p, value, cost };
+  const big = h("span", { class: "num", style: { fontSize: "clamp(2.5rem,6vw,4rem)", fontWeight: 500, letterSpacing: "-0.03em" } });
+  const formula = h("p", { class: "mono muted", style: { fontSize: "var(--fs-small)" } });
+  const line = says("");
+  const compare = { name: "Large, unlikely account", p: 0.18, value: 95000, cost: 6000 };
+  let last = 0;
+  const render = () => {
+    const ev = M.expectedValue(st); tween(big, last, ev, v => M.money(v)); last = ev;
+    formula.textContent = `${Math.round(st.p * 100)}% × ${M.money(st.value)} − ${M.money(st.cost)} = ${M.money(ev)}`;
+    const evB = M.expectedValue(compare);
+    line.set(ev > evB ? `This small, likely opportunity (${M.money(ev)}) is worth more than the ${M.money(compare.value)} account at ${Math.round(compare.p * 100)}% odds (${M.money(evB)}). Size is not value.` : `Now the big account wins (${M.money(evB)} vs ${M.money(ev)}). Notice how far the odds had to fall.`, ev > evB ? "good" : "warn");
+  };
+  const sliders = [
+    slider({ label: "Probability of success", min: 5, max: 95, step: 1, value: st.p * 100, format: v => `${v}%`, onInput: v => { st.p = v / 100; render(); } }),
+    slider({ label: "Economic value if won", min: 5000, max: 100000, step: 1000, value: st.value, format: M.money, onInput: v => { st.value = v; render(); } }),
+    slider({ label: "Cost of pursuing", min: 0, max: 15000, step: 500, value: st.cost, format: M.money, onInput: v => { st.cost = v; render(); } }),
+  ];
+  render();
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Expected value"), big, formula, line));
+}
+
+/* Decision tree: change probabilities and payoffs, watch the rolled-back value */
+export function treeWidget() {
+  const st = { pHigh: 0.55, pDistHigh: 0.6, pDistLow: 0.4 };
+  const payoffs = { Expand: 40, List: 18, Diagnose: 8, Exit: -4 };
+  const tree = () => ({ label: "Account opportunity", branches: [
+    { label: "High velocity", p: st.pHigh, node: { label: "Distribution?", branches: [{ label: "Yes", p: st.pDistHigh, node: { label: "Expand", action: "Expand" } }, { label: "No", p: 1 - st.pDistHigh, node: { label: "List", action: "List" } }] } },
+    { label: "Low velocity", p: 1 - st.pHigh, node: { label: "Distribution?", branches: [{ label: "Yes", p: st.pDistLow, node: { label: "Diagnose", action: "Diagnose" } }, { label: "No", p: 1 - st.pDistLow, node: { label: "Exit", action: "Exit" } }] } },
+  ] });
+  const view = h("div", {});
+  const line = says("");
+  const node = (n, dim = false) => h("div", { class: `node ${dim ? "dim" : ""}` }, h("span", { class: "n" }, n.label), h("span", { class: "v" }, `$${n.value.toFixed(0)}K`));
+  const render = () => {
+    const t = M.evaluateTree(tree(), payoffs);
+    const best = t.branches[0].node.value > t.branches[1].node.value ? 0 : 1;
+    view.replaceChildren(h("div", { class: "tree" }, node(t), h("div", { class: "edge" }),
+      h("div", { class: "branch" }, ...t.branches.map((b, i) => h("div", {}, h("div", { class: "edge" }), h("span", { class: "tag" }, `${b.label} · ${Math.round(b.p * 100)}%`), h("div", { style: { height: "6px" } }), node(b.node, i !== best), h("div", { class: "edge" }),
+        h("div", { class: "branch" }, ...b.node.branches.map(l => h("div", {}, h("div", { class: "edge" }), h("span", { class: "tag" }, `${l.label} · ${Math.round(l.p * 100)}%`), h("div", { style: { height: "6px" } }), node(l.node, i !== best)))))))));
+    line.set(`Rolling back from the leaves, the opportunity is worth about $${t.value.toFixed(0)}K today. The ${t.branches[best].label.toLowerCase()} path carries most of that value, so learning velocity first is worth more than learning distribution first.`);
+  };
+  const sliders = [
+    slider({ label: "P(high velocity)", min: 5, max: 95, step: 5, value: 55, format: v => `${v}%`, onInput: v => { st.pHigh = v / 100; render(); } }),
+    slider({ label: "P(distribution | high velocity)", min: 5, max: 95, step: 5, value: 60, format: v => `${v}%`, onInput: v => { st.pDistHigh = v / 100; render(); } }),
+    slider({ label: "Payoff of Expand", min: 0, max: 80, step: 5, value: 40, format: v => `$${v}K`, onInput: v => { payoffs.Expand = v; render(); } }),
+  ];
+  render();
+  return h("div", { class: "stack", style: { "--gap": "24px" } }, h("div", { style: { overflowX: "auto" } }, view), h("div", { class: "grid grid-3" }, ...sliders), line);
+}
+
+/* Value of information: which diagnostic most reduces uncertainty? */
+export function voiWidget() {
+  const causes = [
+    { id: "pricing", name: "Pricing", p: 0.15 }, { id: "distribution", name: "Distribution", p: 0.15 }, { id: "demand", name: "Consumer demand", p: 0.10 },
+    { id: "execution", name: "Execution", p: 0.20 }, { id: "promotion", name: "Promotion", p: 0.10 }, { id: "inventory", name: "Distributor inventory", p: 0.30 },
+  ];
+  const actions = {
+    "Keep shipping": { pricing: 2, distribution: 3, demand: 1, execution: 2, promotion: 3, inventory: -12 },
+    "Pause and verify": { pricing: 0, distribution: 0, demand: 0, execution: 0, promotion: 0, inventory: 6 },
+    "Fix execution": { pricing: -2, distribution: 1, demand: -3, execution: 9, promotion: 0, inventory: -6 },
+    "Reprice": { pricing: 8, distribution: -1, demand: -2, execution: -2, promotion: 1, inventory: -8 },
+  };
+  const diagnostics = [
+    { name: "Pull account-level depletion report", resolves: ["inventory"], cost: 0.5 },
+    { name: "Store visit: shelf and price check", resolves: ["pricing", "execution"], cost: 1.5 },
+    { name: "Distributor call on order pattern", resolves: ["inventory", "distribution"], cost: 0.3 },
+    { name: "Consumer panel pull", resolves: ["demand"], cost: 3 },
+    { name: "Promo post-mortem", resolves: ["promotion"], cost: 1 },
+  ];
+  const list = h("div", { class: "bars" });
+  const line = says("");
+  const beliefs = h("div", { class: "bars" });
+  const render = () => {
+    const r = M.valueOfInformation(causes, actions, diagnostics);
+    const max = Math.max(1, ...r.diagnostics.map(d => d.value));
+    list.replaceChildren(...r.diagnostics.map((d, i) => bar(d.name, d.value, max, { tone: i === 0 ? "accent" : "muted", format: v => `$${v.toFixed(1)}K` })));
+    beliefs.replaceChildren(...causes.map(c => bar(c.name, c.p * 100, 50, { tone: "muted", format: v => `${v.toFixed(0)}%` })));
+    const top = r.diagnostics[0];
+    line.set(`Acting now, the best move is "${r.now.id}" worth about $${r.now.ev.toFixed(1)}K. Knowing everything would add $${r.evpi}K. The single most valuable thing to learn is "${top.name}" (worth $${top.value}K for a cost of $${top.cost}K).`);
+  };
+  const sl = slider({ label: "How likely is distributor inventory the cause?", min: 5, max: 70, step: 5, value: 30, format: v => `${v}%`, onInput: v => {
+    const inv = causes.find(c => c.id === "inventory"); const others = causes.filter(c => c !== inv); const rest = others.reduce((a, c) => a + c.p, 0);
+    inv.p = v / 100; others.forEach(c => c.p = (c.p / rest) * (1 - inv.p)); render();
+  } });
+  render();
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What the model thinks is causing it"), beliefs, sl), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What should you learn before you decide?"), list, line));
+}
+
+/* Economic fingerprint: sales decomposed */
+export function fingerprintWidget({ volume = 5, price = 3, tradeSpend = 14 } = {}) {
+  const st = { volume, price, tradeSpend };
+  const view = h("div", {});
+  const line = says("");
+  const node = (n, v, tone) => h("div", { class: "node" }, h("span", { class: "n" }, n), h("span", { class: `v ${tone}` }, `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)}%`));
+  const render = () => {
+    const f = M.fingerprint(st);
+    view.replaceChildren(h("div", { class: "tree" }, node("Sales", f.sales, f.sales >= 0 ? "good" : "bad"), h("div", { class: "edge" }),
+      h("div", { class: "branch" }, h("div", {}, h("div", { class: "edge" }), node("Volume", f.volume, f.volume >= 0 ? "good" : "bad"), h("div", { class: "edge" }), node("Margin", f.margin, f.margin >= 0 ? "good" : "bad"), h("div", { class: "edge" }), node("Trade spend", f.tradeSpend, f.tradeSpend > 8 ? "bad" : "")), h("div", {}, h("div", { class: "edge" }), node("Price", f.price, f.price >= 0 ? "good" : "bad")))));
+    line.set(f.margin < 0 && f.sales > 0 ? `Sales are up ${f.sales}% but margin is down ${Math.abs(f.margin)}%. The growth was bought with trade spend, not earned with demand.` : f.margin >= 0 && f.sales > 0 ? `Sales up ${f.sales}% and margin up ${f.margin}%. This is the kind of growth that compounds.` : `Sales are flat or down. Look at whether price or volume is doing the damage.`, f.margin < 0 ? "warn" : "good");
+  };
+  const sliders = [
+    slider({ label: "Volume", min: -10, max: 15, step: 1, value: st.volume, format: v => `${v > 0 ? "+" : ""}${v}%`, onInput: v => { st.volume = v; render(); } }),
+    slider({ label: "Price", min: -5, max: 8, step: 1, value: st.price, format: v => `${v > 0 ? "+" : ""}${v}%`, onInput: v => { st.price = v; render(); } }),
+    slider({ label: "Trade spend", min: -10, max: 30, step: 1, value: st.tradeSpend, format: v => `${v > 0 ? "+" : ""}${v}%`, onInput: v => { st.tradeSpend = v; render(); } }),
+  ];
+  render();
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders), h("div", { class: "stack" }, view, line));
+}
+
+export const widgetFor = { marginal: marginalWidget, utility: (d) => utilityWidget(d.options), voi: voiWidget, ev: evWidget, bandit: banditWidget, bayes: bayesWidget, tree: treeWidget, fingerprint: fingerprintWidget };

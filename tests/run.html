@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><title>Model tests</title>
+<script type="importmap">{"imports":{"node:test":"./shim-test.js","node:assert/strict":"./shim-assert.js"}}</script>
+<style>body{font:14px ui-monospace,monospace;padding:24px;background:#F5F5F0;color:#171717}li.ok::before{content:"✓ ";color:#1E7F4F}li.fail::before{content:"✗ ";color:#B3261E}</style>
+<h1>Model tests</h1><ul id="out"></ul>
+<script type="module">
+  import "./models.test.mjs";
+  const out = document.getElementById("out");
+  document.addEventListener("test", () => { out.replaceChildren(...window.__results.map(r => Object.assign(document.createElement("li"), { className: r.ok ? "ok" : "fail", textContent: r.name + (r.err ? " — " + r.err : "") }))); });
+  document.dispatchEvent(new CustomEvent("test"));
+</script>

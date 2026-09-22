@@ -1,0 +1,60 @@
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:var(--fs-body);line-height:1.55;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01","tnum" 0;min-height:100dvh;display:flex;flex-direction:column}
+h1,h2,h3,h4{margin:0;font-weight:500;letter-spacing:-0.02em;line-height:1.1;text-wrap:balance}
+h1{font-size:var(--fs-h1)}
+h2{font-size:var(--fs-h2)}
+h3{font-size:var(--fs-h3);letter-spacing:-0.01em;line-height:1.3}
+p{margin:0;text-wrap:pretty}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,select{font:inherit;color:inherit}
+kbd{font-family:var(--mono);font-size:.75rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:var(--bg-elev)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+::selection{background:var(--accent-soft)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:absolute;left:var(--gutter);top:-100px;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:var(--r-sm);z-index:100}
+.skip-link:focus{top:12px}
+
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:24px;padding:14px var(--gutter);background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.2) blur(14px);-webkit-backdrop-filter:saturate(1.2) blur(14px);border-bottom:1px solid transparent;transition:border-color var(--dur-fast)}
+.topbar.scrolled{border-bottom-color:var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-0.01em}
+.brand-mark{width:14px;height:14px;border-radius:50%;background:var(--ink);position:relative}
+.brand-mark::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--bg)}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav a{padding:8px 12px;border-radius:var(--r-pill);color:var(--muted);font-size:var(--fs-small);transition:color var(--dur-fast),background var(--dur-fast)}
+.nav a:hover{color:var(--ink)}
+.nav a[aria-current="page"]{color:var(--ink);background:var(--bg-sunk)}
+.search-trigger{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--bg-elev);color:var(--muted);font-size:var(--fs-small);transition:border-color var(--dur-fast),color var(--dur-fast)}
+.search-trigger:hover{border-color:var(--line-strong);color:var(--ink)}
+@media (max-width:720px){
+  .topbar{gap:12px;flex-wrap:wrap}
+  .nav{order:3;width:100%;margin:0;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .nav::-webkit-scrollbar{display:none}
+  .search-trigger-label{display:none}
+  .search-trigger{margin-left:auto;padding:8px 10px}
+}
+
+.page{flex:1;width:100%;max-width:var(--max);margin:0 auto;padding:clamp(32px,6vw,80px) var(--gutter) clamp(64px,10vw,120px)}
+.page:focus{outline:none}
+.footer{border-top:1px solid var(--line);padding:32px var(--gutter);color:var(--muted);font-size:var(--fs-small)}
+.footer-inner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.footer nav{display:flex;gap:20px}
+.footer a:hover{color:var(--ink)}
+
+/* Reveal on scroll */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+
+/* Route transitions */
+.page.enter{animation:pageIn .5s var(--ease) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
