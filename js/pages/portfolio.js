@@ -37,7 +37,7 @@ export default function Portfolio({ params }) {
 
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Portfolio"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Fifteen brands. One system."),
-      h("p", { class: "hero-sub" }, "Not fifteen dashboards. The portfolio as a set of claims on your time, your trade budget, and your distributors' attention.")),
+      h("p", { class: "hero-sub" }, "Not fifteen dashboards. The portfolio as a set of claims on your time, your trade budget, and your distributors' attention."), h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Illustrative portfolio. Brand figures and return-per-hour estimates are generated for practice.")),
 
     h("section", { class: "section reveal" },
       h("div", { class: "tree" },
@@ -65,8 +65,8 @@ export default function Portfolio({ params }) {
 
     h("section", { class: "section", id: "fingerprint" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Economic fingerprint"), h("h2", { style: { marginTop: "10px" } }, "What actually drove the result?")),
-        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Sales splits into volume and price. Margin and trade spend tell you whether the growth was earned or bought.")),
-      h("div", { class: "card reveal" }, fingerprintWidget({ volume: 5, price: 3, tradeSpend: 14 }))),
+        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Northwest Market's last quarter: sales splits into volume and price. Margin and trade spend tell you whether the growth was earned or bought.")),
+      h("div", { class: "card reveal" }, fingerprintWidget({ volume: 3, price: 8, tradeSpend: 21 }))),
 
     h("section", { class: "section" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("All brands"), h("h2", { style: { marginTop: "10px" } }, "Growth, margin, trade, and return on your time."))),

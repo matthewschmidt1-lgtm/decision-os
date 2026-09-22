@@ -132,8 +132,9 @@ export function valueOfInformation(causes, actions, diagnostics) {
 // Decompose a sales change into volume and price, then show margin and trade spend.
 export function fingerprint({ volume, price, tradeSpend, marginRate = 0.32 }) {
   const sales = (1 + volume / 100) * (1 + price / 100) - 1;
-  // simplified margin effect: price flows through, trade spend erodes, volume neutral at constant rate
-  const margin = price * (1 / marginRate) * 0.6 - tradeSpend * 0.28 + volume * 0.15;
+  // Illustrative margin bridge (percentage points): net price flows into margin, trade spend erodes it,
+  // volume adds a little operating leverage. Coefficients are teaching constants, not fitted.
+  const margin = price * 0.6 - tradeSpend * 0.4 + volume * 0.1;
   return { sales: round(sales * 100, 1), volume, price, margin: round(margin, 1), tradeSpend };
 }
 

@@ -38,10 +38,14 @@ const onNames = ["Tavern", "Bistro", "Kitchen", "Public House", "Lounge", "Grill
 const offNames = ["Market", "Grocery", "Liquor", "Foods", "Mart", "Wine & Spirits", "Provisions", "Superstore", "Bottle Shop", "Pantry", "Co-op", "Corner Store"];
 const prefixes = ["Northwest", "Riverside", "Harbor", "Cedar", "Pioneer", "Summit", "Maple", "Union", "Elm Street", "Lakeside", "Broadway", "Alder", "Cascade", "Meridian", "Fremont", "Ballard", "Capitol", "Madison", "Queen Anne", "Westlake", "Rainier", "Pike", "Belltown", "Magnolia", "Greenwood", "Columbia", "Beacon", "Delridge"];
 
+const usedNames = new Set();
 function makeAccount(i) {
   const channel = i % 5 < 2 ? "on" : "off";
   const distributor = distributors[i % 3];
-  const name = `${prefixes[i % prefixes.length]} ${channel === "on" ? pick(onNames) : pick(offNames)}`;
+  let name; let guard = 0;
+  do { name = `${prefixes[(i + guard) % prefixes.length]} ${channel === "on" ? pick(onNames) : pick(offNames)}`; guard++; } while (usedNames.has(name) && guard < 50);
+  usedNames.add(name);
+  const store = `#${String(1000 + ((i * 37) % 900)).padStart(4, "0")}`;
   const velocity = between(-14, 22);
   const margin = between(-5, 4, 1);
   const volume = between(-10, 18);
@@ -50,7 +54,7 @@ function makeAccount(i) {
   const probability = between(0.12, 0.86, 2);
   const value = between(6, 48) * 1000;
   const cost = between(1, 9) * 1000;
-  return { id: `acct-${i + 1}`, name, channel, distributor: distributor.id, velocity, margin, volume, trade, distribution, probability, value, cost, brands: [pick(brands).id, pick(brands).id, pick(brands).id].filter((v, j, a) => a.indexOf(v) === j) };
+  return { id: `acct-${i + 1}`, name, store, channel, distributor: distributor.id, velocity, margin, volume, trade, distribution, probability, value, cost, brands: [pick(brands).id, pick(brands).id, pick(brands).id].filter((v, j, a) => a.indexOf(v) === j) };
 }
 export const accounts = Array.from({ length: 84 }, (_, i) => makeAccount(i));
 
@@ -179,5 +183,5 @@ export const situation = {
 
 export const channels = {
   on: { name: "On-premise", vocabulary: ["Placements", "Menu presence", "Rate of sale", "Account influence", "Occasion", "Execution", "Distributor relationship"], question: "Where will a placement change what people order?" },
-  off: { name: "Off-premise", vocabulary: ["Distribution", "Shelf position", "Price", "Promotion", "Display", "Velocity", "Assortment", "Retailer segmentation", "Inventory"], question: "Where is the shelf working harder than the promotion?" },
+  off: { name: "Off-premise", vocabulary: ["Distribution (ACV)", "Shelf position", "Facings", "On-shelf availability (OSA)", "Price", "Promotion", "Display", "Velocity", "Assortment", "Retailer segmentation", "Inventory"], question: "Where is the shelf working harder than the promotion?" },
 };

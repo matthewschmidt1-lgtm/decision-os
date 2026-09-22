@@ -41,7 +41,7 @@ export default async function Scenario({ id, params }) {
   };
   whyBtn.addEventListener("click", () => {
     why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { class: "metrics", style: { marginTop: "8px" } }, s.evidence.map(e => metric(e[0], e[1], e[2])))),
-      h("div", { class: "layer layer-2" }, eyebrow(`Reasoning · ${lesson.title}`), h("p", {}, s.reasoning)));
+      h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`)));
     whyBtn.hidden = true; show(why); principleBtn.hidden = false;
   });
   principleBtn.addEventListener("click", () => {

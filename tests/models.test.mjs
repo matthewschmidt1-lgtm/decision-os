@@ -51,7 +51,13 @@ test("valueOfInformation: EVPI is non-negative and diagnostics never exceed it",
   assert.ok(r.diagnostics[0].value <= r.evpi + 1e-9);
   assert.equal(r.diagnostics[0].value, 7.5);
 });
-test("fingerprint: sales compounds volume and price", () => {
+test("fingerprint: sales compounds volume and price, and bought growth shows negative margin", () => {
   const f = M.fingerprint({ volume: 5, price: 3, tradeSpend: 14 });
   assert.equal(f.sales, 8.2);
+  const nw = M.fingerprint({ volume: 3, price: 8, tradeSpend: 21 });
+  assert.ok(nw.sales > 10 && nw.margin < 0, `Northwest Market should show sales up, margin down: ${JSON.stringify(nw)}`);
+});
+test("bayes widget evidence lands above 50% for the Fresh Thyme case", () => {
+  const steps = M.bayesUpdate(0.35, [{ name: "a", lr: 2.0 }, { name: "b", lr: 1.8 }, { name: "c", lr: 1.5 }, { name: "d", lr: 0.7 }]);
+  assert.ok(steps.at(-1).p > 0.5);
 });

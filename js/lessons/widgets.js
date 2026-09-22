@@ -46,9 +46,16 @@ export function utilityWidget(options, { initial = { volume: 30, revenue: 30, ma
     else if (sorted[0][1] === sorted[1][1]) line.set(`${sorted[0][0]} and ${sorted[1][0]} are weighted equally. ${top.name} scores best on that blend. Tip the balance and watch the ranking move.`);
     else line.set(`With ${sorted[0][0]} weighted highest, ${top.name} scores best. The recommendation depends on the objective, not just the data.`);
   };
-  const sliders = ["volume", "revenue", "margin"].map(k => slider({ label: k[0].toUpperCase() + k.slice(1), min: 0, max: 100, step: 5, value: w[k], format: v => `${v}%`, onInput: v => { w[k] = v; render(); } }));
+  const keys = ["volume", "revenue", "margin"];
+  const sliders = {};
+  const rebalance = (k, v) => {
+    const others = keys.filter(x => x !== k); const rest = others.reduce((a, x) => a + w[x], 0); const target = 100 - v;
+    others.forEach(x => { w[x] = rest > 0 ? Math.round((w[x] / rest) * target / 5) * 5 : Math.round(target / 2 / 5) * 5; sliders[x].set(w[x]); });
+    w[k] = v; render();
+  };
+  keys.forEach(k => { sliders[k] = slider({ label: k[0].toUpperCase() + k.slice(1), min: 0, max: 100, step: 5, value: w[k], format: v => `${v}%`, onInput: v => rebalance(k, v) }); });
   render();
-  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Ranking"), list, line));
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...keys.map(k => sliders[k]), h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Weights always total 100%. Move one and the others rebalance.")), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Ranking"), list, line));
 }
 
 /* Bandit: allocate 10 hours across brands; exploration slider */
@@ -77,17 +84,17 @@ export function banditWidget({ hours = 10 } = {}) {
   const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: 0.5, format: v => v < 0.25 ? "exploit only" : v < 0.75 ? "balanced" : v < 1.2 ? "curious" : "explore heavily", onInput: v => { c = v; render(); } });
   render();
   const toggle = segmented([{ value: "model", label: "Model's allocation" }, { value: "revenue", label: "If time followed revenue" }], "model", v => { mode = v; render(); });
-  return h("div", { class: "stack", style: { "--gap": "22px" } }, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "eyebrow" }, `Your next ${hours} hours`), toggle), list, sl, line);
+  return h("div", { class: "stack", style: { "--gap": "22px" } }, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "eyebrow" }, `Your next ${hours} hours`), toggle), list, sl, line, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "A real bandit picks one arm at a time and learns. This is the same idea turned into a time split: each brand's score is proven return plus an uncertainty bonus, and hours follow the scores. Return-per-hour figures are illustrative."));
 }
 
 /* Bayesian updating: toggle evidence and watch the belief move */
 export function bayesWidget() {
   const prior = 0.35;
   const evidence = [
-    { name: "New distribution data: two nearby accounts added the brand", lr: 1.9, on: true },
-    { name: "Velocity up 14% in comparable on-premise accounts", lr: 1.6, on: true },
-    { name: "Buyer says they're happy with the current brand", lr: 0.55, on: true },
-    { name: "Distributor says the account isn't interested", lr: 0.7, on: false },
+    { name: "Your first SKU is top third on velocity in her stores", lr: 2.0, on: true },
+    { name: "Two nearby competitors added the second SKU last quarter", lr: 1.8, on: true },
+    { name: "Buyer emailed: 'send me the data'", lr: 1.5, on: true },
+    { name: "Distributor rep (60 brands) says 'don't bother'", lr: 0.7, on: true },
   ];
   const big = h("span", { class: "num", style: { fontSize: "clamp(2.5rem,6vw,4rem)", fontWeight: 500, letterSpacing: "-0.03em" } }, `${Math.round(prior * 100)}%`);
   const trail = h("div", { class: "bars" });
@@ -99,12 +106,12 @@ export function bayesWidget() {
     tween(big, last * 100, p * 100, v => `${Math.round(v)}%`); last = p;
     trail.replaceChildren(...steps.map((st, i) => bar(i === 0 ? "Prior" : `After evidence ${i}`, st.p * 100, 100, { tone: i === steps.length - 1 ? "accent" : "muted", format: v => `${v.toFixed(0)}%` })));
     const on = evidence.filter(e => e.on).length;
-    line.set(on === 0 ? "No evidence yet. Your belief is just the base rate for accounts like this one." : `${on} pieces of evidence moved the estimate from ${Math.round(prior * 100)}% to ${Math.round(p * 100)}%. Negative buyer feedback matters, but it is weaker evidence than it feels: buyers often say this and switch anyway.`);
+    line.set(on === 0 ? "No evidence yet. Your belief is just the base rate: about a third of second-SKU asks get a yes." : `${on} pieces of evidence moved the estimate from ${Math.round(prior * 100)}% to ${Math.round(p * 100)}%. The rep's comment counts, but a rep carrying 60 brands saying 'don't bother' is weak evidence. Likelihood ratios here are judgment calls; the habit is weighing each signal by how surprising it would be if you were wrong.`);
   };
   const toggles = evidence.map(e => h("button", { type: "button", class: "pill", "aria-pressed": String(e.on), onClick: (ev) => { e.on = !e.on; ev.currentTarget.setAttribute("aria-pressed", String(e.on)); render(); } }, `${e.name} · ×${e.lr}`));
   render();
   return h("div", { class: "grid grid-2", style: { alignItems: "start" } },
-    h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Probability the account accepts"), big, h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, "Toggle evidence. Each item multiplies the odds by its likelihood ratio."), h("div", { class: "pill-list" }, ...toggles)),
+    h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Probability Fresh Thyme takes the second SKU"), big, h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, "Toggle evidence. Each item multiplies the odds by its likelihood ratio."), h("div", { class: "pill-list" }, ...toggles)),
     h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Prior → evidence → updated belief"), trail, line));
 }
 
@@ -216,7 +223,7 @@ export function fingerprintWidget({ volume = 5, price = 3, tradeSpend = 14 } = {
     slider({ label: "Trade spend", min: -10, max: 30, step: 1, value: st.tradeSpend, format: v => `${v > 0 ? "+" : ""}${v}%`, onInput: v => { st.tradeSpend = v; render(); } }),
   ];
   render();
-  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders), h("div", { class: "stack" }, view, line));
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Illustrative margin bridge: net price flows into margin, trade spend erodes it, volume adds a little leverage. Use it for direction, not for your P&L.")), h("div", { class: "stack" }, view, line));
 }
 
 export const widgetFor = { marginal: marginalWidget, utility: (d) => utilityWidget(d.options), voi: voiWidget, ev: evWidget, bandit: banditWidget, bayes: bayesWidget, tree: treeWidget, fingerprint: fingerprintWidget };

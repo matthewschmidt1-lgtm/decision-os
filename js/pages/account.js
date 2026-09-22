@@ -16,7 +16,7 @@ export default async function Account({ id }) {
     : [["Velocity", a.velocity], ["Volume", a.volume], ["Margin", a.margin], ["Trade spend", a.trade], ["Distribution (SKUs)", a.distribution, ""], ["Distributor inventory", a.distributorInventory ?? dist.inventory, dist.inventory > 10 ? "warn" : ""]];
 
   return h("article", {},
-    h("header", { class: "reveal" }, h("p", { class: "tag" }, `${channels[a.channel].name} · ${dist.name}`), h("h1", { class: "hero", style: { marginTop: "12px" } }, a.name),
+    h("header", { class: "reveal" }, h("p", { class: "tag" }, `${channels[a.channel].name} · ${dist.name} · ${a.store}`), h("h1", { class: "hero", style: { marginTop: "12px" } }, a.name),
       h("div", { class: "facts", style: { marginTop: "18px" } }, h("span", {}, "Brands", h("b", {}, a.brands.map(b => brandById[b].name).join(", "))), h("span", {}, "Expected value", h("b", {}, money(ev))), h("span", {}, "P(win)", h("b", {}, `${Math.round(a.probability * 100)}%`)))),
     h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)" } }, "What the model sees"), h("div", { style: { marginTop: "16px" } }, metrics(rows))),
     related.length ? h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)", marginBottom: "12px" } }, "Decisions involving this account"),

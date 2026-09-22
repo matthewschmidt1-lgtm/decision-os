@@ -30,7 +30,7 @@ export default function Home() {
     h("section", { class: "section reveal" },
       eyebrow("Your territory"),
       h("h2", { style: { marginTop: "10px" } }, "Four live decisions worth looking at."),
-      h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "The same reasoning, applied to your real accounts and brands."),
+      h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "The same reasoning, applied to a sample territory: 15 brands, 3 distributors, 84 accounts."),
     ),
     h("section", { class: "reveal", style: { marginTop: "24px" } },
       decisions.map(d => { const c = getChoice(d.id); return link(`/decisions/${d.id}`, h("span", { class: "decision-row" },

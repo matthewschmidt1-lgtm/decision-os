@@ -35,7 +35,7 @@ export default async function Decision({ id }) {
     h("div", { class: "disclose-body stack", style: { "--gap": "16px" } },
       h("div", { class: "layer layer-1" }, eyebrow("In plain language"), h("p", { style: { fontSize: "1.125rem" } }, d.plain)),
       h("div", { class: "layer layer-2" }, eyebrow(`Algorithm underneath · ${algoName[d.algorithm]}`), h("p", {}, d.technical)),
-      h("div", { class: "card", style: { marginTop: "8px" } }, eyebrow("Try it · 30-second experiment"), h("div", { style: { marginTop: "16px" } }, widgetFor[d.algorithm](d))),
+      h("div", { class: "card", style: { marginTop: "8px" } }, eyebrow("Try it · 30-second experiment"), h("div", { style: { marginTop: "16px" } }, widgetFor[d.algorithm](d)), h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-micro)" } }, "Illustrative model. The shape of the reasoning is real; the constants are teaching values, not fitted to this account.")),
       h("div", { class: "grid grid-2" },
         h("div", { class: "layer layer-2" }, eyebrow("What is uncertain"), h("p", { class: "muted" }, d.uncertain)),
         h("div", { class: "layer layer-2" }, eyebrow("What would change the recommendation"), h("p", { class: "muted" }, d.changes))),
