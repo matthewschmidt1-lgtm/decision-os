@@ -28,7 +28,7 @@ export default function Accounts({ params }) {
     else if (sort === "margin") rows.sort((a, b) => b.margin - a.margin);
     else if (sort === "size") rows.sort((a, b) => b.value - a.value);
     tbody.replaceChildren(...rows.map((a, i) => h("tr", { class: "clickable", tabindex: "0", onClick: () => navigate(`/accounts/${a.id}`), onKeydown: e => { if (e.key === "Enter") navigate(`/accounts/${a.id}`); } },
-      h("td", { class: "muted num" }, String(i + 1).padStart(2, "0")), h("td", {}, h("b", { style: { fontWeight: 500 } }, a.name), h("div", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `${a.channel === "on" ? "On-premise" : "Off-premise"} · ${distName[a.distributor]}`)),
+      h("td", { class: "muted mono", style: { width: "40px", fontSize: "var(--fs-micro)" } }, String(i + 1).padStart(2, "0")), h("td", {}, h("b", { style: { fontWeight: 500 } }, a.name), h("div", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `${a.channel === "on" ? "On-premise" : "Off-premise"} · ${distName[a.distributor]}`)),
       h("td", { class: `num ${a.velocity > 0 ? "good" : a.velocity < 0 ? "bad" : ""}` }, pct(a.velocity, 0)), h("td", { class: `num ${a.margin > 0 ? "good" : a.margin < 0 ? "bad" : ""}` }, `${a.margin > 0 ? "+" : ""}${a.margin.toFixed(1)}`),
       h("td", { class: "num" }, `${Math.round(a.probability * 100)}%`), h("td", { class: "num" }, money(a.value)), h("td", { class: "num", style: { fontWeight: 600 } }, money(a.ev)))));
     count.textContent = `${rows.length} accounts${roi ? ` where expected value is more than ${roi}% of the prize` : ""}`;

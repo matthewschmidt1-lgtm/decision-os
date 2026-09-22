@@ -5,11 +5,10 @@ import { allocateHours, money, pct } from "../models.js";
 import { setMeta } from "../app.js";
 
 const chainMeasures = {
-  shipment: { label: "Shipment", desc: "What the company sent to distributors. Looks like growth on the P&L.", vals: { cascade: 14, harbor: 6, summit: 9 } },
-  inventory: { label: "Distributor inventory", desc: "What is sitting in warehouses. Rising inventory with flat depletion is borrowed growth.", vals: { cascade: 19, harbor: 4, summit: 12 } },
-  order: { label: "Account order", desc: "What accounts actually ordered from distributors.", vals: { cascade: 3, harbor: 5, summit: 4 } },
-  depletion: { label: "Depletion / velocity", desc: "What sold through to consumers. The only number that can't be gamed for long.", vals: { cascade: 1, harbor: 5, summit: 2 } },
-  demand: { label: "Consumer demand", desc: "Estimated underlying demand from panel and velocity data.", vals: { cascade: 2, harbor: 4, summit: 2 } },
+  shipment: { label: "Shipment", desc: "What the company sold into distributors. This is what shows up on the P&L, and it looks like growth.", vals: { cascade: 14, harbor: 6, summit: 9 } },
+  inventory: { label: "Distributor inventory", desc: "What is sitting in distributor warehouses. Rising inventory with flat depletion is borrowed growth.", vals: { cascade: 19, harbor: 4, summit: 12 } },
+  depletion: { label: "Depletion", desc: "What accounts ordered from the distributor. Depletion is the distributor's warehouse emptying into stores and bars.", vals: { cascade: 1, harbor: 5, summit: 2 } },
+  sellthrough: { label: "Sell-through", desc: "What shoppers and guests actually bought from the account. Consumer demand, and the only number that can't be gamed for long.", vals: { cascade: 2, harbor: 4, summit: 2 } },
 };
 
 export default function Portfolio({ params }) {
@@ -24,13 +23,13 @@ export default function Portfolio({ params }) {
     const m = chainMeasures[measure];
     chainBars.replaceChildren(...distributors.map(d => bar(d.name, Math.max(0, m.vals[d.id]), 20, { tone: measure === "inventory" && m.vals[d.id] > 10 ? "warn" : measure === "depletion" && m.vals[d.id] < 3 ? "bad" : "", format: v => pct(v, 0) })));
     const gap = chainMeasures.shipment.vals.cascade - chainMeasures.depletion.vals.cascade;
-    chainSays.set(measure === "shipment" ? m.desc : measure === "depletion" ? `${m.desc} Cascade shipped +14% but depleted +1%: a ${gap}-point gap that will unwind.` : m.desc, measure === "inventory" || measure === "depletion" ? "warn" : "");
+    chainSays.set(measure === "depletion" ? `${m.desc} Cascade took +14% in shipments but accounts only ordered +1% more: a ${gap}-point gap that will unwind.` : m.desc, measure === "inventory" || measure === "depletion" ? "warn" : "");
   };
   renderChain();
   const chainSteps = ["Company", "Distributor", "Account", "Consumer"];
-  const chainStepFor = { shipment: 0, inventory: 1, order: 2, depletion: 2, demand: 3 };
+  const chainStepFor = { shipment: 0, inventory: 1, depletion: 2, sellthrough: 3 };
   const chainViz = h("div", { class: "tree", style: { marginBottom: "20px" } });
-  const renderChainViz = () => chainViz.replaceChildren(...chainSteps.flatMap((c, i) => [h("div", { class: `node ${chainStepFor[measure] === i ? "" : "dim"}`, style: { minWidth: "160px" } }, h("span", { class: "n" }, c), h("span", { class: "v", style: { fontSize: "var(--fs-micro)", fontWeight: 500, color: "var(--muted)" } }, ["shipment / margin", "inventory · orders", "sales", "demand"][i])), i < 3 ? h("div", { class: "edge" }) : null].filter(Boolean)));
+  const renderChainViz = () => chainViz.replaceChildren(...chainSteps.flatMap((c, i) => [h("div", { class: `node ${chainStepFor[measure] === i ? "" : "dim"}`, style: { minWidth: "160px" } }, h("span", { class: "n" }, c), h("span", { class: "v", style: { fontSize: "var(--fs-micro)", fontWeight: 500, color: "var(--muted)" } }, ["shipments in", "inventory · depletion out", "orders in · sell-through out", "what people buy"][i])), i < 3 ? h("div", { class: "edge" }) : null].filter(Boolean)));
   renderChainViz();
 
   const alloc = allocateHours(brands.map(b => ({ id: b.id, name: b.name, mean: b.mean, n: b.n, sd: b.sd })), 10);
@@ -59,7 +58,7 @@ export default function Portfolio({ params }) {
 
     h("section", { class: "section", id: "chain" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("The commercial chain"), h("h2", { style: { marginTop: "10px" } }, "Where does the growth actually come from?")),
-        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Company → Distributor → Account → Consumer. Start at what actually sold, then step back up the chain to see where the growth was invented.")),
+        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Company → Distributor → Account → Consumer. Shipments fill the distributor, depletion fills the account, sell-through is what people actually buy. Start at depletion, then step up the chain to see where the growth was invented.")),
       h("div", { class: "card reveal" },
         h("div", { style: { marginBottom: "20px" } }, segmented(Object.entries(chainMeasures).map(([k, v]) => ({ value: k, label: v.label })), measure, v => { measure = v; renderChain(); renderChainViz(); })),
         h("div", { class: "grid grid-2", style: { alignItems: "start" } }, chainViz, h("div", { class: "stack" }, chainBars, chainSays)))),
