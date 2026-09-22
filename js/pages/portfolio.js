@@ -76,5 +76,11 @@ export default function Portfolio({ params }) {
           h("td", {}, h("b", { style: { fontWeight: 500 } }, b.name)), h("td", { class: "muted" }, b.role), h("td", { class: "num" }, money(b.revenue)),
           h("td", { class: `num ${b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""}` }, pct(b.growth, 0)), h("td", { class: `num ${b.margin > 0 ? "good" : b.margin < 0 ? "bad" : ""}` }, `${b.margin > 0 ? "+" : ""}${b.margin.toFixed(1)} pts`),
           h("td", { class: `num ${b.trade > 15 ? "bad" : ""}` }, pct(b.trade, 0)), h("td", { class: "num" }, b.mean.toFixed(2), h("span", { class: "muted" }, ` ±${b.sd.toFixed(2)}`)))))))),
+
+    h("section", { class: "section reveal" },
+      h("div", { class: "card", style: { padding: "clamp(28px,5vw,48px)", display: "grid", gridTemplateColumns: "1fr auto", gap: "24px", alignItems: "center" } },
+        h("div", {}, eyebrow("Next"), h("h2", { style: { marginTop: "10px" } }, "Brands compete for your time. Accounts are where you spend it."),
+          h("p", { class: "muted", style: { marginTop: "10px", maxWidth: "48ch" } }, "See the 84 accounts ranked by expected value, not by size, and which ones deserve a visit this week.")),
+        link("/accounts", h("span", { class: "btn btn-lg" }, "Go to accounts ", arrow())))),
   );
 }
