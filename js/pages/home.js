@@ -1,5 +1,5 @@
 import { h, link, arrow, eyebrow } from "../ui.js";
-import { user, decisions, brands, accounts, distributors, situation } from "../data.js";
+import { decisions, brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
 
 const hour = new Date().getHours();
@@ -9,7 +9,7 @@ export default function Home() {
   setMeta({ title: null });
   return h("div", {},
     h("section", { class: "reveal" },
-      h("p", { class: "eyebrow" }, `${greet}, ${user.name}.`),
+      h("p", { class: "eyebrow" }, `${greet}.`),
       h("h1", { class: "hero", style: { marginTop: "16px" } }, "Your territory has ", h("span", { class: "num" }, decisions.length), " decisions worth looking at."),
     ),
     h("section", { class: "reveal", style: { marginTop: "48px" } },
