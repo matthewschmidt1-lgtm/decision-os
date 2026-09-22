@@ -49,6 +49,8 @@ kbd{font-family:var(--mono);font-size:.75rem;color:var(--muted);border:1px solid
 .footer-inner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .footer nav{display:flex;gap:20px}
 .footer a:hover{color:var(--ink)}
+.made-by{width:100%;font-size:var(--fs-micro);font-weight:300;color:var(--muted);opacity:.7;letter-spacing:.01em;transition:opacity var(--dur-fast)}
+.made-by:hover{opacity:1}
 
 /* Reveal on scroll */
 .reveal{opacity:0;transform:translateY(14px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
