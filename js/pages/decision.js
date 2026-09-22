@@ -3,6 +3,7 @@ import { decisions, decisionById, accountById, brandById } from "../data.js";
 import { widgetFor } from "../lessons/widgets.js";
 import { setMeta } from "../app.js";
 import { pct } from "../models.js";
+import { getChoice, setChoice } from "../store.js";
 
 const lessonFor = { marginal: "optimization", utility: "utility-and-trade-offs", voi: "value-of-information", ev: "expected-value" };
 const algoName = { marginal: "Marginal analysis", utility: "Multi-objective utility", voi: "Value of information", ev: "Expected value" };
@@ -12,15 +13,22 @@ export default async function Decision({ id }) {
   if (!d) return (await import("./notfound.js")).default();
   setMeta({ title: d.question, description: d.headline });
   const subject = d.accountId ? `Account: ${accountById[d.accountId].name}` : d.brandId ? `Brand: ${brandById[d.brandId].name}` : "Territory";
-  const i = decisions.indexOf(d); const next = decisions[(i + 1) % decisions.length];
+  const i = decisions.indexOf(d); const isLast = i === decisions.length - 1; const next = decisions[i + 1];
+  const best = d.options.find(o => o.name === d.preferred) || d.options.reduce((a, b) => (b.margin > a.margin ? b : a));
+  const prior = getChoice(d.id);
 
-  const line = says("Pick an option to see what the model expects. Then ask it why.");
-  const optionEls = d.options.map(o => h("button", { type: "button", class: "option", "aria-pressed": "false", onClick: (e) => {
-    optionEls.forEach(b => b.setAttribute("aria-pressed", "false")); e.currentTarget.setAttribute("aria-pressed", "true");
-    const best = d.options.find(o => o.name === d.preferred) || d.options.reduce((a, b) => (b.margin > a.margin ? b : a));
-    line.set(o === best ? `${o.name}: the model's preferred option on margin. ${o.note || ""}`.trim() : `${o.name}: expected volume ${pct(o.volume)}, expected margin ${pct(o.margin)}. The model prefers ${best.name} (${pct(best.volume)} volume, ${pct(best.margin)} margin). See why below.`, o === best ? "good" : "warn");
-    document.getElementById("why")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  } }, h("h4", {}, o.name), h("dl", {}, h("dt", {}, "Expected volume"), h("dd", { class: o.volume >= 0 ? "good" : "bad" }, pct(o.volume)), h("dt", {}, "Expected margin"), h("dd", { class: o.margin >= 0 ? "good" : "bad" }, pct(o.margin))), o.note ? h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, o.note) : null));
+  const line = says(prior ? `Last time you chose ${prior.option}. Pick again, or open the reasoning below.` : "Pick an option to see what the model expects. Then ask it why.");
+  const choose = (o, el, { scroll = true } = {}) => {
+    optionEls.forEach(b => b.setAttribute("aria-pressed", "false")); el.setAttribute("aria-pressed", "true");
+    setChoice(d.id, o.name);
+    if (o === best) line.set(`${o.name}: the option the model prefers. ${o.note || ""} Open the reasoning to see what it's assuming.`.replace("  ", " "), "good");
+    else {
+      const dm = best.margin - o.margin, dv = best.volume - o.volume;
+      line.set(`${o.name} is a reasonable instinct. ${best.name} expects ${dm > 0 ? `${dm.toFixed(1)} pts more margin` : `${Math.abs(dm).toFixed(1)} pts less margin`} ${dv >= 0 ? `and ${dv.toFixed(0)} pts more volume` : `for ${Math.abs(dv).toFixed(0)} pts less volume`}. The reasoning below shows why the model weighs it that way.`, "warn");
+    }
+    const why = document.getElementById("why"); if (why) { why.open = true; if (scroll) why.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  };
+  const optionEls = d.options.map(o => h("button", { type: "button", class: `option ${o === best ? "preferred" : ""}`, "aria-pressed": "false", onClick: (e) => choose(o, e.currentTarget) }, h("h4", {}, o.name), h("dl", {}, h("dt", {}, "Expected volume"), h("dd", { class: o.volume >= 0 ? "good" : "bad" }, pct(o.volume)), h("dt", {}, "Expected margin"), h("dd", { class: o.margin >= 0 ? "good" : "bad" }, pct(o.margin))), o.note ? h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, o.note) : null));
 
   const why = h("details", { class: "disclose", id: "why" },
     h("summary", {}, h("span", {}, "Why is the model showing this?"), h("span", { class: "plus", "aria-hidden": "true" }, "+")),
@@ -33,6 +41,7 @@ export default async function Decision({ id }) {
         h("div", { class: "layer layer-2" }, eyebrow("What would change the recommendation"), h("p", { class: "muted" }, d.changes))),
       link(`/learn/${lessonFor[d.algorithm]}`, h("span", { class: "link" }, "Learn the algorithm ", arrow()))));
 
+  if (prior) queueMicrotask(() => { const idx = d.options.findIndex(o => o.name === prior.option); if (idx >= 0) { optionEls[idx].setAttribute("aria-pressed", "true"); const why = document.getElementById("why"); if (why) why.open = true; } });
   return h("article", {},
     h("header", { class: "reveal" }, h("p", { class: "tag" }, subject), h("p", { class: `tag verb-${d.verb.toLowerCase()}`, style: { marginTop: "6px" } }, d.verb),
       eyebrow("Question"), h("h1", { class: "hero", style: { marginTop: "12px", maxWidth: "24ch" } }, d.question)),
@@ -42,6 +51,7 @@ export default async function Decision({ id }) {
     h("section", { class: "section reveal" }, why),
     h("nav", { class: "section", "aria-label": "Next decision", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },
       link("/decisions", h("span", { class: "btn btn-ghost" }, "All decisions")),
-      link(`/decisions/${next.id}`, h("span", { class: "btn" }, `Next: ${next.verb} `, arrow()))),
+      isLast ? link("/portfolio#attention", h("span", { class: "btn" }, "You've seen all four. Where do your next 10 hours go? ", arrow()))
+             : link(`/decisions/${next.id}`, h("span", { class: "btn" }, `Next: ${next.verb} `, arrow()))),
   );
 }

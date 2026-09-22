@@ -1,6 +1,7 @@
 import { h, link, arrow, eyebrow } from "../ui.js";
 import { decisions, brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
+import { reviewed, getChoice } from "../store.js";
 
 const hour = new Date().getHours();
 const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -13,10 +14,11 @@ export default function Home() {
       h("h1", { class: "hero", style: { marginTop: "16px" } }, "Your territory has ", h("span", { class: "num" }, decisions.length), " decisions worth looking at."),
     ),
     h("section", { class: "reveal", style: { marginTop: "48px" } },
-      decisions.map(d => link(`/decisions/${d.id}`, h("span", { class: "decision-row" },
+      decisions.map(d => { const c = getChoice(d.id); return link(`/decisions/${d.id}`, h("span", { class: "decision-row" },
         h("span", { class: `verb verb-${d.verb.toLowerCase()}` }, d.verb),
-        h("span", { class: "body" }, d.headline),
-        arrow()))),
+        h("span", { class: "body" }, d.headline, c ? h("span", { class: "chip", style: { marginLeft: "10px", verticalAlign: "middle" } }, `You chose ${c.option}`) : null),
+        arrow())); }),
+      reviewed().length ? h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, `You've reviewed ${reviewed().length} of ${decisions.length}. Your choices are remembered on this device.`) : null,
     ),
     h("section", { class: "reveal", style: { marginTop: "40px", display: "flex", gap: "20px 32px", alignItems: "center", flexWrap: "wrap" } },
       link("/decisions", h("span", { class: "btn btn-lg" }, "Review decisions ", arrow())),
@@ -45,7 +47,7 @@ export default function Home() {
       h("div", { class: "card", style: { padding: "clamp(28px,5vw,56px)", textAlign: "center" } },
         eyebrow("One question"),
         h("h2", { style: { marginTop: "12px", fontSize: "var(--fs-h1)" } }, "Where should you allocate your next 10 hours?"),
-        h("p", { class: "muted", style: { marginTop: "14px", maxWidth: "48ch", marginInline: "auto" } }, "The model found three brands with materially different expected returns on your next hour of effort."),
+        h("p", { class: "muted", style: { marginTop: "14px", maxWidth: "48ch", marginInline: "auto" } }, "Three brands are competing for your next 10 hours. One of them deserves more than its size suggests."),
         h("div", { style: { marginTop: "28px" } }, link("/portfolio#attention", h("span", { class: "btn" }, "Explore decision ", arrow()))))),
   );
 }

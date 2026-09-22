@@ -28,6 +28,14 @@ export function setMeta({ title, description }) {
   const d = document.querySelector('meta[name="description"]');
   if (description && d) d.setAttribute("content", description);
   document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
+  if (description) document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
+  const url = location.origin + location.pathname;
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", url);
+  document.querySelector('meta[property="og:url"]')?.setAttribute("content", url);
+  document.querySelector('meta[name="robots"]')?.remove();
+}
+export function setNoIndex() {
+  const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.append(m);
 }
 
 async function render() {

@@ -25,7 +25,7 @@ kbd{font-family:var(--mono);font-size:.75rem;color:var(--muted);border:1px solid
 .skip-link:focus{top:12px}
 
 .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:24px;padding:14px var(--gutter);background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.2) blur(14px);-webkit-backdrop-filter:saturate(1.2) blur(14px);border-bottom:1px solid transparent;transition:border-color var(--dur-fast)}
-.topbar.scrolled{border-bottom-color:var(--line)}
+.topbar.scrolled{border-bottom-color:var(--line-strong);box-shadow:0 1px 0 rgba(23,23,23,.02),0 8px 24px -16px rgba(23,23,23,.18)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-0.01em}
 .brand-mark{width:14px;height:14px;border-radius:50%;background:var(--ink);position:relative}
 .brand-mark::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--bg)}
@@ -43,13 +43,16 @@ kbd{font-family:var(--mono);font-size:.75rem;color:var(--muted);border:1px solid
   .search-trigger{margin-left:auto;padding:8px 10px}
 }
 
-.page{flex:1;width:100%;max-width:var(--max);margin:0 auto;padding:clamp(32px,6vw,80px) var(--gutter) clamp(64px,10vw,120px)}
+.page{flex:1;width:100%;max-width:var(--max);margin:0 auto;padding:clamp(32px,6vw,80px) var(--gutter) clamp(48px,7vw,88px)}
+[id]{scroll-margin-top:84px}
 .page:focus{outline:none}
-.footer{border-top:1px solid var(--line);padding:32px var(--gutter);color:var(--muted);font-size:var(--fs-small)}
-.footer-inner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.footer nav{display:flex;gap:20px}
+.footer{border-top:1px solid var(--line);padding:36px var(--gutter) 40px;color:var(--muted);font-size:var(--fs-small)}
+.footer-inner{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:18px 24px;align-items:center}
+.footer nav{display:flex;gap:20px;flex-wrap:wrap}
+.footer .made-by{grid-column:1/-1;padding-top:14px;border-top:1px solid var(--line)}
+@media (max-width:600px){.footer-inner{grid-template-columns:1fr}}
 .footer a:hover{color:var(--ink)}
-.made-by{width:100%;font-size:var(--fs-micro);font-weight:300;color:var(--muted);opacity:.7;letter-spacing:.01em;transition:opacity var(--dur-fast)}
+.made-by{font-size:var(--fs-micro);font-weight:300;color:var(--muted);opacity:.7;letter-spacing:.01em;transition:opacity var(--dur-fast)}
 .made-by:hover{opacity:1}
 
 /* Reveal on scroll */

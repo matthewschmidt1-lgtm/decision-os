@@ -17,7 +17,7 @@ export default function Portfolio({ params }) {
   const focus = brandById[params.get("brand")] || brandById.A;
 
   // Commercial chain
-  let measure = "shipment";
+  let measure = "depletion";
   const chainBars = h("div", { class: "bars" });
   const chainSays = says("");
   const renderChain = () => {
@@ -59,7 +59,7 @@ export default function Portfolio({ params }) {
 
     h("section", { class: "section", id: "chain" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("The commercial chain"), h("h2", { style: { marginTop: "10px" } }, "Where does the growth actually come from?")),
-        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Company → Distributor → Account → Consumer. Information gets distorted at each layer.")),
+        h("p", { class: "muted", style: { maxWidth: "40ch" } }, "Company → Distributor → Account → Consumer. Start at what actually sold, then step back up the chain to see where the growth was invented.")),
       h("div", { class: "card reveal" },
         h("div", { style: { marginBottom: "20px" } }, segmented(Object.entries(chainMeasures).map(([k, v]) => ({ value: k, label: v.label })), measure, v => { measure = v; renderChain(); renderChainViz(); })),
         h("div", { class: "grid grid-2", style: { alignItems: "start" } }, chainViz, h("div", { class: "stack" }, chainBars, chainSays)))),

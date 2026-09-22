@@ -27,7 +27,8 @@ export function marginalWidget({ compact = false } = {}) {
     else if (v < 0) line.set(`Cutting $${Math.abs(extra).toFixed(0)}K loses ${M.pct(sc.volumePct)} volume and ${sc.contributionPct < 0 ? "reduces" : "improves"} contribution by ${M.pct(Math.abs(sc.contributionPct))}.`, sc.contributionPct < 0 ? "warn" : "good");
     else line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume and ${M.pct(sc.contributionPct)} contribution. Still worth it, barely.`, "good");
   } });
-  return h("div", { class: "stack", style: { "--gap": "22px" } }, compact ? null : chart, sl, ba, line, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `The model's optimum is about $${opt.toFixed(0)}K, where the marginal contribution of the next dollar reaches zero.`));
+  const reset = h("button", { type: "button", class: "link", style: { fontSize: "var(--fs-small)" }, onClick: () => { sl.set(0); sl.querySelector("input").dispatchEvent(new Event("input")); } }, "Reset to today's spend");
+  return h("div", { class: "stack", style: { "--gap": "22px" } }, compact ? null : chart, sl, ba, line, h("div", { style: { display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `The model's optimum is about $${opt.toFixed(0)}K, where the marginal contribution of the next dollar reaches zero.`), reset));
 }
 
 /* Utility: adjust objective weights, watch the ranking change */
@@ -39,8 +40,11 @@ export function utilityWidget(options, { initial = { volume: 30, revenue: 30, ma
     const ranked = M.utilityRank(options, w);
     list.replaceChildren(...ranked.map((o, i) => bar(o.name, o.utility, 100, { tone: i === 0 ? "accent" : "muted", format: v => v.toFixed(0) })));
     const top = ranked[0];
-    const dominant = Object.entries(w).sort((a, b) => b[1] - a[1])[0][0];
-    line.set(`With ${dominant} weighted highest, ${top.name} scores best. The recommendation depends on the objective, not just the data.`);
+    const sorted = Object.entries(w).sort((a, b) => b[1] - a[1]);
+    const total = sorted.reduce((a, [, v]) => a + v, 0);
+    if (total === 0) line.set("No objective is weighted, so every option ties. A model can't rank options until you tell it what matters.", "warn");
+    else if (sorted[0][1] === sorted[1][1]) line.set(`${sorted[0][0]} and ${sorted[1][0]} are weighted equally. ${top.name} scores best on that blend. Tip the balance and watch the ranking move.`);
+    else line.set(`With ${sorted[0][0]} weighted highest, ${top.name} scores best. The recommendation depends on the objective, not just the data.`);
   };
   const sliders = ["volume", "revenue", "margin"].map(k => slider({ label: k[0].toUpperCase() + k.slice(1), min: 0, max: 100, step: 5, value: w[k], format: v => `${v}%`, onInput: v => { w[k] = v; render(); } }));
   render();
@@ -50,20 +54,30 @@ export function utilityWidget(options, { initial = { volume: 30, revenue: 30, ma
 /* Bandit: allocate 10 hours across brands; exploration slider */
 export function banditWidget({ hours = 10 } = {}) {
   const arms = brands.map(b => ({ id: b.id, name: b.name, mean: b.mean, n: b.n, sd: b.sd }));
-  let c = 0.5;
+  let c = 0.5, mode = "model";
   const list = h("div", { class: "bars" });
   const line = says("");
+  const totalRev = brands.reduce((a, b) => a + b.revenue, 0);
+  const byRevenue = brands.map(b => ({ id: b.id, name: b.name, hours: (b.revenue / totalRev) * hours })).sort((a, b) => b.hours - a.hours);
   const render = () => {
     const alloc = M.allocateHours(arms, hours, c);
+    if (mode === "revenue") {
+      const top = byRevenue.slice(0, 6); const rest = byRevenue.slice(6).reduce((a, x) => a + x.hours, 0);
+      list.replaceChildren(...top.map((a) => bar(a.name, a.hours, 4, { tone: "muted", format: M.hours })), bar("Others", rest, 4, { tone: "muted", format: M.hours }));
+      const d = alloc.find(a => a.id === "D"), dRev = byRevenue.find(a => a.id === "D");
+      line.set(`This is the habit: time follows revenue. Brand A gets ${byRevenue[0].hours.toFixed(1)} hours because it's biggest. Brand D gets ${dRev.hours.toFixed(1)}. The model would give Brand D ${d.hours.toFixed(1)}, because its return on the next hour is the highest in the portfolio.`, "warn");
+      return;
+    }
     const top = alloc.slice(0, 6); const rest = alloc.slice(6).reduce((a, x) => a + x.hours, 0);
     list.replaceChildren(...top.map((a, i) => bar(a.name, a.hours, 4, { tone: i === 0 ? "accent" : "", format: M.hours })), bar("Others", rest, 4, { tone: "muted", format: M.hours }));
     const explore = alloc.filter(a => a.n < 20).reduce((a, x) => a + x.hours, 0);
     const lead = alloc[0];
     line.set(c < 0.25 ? `Pure exploitation. ${lead.name} gets the most time because its proven return is highest. Brands with little data get almost nothing, so you never learn whether they'd work.` : c > 1 ? `Heavy exploration. ${explore.toFixed(1)} hours go to brands with little evidence. You'll learn a lot, at the cost of known return.` : `Balanced. ${lead.name} leads on proven return, while ${explore.toFixed(1)} hours are spent learning whether Brand M and Brand O are real opportunities.`);
   };
-  const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: 0.5, format: v => v === 0 ? "exploit only" : v >= 1.2 ? "explore heavily" : v.toFixed(1), onInput: v => { c = v; render(); } });
+  const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: 0.5, format: v => v < 0.25 ? "exploit only" : v < 0.75 ? "balanced" : v < 1.2 ? "curious" : "explore heavily", onInput: v => { c = v; render(); } });
   render();
-  return h("div", { class: "stack", style: { "--gap": "22px" } }, h("p", { class: "eyebrow" }, `Your next ${hours} hours`), list, sl, line);
+  const toggle = segmented([{ value: "model", label: "Model's allocation" }, { value: "revenue", label: "If time followed revenue" }], "model", v => { mode = v; render(); });
+  return h("div", { class: "stack", style: { "--gap": "22px" } }, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "eyebrow" }, `Your next ${hours} hours`), toggle), list, sl, line);
 }
 
 /* Bayesian updating: toggle evidence and watch the belief move */
@@ -114,7 +128,8 @@ export function evWidget({ p = 0.84, value = 21000, cost = 1500 } = {}) {
     slider({ label: "Cost of pursuing", min: 0, max: 15000, step: 500, value: st.cost, format: M.money, onInput: v => { st.cost = v; render(); } }),
   ];
   render();
-  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Expected value"), big, formula, line));
+  const reset = h("button", { type: "button", class: "link", style: { fontSize: "var(--fs-small)" }, onClick: () => { Object.assign(st, { p, value, cost }); sliders[0].set(p * 100); sliders[1].set(value); sliders[2].set(cost); render(); } }, "Reset to the real numbers");
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders, reset), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Expected value"), big, formula, line));
 }
 
 /* Decision tree: change probabilities and payoffs, watch the rolled-back value */

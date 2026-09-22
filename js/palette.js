@@ -1,12 +1,14 @@
 import { h } from "./ui.js";
 import { brands, accounts, decisions } from "./data.js";
+import { rankByEV } from "./models.js";
+const roi20 = rankByEV(accounts).filter(a => (a.ev / a.value) * 100 >= 20).length;
 import { navigate } from "./app.js";
 
 const canned = [
   { t: "Why is Brand A underperforming?", s: "Brand A is growing +12% but margin is −1.2 pts on +21% trade spend.", k: "answer", href: "/portfolio#chain" },
   { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
   { t: "Where are we overspending?", s: "Brand B holds 31% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
-  { t: "Show me opportunities with >20% expected ROI", s: "11 accounts qualify.", k: "accounts", href: "/accounts?roi=20" },
+  { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
   { t: "Where should I spend my next 10 hours?", s: "Attention allocation across 15 brands.", k: "portfolio", href: "/portfolio#attention" },
   { t: "What should I learn before I decide?", s: "Value of information.", k: "learn", href: "/learn/value-of-information" },
 ];

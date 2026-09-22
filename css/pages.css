@@ -7,6 +7,10 @@
   .metrics{grid-template-columns:1fr}
   .tree .node{min-width:88px;padding:10px 12px}
   .tree .node .v{font-size:1rem}
+  .tree .branch{grid-template-columns:1fr;gap:12px}
+  .tree .branch::before{display:none}
+  .tree .branch>div{position:relative}
+  .tree .branch>div .tag{margin-bottom:2px}
   .step{grid-template-columns:1fr;gap:6px}
   .decision-row .arrow{grid-column:2;grid-row:1}
 }

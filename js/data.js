@@ -162,10 +162,10 @@ export const decisions = [
 export const decisionById = Object.fromEntries(decisions.map(d => [d.id, d]));
 
 export const blindspots = [
-  { id: "revenue-up", title: "Revenue is up. Something else isn't.", rows: [["Sales", 11], ["Volume", 3], ["Trade spend", 21], ["Margin", -4]], read: "Price and promotion are producing sales, not demand. The margin line is the tell.", decisionId: "protect-northwest" },
-  { id: "shipments-up", title: "Distributor shipments are up. Account velocity isn't.", rows: [["Distributor shipments", 14], ["Distributor inventory", 19], ["Account depletion", 1]], read: "Growth is sitting in a warehouse. Expect a soft quarter when it unwinds.", decisionId: "investigate-cascade" },
-  { id: "volume-economics", title: "Brand is winning volume but losing economics.", rows: [["Volume", 9], ["Revenue", 5], ["Gross margin", -2]], read: "Each case is worth less than it was. Ask what the volume is costing.", decisionId: "shift-brand-b" },
-  { id: "promo-activity", title: "Promotion is creating activity, not incrementality.", rows: [["Promotional volume", 26], ["Baseline volume", -4], ["Estimated incremental volume", 7]], read: "Most promotional volume would have sold anyway, and the baseline is eroding.", decisionId: "protect-northwest" },
+  { id: "revenue-up", title: "Revenue is up. Something else isn't.", rows: [["Sales", 11], ["Volume", 3, "warn"], ["Trade spend", 21], ["Margin", -4]], read: "Price and promotion are producing sales, not demand. The margin line is the tell.", decisionId: "protect-northwest" },
+  { id: "shipments-up", title: "Distributor shipments are up. Account velocity isn't.", rows: [["Distributor shipments", 14], ["Distributor inventory", 19], ["Account depletion", 1, "warn"]], read: "Growth is sitting in a warehouse. Expect a soft quarter when it unwinds.", decisionId: "investigate-cascade" },
+  { id: "volume-economics", title: "Brand is winning volume but losing economics.", rows: [["Volume", 9], ["Revenue", 5, "warn"], ["Gross margin", -2]], read: "Each case is worth less than it was. Ask what the volume is costing.", decisionId: "shift-brand-b" },
+  { id: "promo-activity", title: "Promotion is creating activity, not incrementality.", rows: [["Promotional volume", 26], ["Baseline volume", -4], ["Estimated incremental volume", 7, "warn"]], read: "Most promotional volume would have sold anyway, and the baseline is eroding.", decisionId: "protect-northwest" },
 ];
 
 export const situation = {
