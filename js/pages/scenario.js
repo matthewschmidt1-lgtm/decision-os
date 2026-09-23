@@ -1,4 +1,4 @@
-import { h, link, arrow, eyebrow, metric, says } from "../ui.js";
+import { h, link, arrow, eyebrow, evidence } from "../ui.js";
 import { scenarios, scenarioById, skills, tracks, challengeIds, qualityScore } from "../scenarios.js";
 import { lessonBySlug } from "../lessons/index.js";
 import { recordResult, getResult, allResults } from "../store.js";
@@ -40,7 +40,7 @@ export default async function Scenario({ id, params }) {
     show(feedback); whyBtn.hidden = false;
   };
   whyBtn.addEventListener("click", () => {
-    why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { class: "metrics", style: { marginTop: "8px" } }, s.evidence.map(e => metric(e[0], e[1], e[2])))),
+    why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { style: { marginTop: "12px" } }, evidence(s.evidence))),
       h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`)));
     whyBtn.hidden = true; why.hidden = false; why.classList.add("reveal", "in");
     principle.replaceChildren(h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "rgba(245,245,240,.6)" } }, "The principle"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px", letterSpacing: "-0.01em" } }, s.principle)),
@@ -65,7 +65,7 @@ export default async function Scenario({ id, params }) {
     h("header", { class: "reveal" },
       h("div", { class: "facts" }, set ? h("span", {}, h("b", {}, `${i + 1} / ${set.list.length}`), set.title) : null, h("span", {}, "Customer", h("b", {}, s.customer)), h("span", {}, "Category", h("b", {}, s.category)), h("span", {}, "Skill", h("b", {}, skills[s.skill].name)), h("span", { class: "chip" }, s.level)),
       eyebrow("The situation"), h("h1", { style: { marginTop: "12px", fontSize: "var(--fs-h1)", maxWidth: "28ch" } }, s.situation)),
-    h("section", { class: "section reveal", style: { marginTop: "40px" } }, h("h2", { style: { fontSize: "var(--fs-h3)" } }, "What you know"), h("div", { style: { marginTop: "12px" } }, h("div", { class: "metrics" }, s.evidence.map(e => metric(e[0], e[1], e[2])))),
+    h("section", { class: "section reveal", style: { marginTop: "40px" } }, h("h2", { style: { fontSize: "var(--fs-h3)" } }, "What you know"), h("div", { style: { marginTop: "16px" } }, evidence(s.evidence, { optionTones: false })),
       h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Numbers are as messy as they are in the field. Some are lagged, some are estimates.")),
     h("section", { class: "section reveal", style: { marginTop: "40px" } }, eyebrow("The decision"), h("h2", { style: { marginTop: "10px" } }, s.question), h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, "Pick one. You'll see the reasoning either way."),
       h("div", { class: "choices", style: { marginTop: "20px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `You've done this one before (you chose ${prior.option}). Replays don't change your score.`) : null),
@@ -78,11 +78,13 @@ export default async function Scenario({ id, params }) {
 
 export async function Summary({ params }) {
   const set = setFor(params.get("set")) || { title: "All scenarios", list: scenarios };
-  setMeta({ title: "Nice work" });
+  setMeta({ title: "Your results" });
   const r = allResults();
   const done = set.list.filter(s => r[s.id]);
   const strong = done.filter(s => r[s.id].quality === "best").length;
   const practiced = [...new Set(done.map(s => skills[s.skill].name))];
+  if (!done.length) return h("div", {}, h("section", { class: "reveal" }, eyebrow(set.title), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Nothing here yet."),
+    h("p", { class: "hero-sub" }, "Finish a few scenarios and your results will show up here."), h("div", { style: { marginTop: "28px" } }, link(`/practice/${(nextUnplayed() || scenarios[0]).id}`, h("span", { class: "btn" }, "Start a scenario ", arrow())))));
   const weakest = done.map(s => ({ s, q: qualityScore[r[s.id].quality] })).sort((a, b) => a.q - b.q)[0]?.s || set.list[0];
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow(set.title), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Nice work."),

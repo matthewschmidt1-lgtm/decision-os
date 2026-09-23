@@ -10,10 +10,12 @@ export const levels = ["Recognize", "Diagnose", "Prioritize", "Act", "Defend"];
 
 const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => ids.includes(s.id) });
 export const tracks = [
-  track("diagnose", "Diagnose what's really happening", "The top line says one thing. The numbers underneath say another.", ["flat-sales-hidden-loss", "kroger-decline", "share-loss", "price-gap"]),
-  track("meeting", "Practice a customer meeting", "A buyer pushes back. What do you say?", ["facings-cut", "shelf-move", "buyer-not-interested"]),
-  track("promo", "Handle a pricing or promotion issue", "Volume is easy to buy. Margin isn't.", ["promo-request", "display-hangover", "trade-efficiency"]),
-  track("focus", "Decide where to focus", "Limited hours, many accounts.", ["where-next-hour", "what-to-check-first", "distributor-load"]),
+  track("diagnose", "Diagnose what's really happening", "The top line says one thing. The numbers underneath say another.", ["flat-sales-hidden-loss", "kroger-decline", "share-loss", "price-gap", "flavor-cannibal"]),
+  track("meeting", "Practice a customer meeting", "A buyer pushes back. What do you say?", ["facings-cut", "private-label", "shelf-move", "buyer-not-interested"]),
+  track("promo", "Handle a pricing or promotion issue", "Volume is easy to buy. Margin isn't.", ["promo-request", "display-hangover", "trade-efficiency", "cost-increase"]),
+  track("focus", "Decide where to focus", "Limited hours, many accounts, not enough supply.", ["where-next-hour", "what-to-check-first", "distributor-load", "allocation"]),
+  track("onpremise", "Win on-premise", "Bars, restaurants and hotels: menus, taps, staff and what you're allowed to offer.", ["tavern-pour-decline", "btg-winback", "tap-handles", "happy-hour-ask", "hotel-rtd-test"]),
+  track("turnaround", "Turn around a declining account", "Sales are down. Find out why before you spend a dollar.", ["cstore-decline", "ecommerce-rank", "walk-away"]),
   track("opportunity", "Analyze a sales opportunity", "Is it worth pursuing, and how?", ["new-item-acv", "on-premise-placement"]),
 ];
 export const challengeIds = ["kroger-decline", "promo-request", "distributor-load", "facings-cut", "where-next-hour"];
@@ -157,7 +159,7 @@ export const scenarios = [
   {
     id: "on-premise-placement", customer: "Two accounts", channel: "on", category: "Premium tequila", level: "Act", skill: "strategy", algorithm: "expected-value", tags: ["opportunity", "placement"],
     situation: "You can pitch one new cocktail placement this week. A high-profile hotel bar, or a busy neighbourhood restaurant that already carries two of your brands.",
-    evidence: [["Hotel bar", "$40K/yr · influential · ~20% chance · new menu in 6 months"], ["Neighbourhood restaurant", "$14K/yr · ~75% chance · menu reprint in 3 weeks", "good"], ["Distributor rep view", "'the hotel would be a trophy'"], ["Your time", "each pitch takes a full prep day"]],
+    evidence: [["Hotel bar", "$40K a year · ~20% chance · new menu in 6 months · influential"], ["Neighbourhood restaurant", "$14K a year · ~75% chance · menu reprint in 3 weeks · already carries two of your brands", "good"], ["Distributor rep view", "'the hotel would be a trophy'"], ["Your time", "each pitch takes a full prep day"]],
     question: "Which pitch do you make?",
     options: [
       { label: "The hotel bar. Influence matters more than the number.", quality: "good", feedback: "Influence is real value that expected-value math undercounts, so this isn't wrong. But the hotel's menu doesn't turn for six months, so even a yes doesn't pour until spring. Expected value is $8K against $10.5K, and the restaurant's answer comes in three weeks." },
@@ -244,9 +246,193 @@ export const scenarios = [
     principle: "Before acting, ask what you should learn first. Prefer cheap checks that resolve likely causes.",
     nextMove: "Depletion report first. If flat, call the distributor. If healthy, go to the store with a price check and a shelf photo. Report what you ruled out, not just what you found.",
   },
+  // ---------- On-premise ----------
+  {
+    id: "tavern-pour-decline", customer: "The Dockside (bar)", channel: "on", category: "Vodka", level: "Diagnose", skill: "diagnosis", algorithm: "bayesian-updating", tags: ["on-premise", "decline"],
+    situation: "The Dockside is one of your top ten bars, and your vodka depletions there are down 18% over three months. Nothing changed on your side.",
+    evidence: [["Depletions to the account", "−18%"], ["Bar traffic (covers)", "−2%"], ["New bar manager", "started 3 months ago", "warn"], ["Cocktail menu", "reprinted in March · your signature drink dropped", "bad"], ["Back-bar position", "unchanged"], ["Competitor", "ran a bartender education night in April", "warn"]],
+    question: "What's the most likely cause?",
+    options: [
+      { label: "The menu reprint dropped your signature cocktail", quality: "best", feedback: "Yes. The timing lines up with the decline, and a menu cocktail is how most on-premise vodka gets ordered by name. Traffic barely moved, so guests are still coming in. They're just not being offered your drink." },
+      { label: "The competitor's education night won over the bartenders", quality: "good", feedback: "Plausible, and it may be making things worse. But it happened in April, after the decline began in March. It can't explain why your pours started falling." },
+      { label: "Guests are drinking less vodka", quality: "weak", feedback: "Covers are down 2% and your depletions are down 18%. The room didn't change nearly enough to explain this." },
+      { label: "The distributor is under-delivering", quality: "weak", feedback: "Depletions measure what the account ordered. If deliveries were short, you'd hear about empty shelves, not see a steady decline in orders." },
+    ],
+    reasoning: "Start with the usual causes of an on-premise pour decline: menu, staff, or traffic. The numbers rule out traffic. The menu reprint and the new manager both arrived just as the decline began, which moves the odds sharply toward a lost menu placement. The competitor's education night came later, so at most it's making things worse.",
+    principle: "On-premise, the menu and the people behind the bar drive what gets ordered. When pours drop and traffic doesn't, look at what changed on the menu first.",
+    nextMove: "Book time with the new bar manager this week. Bring the signature cocktail's past pour data and offer a staff tasting through your distributor. Ask what they want the menu to do, and pitch your drink as the answer.",
+  },
+  {
+    id: "btg-winback", customer: "Harbor & Vine (restaurant group)", channel: "on", category: "Wine", level: "Prioritize", skill: "prioritization", algorithm: "expected-value", tags: ["on-premise", "decline", "opportunity"],
+    situation: "Harbor & Vine dropped your Pinot Noir from the by-the-glass list at three of its seven restaurants. The group is down 22% for you this year. You have time to work one location properly this month.",
+    evidence: [["Group depletions", "−22%", "bad"], ["Downtown", "400 covers a night · wine director likes the replacement · ~20% chance · $30K a year"], ["Waterfront", "250 covers a night · sommelier asked for staff training · ~70% chance · $18K a year", "good"], ["Midtown", "150 covers a night · closed 6 weeks for a remodel · ~50% chance · $9K a year"]],
+    question: "Which location do you work first?",
+    options: [
+      { label: "Downtown. Biggest room, biggest prize.", quality: "weak", feedback: "Big room, low odds. About $6K of expected value, and the wine director has just told you they like the replacement." },
+      { label: "Waterfront", quality: "best", feedback: "Right. About $12.6K of expected value, and the sommelier has told you exactly what would help. A win there also gives you a story for the other two." },
+      { label: "Midtown", quality: "weak", feedback: "About $4.5K of expected value, and it's closed for six weeks. Come back to it before it reopens." },
+      { label: "Pitch all three at once to the group's beverage director", quality: "good", feedback: "Worth doing eventually, but the group director just approved these changes. Win one location on the evidence first, then take the result to the group." },
+    ],
+    reasoning: "Probability × value. Downtown: 0.2 × $30K = $6K. Waterfront: 0.7 × $18K = $12.6K. Midtown: 0.5 × $9K = $4.5K, and not this month. The largest room is the least valuable use of your time right now.",
+    principle: "In a multi-unit account, win the location where the odds are best, then use the result to open the rest.",
+    nextMove: "Schedule the staff training at Waterfront through your distributor. Track glasses poured for four weeks, then bring those numbers to the group beverage director.",
+  },
+  {
+    id: "happy-hour-ask", customer: "Tap & Barrel (bar)", channel: "on", category: "Tequila", level: "Act", skill: "strategy", algorithm: "utility-and-trade-offs", tags: ["on-premise", "compliance"],
+    situation: "The owner of Tap & Barrel says he'll feature your tequila on the new happy hour menu if you 'help cover the discount.' He's a good account and a friend.",
+    evidence: [["Your depletions there", "+6%", "good"], ["Happy hour share of his tequila sales", "about 40%"], ["State rules", "suppliers can't pay retailers for placements or discounts", "warn"], ["What you're allowed to offer", "staff training · a consumer tasting · permitted menu materials"], ["Competitor", "rumoured to be 'helping' another bar", "warn"]],
+    question: "What do you do?",
+    options: [
+      { label: "Find a quiet way to cover part of the discount", quality: "weak", feedback: "That's a payment for placement, which the rules in this state don't allow, however it's routed. It puts your license, your distributor, and the account at risk." },
+      { label: "Decline the money and offer the support you're allowed to give", quality: "best", feedback: "Right. You can't buy the feature, but you can make his happy hour better: a trained staff that sells the drink, a tasting night that brings guests in, and permitted menu materials. That's value he can use." },
+      { label: "Match whatever the competitor is doing", quality: "weak", feedback: "A rumour isn't evidence. And if it's true, it's their risk, not your strategy." },
+      { label: "Pass on the feature", quality: "good", feedback: "Safe, but you're leaving value on the table. There's a legal way to say yes. Find it." },
+    ],
+    reasoning: "Weigh each option against what matters: volume, the relationship, and compliance. Covering the discount scores on volume and relationship but fails compliance completely, and a failure there outweighs everything else. The permitted support scores well on all three.",
+    principle: "Some constraints aren't weights you trade off. They're limits. Find the best option inside them. In beverage alcohol, know what you're allowed to give before you decide what to give.",
+    nextMove: "Tell the owner plainly what you can and can't do. Then book the staff training and a tasting night with your distributor, timed to the happy hour launch. Rules vary by state, so check yours.",
+  },
+  {
+    id: "tap-handles", customer: "Northside Sports Bar", channel: "on", category: "Craft beer", level: "Defend", skill: "strategy", algorithm: "decision-trees", tags: ["on-premise", "decline", "meeting"],
+    situation: "The owner says he's moving to 'rotating taps for variety,' and your IPA will lose two of its three handles next month. The account is already down 12% this year.",
+    evidence: [["Your IPA", "#2 tap by pints poured last quarter", "good"], ["Account depletions", "−12%"], ["Owner's goal", "more variety for regulars"], ["Your portfolio", "a seasonal and a lager the bar doesn't carry"], ["Rotating taps elsewhere", "pints per handle usually fall 20–30%", "warn"]],
+    question: "What do you say?",
+    options: [
+      { label: "Accept it and ask to be first in the rotation", quality: "good", feedback: "Better than nothing, but you'd be trading a proven #2 tap for a turn in the queue." },
+      { label: "Argue that the #2 tap shouldn't lose anything", quality: "weak", feedback: "True, but it ignores what he's trying to do. Buyers don't reverse a decision because it's inconvenient for you." },
+      { label: "Keep one permanent IPA handle and offer your seasonal for rotation", quality: "best", feedback: "Right. He gets variety, you keep the handle that sells, and your seasonal rides the rotation. You've turned his goal into your plan." },
+      { label: "Offer a discount to keep all three handles", quality: "weak", feedback: "Money doesn't solve his problem, which is variety. And in many states, paying for tap space isn't allowed." },
+    ],
+    reasoning: "Map the branches. If you argue, he most likely goes ahead and you lose two handles. If you accept, you keep one handle and hope for rotations. If you reframe around his goal, the likely outcome is one permanent handle plus a rotating slot for your seasonal. That keeps most of your volume and adds a second brand, so it has the highest expected value.",
+    principle: "When a buyer changes the rules, don't fight the goal. Offer a version of it that keeps what you need.",
+    nextMove: "Bring the pour data and a 12-week rotation calendar with your seasonal in it. Ask for the IPA to stay on one handle as the anchor regulars expect.",
+  },
+  {
+    id: "hotel-rtd-test", customer: "Meridian Hotels (12 bars)", channel: "on", category: "Canned cocktails", level: "Prioritize", skill: "prioritization", algorithm: "exploration-vs-exploitation", tags: ["on-premise", "launch"],
+    situation: "You have 20 cases of a new canned cocktail to test across Meridian's 12 hotel bars. The chain decides on a full listing in eight weeks.",
+    evidence: [["3 downtown hotels", "your spirits already sell well · strong managers", "good"], ["4 airport hotels", "high traffic · no data on canned cocktails"], ["5 resort hotels", "pool bars · seasonal · no data"], ["Listing decision", "based on rate of sale across the test"], ["Cases available", "20"]],
+    question: "Where do you put the test cases?",
+    options: [
+      { label: "All 20 in the three downtown hotels", quality: "good", feedback: "You'd get a strong rate of sale, but you'd learn nothing about the airport and resort bars, which are 9 of the 12. The chain will ask how it performs across the whole estate." },
+      { label: "Spread them evenly across all 12", quality: "weak", feedback: "It looks fair, but under two cases each isn't enough to read anything. And it ignores what you already know about downtown." },
+      { label: "All 20 in the resort pool bars", quality: "weak", feedback: "Maybe canned cocktails do best by the pool, but that's a guess with no data behind it, and those bars are seasonal. Betting the whole test on a hunch is exploring without a safety net." },
+      { label: "Mostly downtown, plus one airport and one resort bar", quality: "best", feedback: "Right. Put most cases where you know they'll sell, so the headline rate of sale is strong. Put enough in the other two formats to learn whether they work. That's the mix the listing decision needs." },
+    ],
+    reasoning: "This is explore versus exploit. Downtown is the known winner. Airport and resort bars are unknowns, and they make up most of the chain. Putting everything on the winner maximises this month's number and leaves the bigger question unanswered. Spreading evenly learns a little about everything and proves nothing.",
+    principle: "When a test decides a bigger rollout, spend most of it where you're confident and enough where you're not to find out.",
+    nextMove: "Put 12 cases downtown, 4 in the busiest airport bar, and 4 in the busiest resort bar. Agree on how the results will be read with the chain before the test starts.",
+  },
+
+  // ---------- Off-premise: accounts in decline and harder conversations ----------
+  {
+    id: "cstore-decline", customer: "Casey's", channel: "off", category: "Energy drinks", level: "Diagnose", skill: "diagnosis", algorithm: "bayesian-updating", tags: ["decline", "oos"],
+    situation: "Your energy drink is down 11% at Casey's over eight weeks while the category is up 6%. The buyer thinks a newer competitor is taking your shoppers.",
+    evidence: [["Your sales", "−11%"], ["Category", "+6%"], ["Cooler out-of-stocks", "4% → 14%", "bad"], ["Delivery frequency", "twice a week → once a week", "warn"], ["Cooler door position", "moved from door 1 to door 3 at the reset", "warn"], ["Price", "unchanged"]],
+    question: "What's the most likely cause?",
+    options: [
+      { label: "The new competitor is taking share", quality: "weak", feedback: "Maybe a little. But a growing category and out-of-stocks tripling point somewhere else. Shoppers can't pick you if you're not there." },
+      { label: "The move to a less visible cooler door", quality: "good", feedback: "It can hurt sales, and it's worth fixing. But door position doesn't explain out-of-stocks tripling. Fix the empty shelf first." },
+      { label: "A price problem", quality: "weak", feedback: "Price didn't change and the category is growing. Nothing here points at price." },
+      { label: "Fewer deliveries are leaving the cooler empty", quality: "best", feedback: "Yes. Out-of-stocks went from 4% to 14% when deliveries were halved. Energy drinks sell fast in convenience stores, and one delivery a week can't keep the cooler full through the weekend." },
+    ],
+    reasoning: "The buyer's starting belief is that the competitor is winning. The evidence should change it: out-of-stocks tripled when deliveries were halved, and the category kept growing. That combination makes supply far more likely than demand. The door move is real but explains less.",
+    principle: "Before you blame demand, check availability. A product that isn't on the shelf looks exactly like a product nobody wants.",
+    nextMove: "Show the buyer weekly out-of-stocks against the date deliveries changed. Ask your distributor to restore the second delivery or raise the cooler's par level. Then work on the door position.",
+  },
+  {
+    id: "flavor-cannibal", customer: "Hy-Vee", channel: "off", category: "Sparkling water", level: "Recognize", skill: "economics", algorithm: "prediction-vs-decision", tags: ["launch", "cannibalization"],
+    situation: "Your new flavour has sold $180K in its first 20 weeks at Hy-Vee. Your manager wants to call it a win in the quarterly review.",
+    evidence: [["New flavour sales", "$180K"], ["Core flavours", "−$150K", "bad"], ["Brand total", "+$30K"], ["Slotting and launch trade", "$45K", "warn"], ["Facings", "the new flavour took 2 from core"], ["Category", "+1%"]],
+    question: "How would you describe the launch?",
+    options: [
+      { label: "A clear win: $180K of new sales", quality: "weak", feedback: "That's the number on the launch slide, but $150K of it came out of your own core flavours. The shelf didn't grow. You rearranged it." },
+      { label: "Too early to say anything", quality: "good", feedback: "It is early, but you can already say something useful: so far it's mostly moving your own shoppers around. Saying that now is better than discovering it at the annual review." },
+      { label: "Mostly cannibalization: +$30K for the brand against $45K of cost", quality: "best", feedback: "Right. The brand gained about $30K against $45K of launch cost. The flavour may still be worth keeping, but it hasn't paid for itself yet." },
+      { label: "A failure. Pull it.", quality: "weak", feedback: "Too far. It's early, and it may be bringing in shoppers your core doesn't reach. The question is whether it becomes incremental, not whether to kill it today." },
+    ],
+    reasoning: "The prediction, that the flavour would sell, came true. What it means depends on what those sales replaced. Most came out of the core, because the new flavour took core facings. Judge a launch by what the brand gained, net of cost.",
+    principle: "Judge a new item by what the brand gained, not by what the new item sold.",
+    nextMove: "Report the launch as '+$30K for the brand, $45K cost, mostly cannibalization so far.' Propose giving one facing back to the best-selling core flavour and reviewing again in 12 weeks.",
+  },
+  {
+    id: "private-label", customer: "Food Lion", channel: "off", category: "Granola", level: "Defend", skill: "strategy", algorithm: "utility-and-trade-offs", tags: ["meeting", "pricing", "decline"],
+    situation: "Food Lion launched a store brand next to your granola at a 20% lower price. Eight weeks in, the buyer says you need to fund a deep promotion to 'stay competitive' or lose a facing.",
+    evidence: [["Your velocity", "−7%"], ["Price gap to the store brand", "20%"], ["Repeat buyers", "stable, 48% of your sales", "good"], ["Where the loss came from", "mostly occasional, price-driven shoppers"], ["Category dollars", "+3%"], ["Each unit of yours", "$1.40 more in sales than the store brand", "good"]],
+    question: "How do you respond?",
+    options: [
+      { label: "Fund the deep promotion to close the gap", quality: "weak", feedback: "You'd be paying to chase the shoppers most likely to switch anyway, and teaching loyal buyers to wait for a deal. The gap reopens the day the promotion ends." },
+      { label: "Accept losing the facing", quality: "good", feedback: "Sometimes a smaller, profitable shelf beats a bigger discounted one. But you haven't made your case yet. Try first." },
+      { label: "Ask for more facings to fight back", quality: "weak", feedback: "You're asking for more while he's asking you for less. Earn the conversation first." },
+      { label: "Make the case in his numbers: dollars per unit and loyal buyers", quality: "best", feedback: "Right. He's worried about the category, so talk about the category. Each unit of yours brings $1.40 more than the store brand, and your repeat buyers haven't moved. Offer targeted support, like a display on your best seller, rather than a price war." },
+    ],
+    reasoning: "Weigh what each option does for velocity, margin, and the relationship. A deep promotion helps velocity briefly and costs margin for good. Giving up the facing protects margin but costs volume. Making the category case with a targeted display scores reasonably on all three, which is why it wins under most sensible weightings.",
+    principle: "When a buyer frames it as a price problem, check whether it really is one. Defend with the buyer's economics, not your own.",
+    nextMove: "Bring one page: category dollars, your sales per unit against the store brand, and your repeat rate. Offer a four-week display on your best seller and agree the velocity target that keeps the facing.",
+  },
+  {
+    id: "ecommerce-rank", customer: "Walmart.com", channel: "off", category: "Sparkling water", level: "Diagnose", skill: "diagnosis", algorithm: "value-of-information", tags: ["ecommerce", "decline"],
+    situation: "Your online sales at Walmart.com are down 15% over two months, while in-store sales are flat. Your manager asks whether you should cut the online price.",
+    evidence: [["Online sales", "−15%"], ["In-store sales", "flat"], ["Search rank for 'sparkling water'", "#2 → #9", "bad"], ["Product page", "still shows the old pack", "warn"], ["Ratings", "4.6, stable"], ["Online availability", "91%, unchanged"]],
+    question: "What do you look into first?",
+    options: [
+      { label: "Cut the online price", quality: "weak", feedback: "Nothing suggests price. In-store is flat at the same price and ratings are steady. You'd give away margin to fix a visibility problem." },
+      { label: "Update the product page with the new pack", quality: "good", feedback: "Worth doing, and it may be one reason the rank slipped. But it's one input to search rank, not the whole answer. Start with the rank." },
+      { label: "Why search rank fell, and how to get back on page one", quality: "best", feedback: "Right. Falling from #2 to #9 pushes you off the first screen on a phone, where most online baskets are built. That explains the drop better than anything else here." },
+      { label: "Push online availability above 95%", quality: "weak", feedback: "91% isn't ideal, but it hasn't changed. It can't explain a new decline." },
+    ],
+    reasoning: "Ask which single fact would most change what you'd do. Online, visibility comes before price, because shoppers mostly choose from the first few results. The rank fell sharply while everything else held steady, so understanding the rank is the most valuable thing to learn. Retail media, content, reviews, and sales history all feed it.",
+    principle: "Online, the first screen is the shelf. When online sales fall and in-store doesn't, check where you show up before you touch price.",
+    nextMove: "Ask the retailer's e-commerce team or your agency what moved the rank. Fix the product page this week, and test sponsored search on your top two keywords for four weeks.",
+  },
+  {
+    id: "cost-increase", customer: "Harris Teeter", channel: "off", category: "Crackers", level: "Defend", skill: "economics", algorithm: "optimization", tags: ["pricing", "meeting"],
+    situation: "Your company is taking a 6% list price increase because ingredient costs rose. The Harris Teeter buyer says any increase will cost you a facing.",
+    evidence: [["List price increase", "+6%"], ["Your cost increase", "+9%, documented"], ["Expected shelf price", "$4.49 → $4.79"], ["Competitors", "two have already increased 5–7%", "good"], ["Your velocity", "top third of the set", "good"], ["Buyer's goal", "hold category unit sales"]],
+    question: "How do you handle it?",
+    options: [
+      { label: "Offer extra trade spend to offset the increase", quality: "weak", feedback: "You'd be handing the increase straight back. The cost pressure hasn't gone away; you've just moved it from the shelf to your P&L." },
+      { label: "Delay the increase at this account", quality: "good", feedback: "Timing can matter, but delaying at one retailer creates price gaps across your other accounts and only postpones the conversation." },
+      { label: "Accept losing the facing", quality: "weak", feedback: "Your velocity is top third. You have a strong case to make before you concede anything." },
+      { label: "Show the costs, the competitor moves, and a plan for his unit sales", quality: "best", feedback: "Right. Documented costs make it fair, competitors moving first makes it normal, and a plan for his units, like a smaller pack at the old price point, answers what he actually cares about." },
+    ],
+    reasoning: "Ask what each option costs you over the year. Offsetting with trade erases the increase. Delaying costs months of margin and creates inconsistency. Making the case with a plan for units keeps the increase and gives the buyer something for his goal. It's the only option that doesn't hand the value straight back.",
+    principle: "Never defend a price increase with price. Defend it with evidence and a plan for what the buyer cares about.",
+    nextMove: "Bring the cost documentation, competitor shelf prices, and a pack proposal that keeps an entry price point. Ask what unit target he needs and build the plan around it. Discuss your own pricing only, never what competitors should charge.",
+  },
+  {
+    id: "allocation", customer: "Your territory", channel: "off", category: "Hard seltzer", level: "Prioritize", skill: "prioritization", algorithm: "expected-value", tags: ["supply"],
+    situation: "A can shortage means you'll get 60% of your normal cases for the next four weeks. You decide how they're split across your eight largest accounts.",
+    evidence: [["Supply available", "60% of normal", "warn"], ["Two accounts", "charge penalties for missed deliveries", "warn"], ["One account", "reviewing your item for delisting next month", "bad"], ["Three accounts", "high velocity · no penalties"], ["Two accounts", "low velocity · plenty of backstock", "good"]],
+    question: "How do you split the cases?",
+    options: [
+      { label: "Give everyone 60% of their usual order", quality: "good", feedback: "Fair and easy to explain, but it treats a delisting risk the same as an account sitting on backstock." },
+      { label: "Fill the biggest accounts in full first", quality: "weak", feedback: "Size isn't the same as damage. A big account with backstock loses little. A mid-size account under review could drop you." },
+      { label: "Protect where running out costs most; cut where there's backstock", quality: "best", feedback: "Right. Ask where a missing case does the most damage: the delisting review, then the penalty accounts, then velocity. The backstock accounts can ride it out." },
+      { label: "First come, first served", quality: "weak", feedback: "That rewards whoever orders fastest, not whoever matters most." },
+    ],
+    reasoning: "Think in expected loss: the chance something goes wrong times what it costs. Shorting the delisting account risks the whole item there. Penalty accounts cost money every time you miss. High-velocity accounts lose sales fast. Backstock accounts lose almost nothing for four weeks. Allocating to minimise expected loss beats allocating to be even.",
+    principle: "When supply is short, allocate to minimise damage, not to be even. Then tell every account before they find out.",
+    nextMove: "Rank the eight accounts by the cost of running out. Fill the delisting account and the penalty accounts first, then the velocity leaders. Call every buyer this week with the plan and a date for full supply.",
+  },
+  {
+    id: "walk-away", customer: "Corner Fresh (independent)", channel: "off", category: "Snacks", level: "Act", skill: "economics", algorithm: "expected-value", tags: ["decline"],
+    situation: "Corner Fresh, a three-store independent, is down 30% this year. The owner wants free product and a new display every quarter to 'stay interested,' and each visit takes half a day every two weeks.",
+    evidence: [["Annual sales", "$14K"], ["Trend", "−30%"], ["This year's asks", "$3K free product · $2K displays", "warn"], ["Your time", "about 12 days a year"], ["Distributor", "already delivers there", "good"], ["Prospects", "4 within 10 miles"]],
+    question: "What do you do?",
+    options: [
+      { label: "Give him what he asks to win back the volume", quality: "weak", feedback: "$5K a year to protect $14K of shrinking sales, plus 12 days of your time. It doesn't add up, and it won't reverse a 30% decline." },
+      { label: "Visit more often to turn it around", quality: "weak", feedback: "More time on your least valuable account means less time on everything else." },
+      { label: "Keep things as they are", quality: "good", feedback: "Not harmful, but not a decision either. You're spending time and money by default." },
+      { label: "Hand service to the distributor and spend your time on prospects", quality: "best", feedback: "Right. The distributor already delivers there. Your 12 days a year are worth more across four prospects than at one account that's shrinking and costs more than it returns." },
+    ],
+    reasoning: "Expected value includes cost. Corner Fresh returns less each quarter while asking for more. Even if more visits held sales flat, the $5K of asks and 12 days of your time are worth more elsewhere. Sometimes the best move is to do less at an account.",
+    principle: "Not every account deserves more effort. Sometimes the best decision is to step back and spend your time where it returns more.",
+    nextMove: "Tell the owner you're moving his service to the distributor rep, with a quarterly check-in call. Book visits at the two most promising prospects in the next two weeks.",
+  },
 ];
 // Balance where the strongest answer sits so position is never a tell (A/B/C/D roughly equal).
-const bestPos = [2, 0, 3, 1, 3, 1, 2, 0, 1, 3, 0, 2, 3, 0, 2];
+const posBlocks = [[2, 0, 3, 1], [3, 1, 2, 0], [1, 3, 0, 2], [0, 2, 1, 3]];
+const bestPos = Array.from({ length: 64 }, (_, i) => posBlocks[Math.floor(i / 4) % 4][i % 4]);
 scenarios.forEach((s, i) => {
   const best = s.options.find(o => o.quality === "best");
   const rest = s.options.filter(o => o !== best);

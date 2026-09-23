@@ -20,15 +20,18 @@ export default async function Decision({ id }) {
   const line = says(prior ? `Last time you chose ${prior.option}. Pick again, or open the reasoning below.` : "Pick an option to see what the model expects. Then ask it why.");
   const choose = (o, el, { scroll = true } = {}) => {
     optionEls.forEach(b => b.setAttribute("aria-pressed", "false")); el.setAttribute("aria-pressed", "true");
+    revealPreferred();
     setChoice(d.id, o.name);
     if (o === best) line.set(`${o.name}: the option the model prefers. ${o.note || ""} Open the reasoning to see what it's assuming.`.replace("  ", " "), "good");
     else {
       const dm = best.margin - o.margin, dv = best.volume - o.volume;
       line.set(`${o.name} is a reasonable instinct. ${best.name} expects ${dm > 0 ? `${dm.toFixed(1)} pts more margin` : `${Math.abs(dm).toFixed(1)} pts less margin`} ${dv >= 0 ? `and ${dv.toFixed(0)} pts more volume` : `for ${Math.abs(dv).toFixed(0)} pts less volume`}. The reasoning below shows why the model weighs it that way.`, "warn");
     }
-    const why = document.getElementById("why"); if (why) { why.open = true; if (scroll) why.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    why.open = true; if (scroll) why.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  const optionEls = d.options.map(o => h("button", { type: "button", class: `option ${o === best ? "preferred" : ""}`, "aria-pressed": "false", onClick: (e) => choose(o, e.currentTarget) }, h("h4", {}, o.name), h("dl", {}, h("dt", {}, "Expected volume"), h("dd", { class: o.volume >= 0 ? "good" : "bad" }, pct(o.volume)), h("dt", {}, "Expected margin"), h("dd", { class: o.margin >= 0 ? "good" : "bad" }, pct(o.margin))), o.note ? h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, o.note) : null));
+  // The "Model prefers" badge and the reasoning stay hidden until the user has committed to an answer.
+  const revealPreferred = () => { optionEls.forEach((b, n) => b.classList.toggle("preferred", d.options[n] === best)); whySection.hidden = false; whySection.classList.add("in"); };
+  const optionEls = d.options.map(o => h("button", { type: "button", class: "option", "aria-pressed": "false", onClick: (e) => choose(o, e.currentTarget) }, h("h4", {}, o.name), h("dl", {}, h("dt", {}, "Expected volume"), h("dd", { class: o.volume >= 0 ? "good" : "bad" }, pct(o.volume)), h("dt", {}, "Expected margin"), h("dd", { class: o.margin >= 0 ? "good" : "bad" }, pct(o.margin))), o.note ? h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, o.note) : null));
 
   const why = h("details", { class: "disclose", id: "why" },
     h("summary", {}, h("span", {}, "Why is the model showing this?"), h("span", { class: "plus", "aria-hidden": "true" }, "+")),
@@ -41,14 +44,17 @@ export default async function Decision({ id }) {
         h("div", { class: "layer layer-2" }, eyebrow("What would change the recommendation"), h("p", { class: "muted" }, d.changes))),
       link(`/learn/${lessonFor[d.algorithm]}`, h("span", { class: "link" }, "Learn the algorithm ", arrow()))));
 
-  if (prior) queueMicrotask(() => { const idx = d.options.findIndex(o => o.name === prior.option); if (idx >= 0) { optionEls[idx].setAttribute("aria-pressed", "true"); const why = document.getElementById("why"); if (why) why.open = true; } });
+  const whySection = h("section", { class: "section reveal", hidden: true }, why);
+  // Returning to an answered decision: restore the selection, the badge and the open reasoning.
+  const priorIdx = prior ? d.options.findIndex(o => o.name === prior.option) : -1;
+  if (priorIdx >= 0) { optionEls[priorIdx].setAttribute("aria-pressed", "true"); revealPreferred(); why.open = true; }
   return h("article", {},
     h("header", { class: "reveal" }, h("p", { class: "tag" }, subject), h("p", { class: `tag verb-${d.verb.toLowerCase()}`, style: { marginTop: "6px" } }, d.verb),
       eyebrow("Question"), h("h1", { class: "hero", style: { marginTop: "12px", maxWidth: "24ch" } }, d.question)),
     h("section", { class: "section reveal", "aria-labelledby": "sees" }, h("h2", { id: "sees", style: { fontSize: "var(--fs-h3)" } }, "What the model sees"), h("div", { style: { marginTop: "16px" } }, metrics(d.sees))),
     h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)" } }, "The trade-off"), h("p", { class: "lede", style: { marginTop: "12px", fontSize: "1.375rem", lineHeight: 1.35 } }, d.tradeoff)),
     h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)", marginBottom: "16px" } }, "Your options"), h("div", { class: "options" }, ...optionEls), h("div", { style: { marginTop: "16px" } }, line)),
-    h("section", { class: "section reveal" }, why),
+    whySection,
     h("nav", { class: "section", "aria-label": "Next decision", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },
       link("/decisions", h("span", { class: "btn btn-ghost" }, "All decisions")),
       isLast ? link("/portfolio#attention", h("span", { class: "btn" }, "You've seen all four. Where do your next 10 hours go? ", arrow()))

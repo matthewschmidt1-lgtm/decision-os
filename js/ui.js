@@ -52,15 +52,62 @@ export function signedTone(label, value) {
   const invert = /spend|inventory|cost|gap|days out|out of stock/i.test(label);
   return (neg !== invert) ? "bad" : "good";
 }
+// Explicit tone wins; otherwise infer from a number or a signed string. Shared by metric() and evidence().
+export function inferTone(label, value, tone) {
+  const invert = /spend|inventory|cost|gap|days out|out of stock/i.test(label);
+  return tone || toneFor(value, invert) || signedTone(label, value);
+}
 export function metric(label, value, tone) {
   let cls = "v";
-  const invert = /spend|inventory|cost|gap|days out|out of stock/i.test(label);
-  const t = tone || toneFor(value, invert) || signedTone(label, value);
+  const t = inferTone(label, value, tone);
   if (typeof value === "number") cls += ` delta ${value > 0 ? "up" : value < 0 ? "down" : "flat"} ${t}`;
   else if (t) cls += ` ${t}`;
   return h("div", { class: "metric" }, h("span", { class: "k" }, label), h("span", { class: cls }, deltaText(value)));
 }
 export function metrics(rows) { return h("div", { class: "metrics" }, rows.map(r => metric(...r))); }
+
+// Evidence for practice scenarios. Rows are [label, value, tone?]; values range from "−8%" to whole sentences,
+// so each row is sorted into one of three shapes:
+//   short  → stat tile (label above, value below, tabular numbers, tone colour)
+//   long   → full-width row (label on its own line, value beneath at reading size; " · " parts become chips)
+//   list   → a single " · " row (e.g. "Possible causes") is a full-width row of chips, grouped on its own
+//   option → when two or more rows are " · " lists, they are options being compared: side-by-side cards
+// Groups appear in the order their first row appears in the data, so authors keep control of emphasis.
+// optionTones:false hides tone on option cards (a "good" option card would give the answer away before choosing).
+const SEP = /\s*·\s*/;
+const FIGURE = /^[~≈]?[+\-−–]?\s*\$?\d/;
+const LEAD = /^([~≈]?[+\-−–]?\$?\d[\d.,]*[KkM%×]?(?:\/yr)?)(?=[\s,]|$)/;
+export function factKind(value) {
+  if (typeof value === "number") return "short";
+  const s = String(value);
+  if (s.includes("·")) return "parts";
+  return s.length <= (FIGURE.test(s) ? 24 : 18) ? "short" : "long";
+}
+const lead = (text) => { const m = text.match(LEAD); return m ? [h("b", { class: "num" }, m[1]), text.slice(m[1].length)] : text; };
+export function evidence(rows, { optionTones = true } = {}) {
+  const facts = rows.map(([label, value, tone]) => ({ label, value, tone: inferTone(label, value, tone), kind: factKind(value) }));
+  const compare = facts.filter(f => f.kind === "parts").length >= 2;
+  const group = (f) => f.kind === "short" ? "tiles" : f.kind === "parts" ? (compare ? "cards" : "list") : "rows";
+  const order = [...new Set(facts.map(group))];
+  const tile = (f) => {
+    const text = deltaText(f.value);
+    const big = FIGURE.test(text) && text.length <= 12;
+    return h("div", { class: "ev-tile" }, h("span", { class: "k" }, f.label), h("span", { class: `v ${big ? "" : "is-text"} ${f.tone}` }, text));
+  };
+  const row = (f) => {
+    const parts = String(f.value).split(SEP).filter(Boolean);
+    return h("div", { class: "ev-row" }, h("span", { class: "k" }, f.label),
+      parts.length > 1 ? h("ul", { class: `ev-segs ${f.tone ? `is-${f.tone}` : ""}` }, parts.map(p => h("li", {}, p)))
+                       : h("span", { class: `v ${f.tone}` }, String(f.value)));
+  };
+  const card = (f) => {
+    const tone = optionTones ? f.tone : "";
+    return h("div", { class: `ev-card ${tone ? `is-${tone}` : ""}` }, h("p", { class: "k" }, f.label),
+      h("ul", {}, String(f.value).split(SEP).filter(Boolean).map(p => h("li", {}, lead(p)))));
+  };
+  const build = { tiles: (fs) => h("div", { class: "ev-tiles" }, fs.map(tile)), rows: (fs) => h("div", { class: "ev-rows" }, fs.map(row)), list: (fs) => h("div", { class: "ev-rows" }, fs.map(row)), cards: (fs) => h("div", { class: "ev-cards" }, fs.map(card)) };
+  return h("div", { class: "evidence" }, order.map(g => build[g](facts.filter(f => group(f) === g))));
+}
 
 export function bar(label, value, max, opts = {}) {
   const w = Math.max(0, Math.min(100, (value / max) * 100));

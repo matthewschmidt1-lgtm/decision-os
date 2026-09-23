@@ -63,6 +63,28 @@ a.card:hover,.card.clickable:hover{transform:translateY(-2px);box-shadow:var(--s
 .delta.down::before{border-top:6px solid currentColor}
 .delta.flat::before{width:8px;height:2px;border:0;background:currentColor}
 
+/* Evidence (practice scenarios): stat tiles, full-width rows, option cards */
+.evidence{display:grid;gap:24px;min-width:0}
+.ev-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:0 20px}
+.ev-tile{display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:12px 0 14px;border-top:1px solid var(--line);min-width:0}
+.ev-tile .k{font-size:var(--fs-micro);line-height:1.35;color:var(--muted)}
+.ev-tile .v{font-size:1.375rem;line-height:1.2;font-weight:500;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ev-tile .v.is-text{font-size:var(--fs-body);line-height:1.35;letter-spacing:0}
+.ev-rows{display:grid}
+.ev-row{display:grid;gap:4px;padding:12px 0 14px;border-top:1px solid var(--line);min-width:0}
+.ev-row .k{font-size:var(--fs-micro);color:var(--muted)}
+.ev-row .v{font-size:var(--fs-body);line-height:1.45;overflow-wrap:anywhere}
+.ev-segs{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.ev-segs li{padding:4px 10px;border-radius:var(--r-pill);border:1px solid var(--line-strong);font-size:var(--fs-micro);line-height:1.4;color:var(--ink-2);overflow-wrap:anywhere}
+.ev-segs.is-good li{color:var(--good);background:var(--good-soft);border-color:transparent}.ev-segs.is-warn li{color:var(--warn);background:var(--warn-soft);border-color:transparent}.ev-segs.is-bad li{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.ev-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.ev-card{background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-md);padding:16px 18px 6px;min-width:0}
+.ev-card.is-good{box-shadow:inset 0 3px 0 var(--good)}.ev-card.is-warn{box-shadow:inset 0 3px 0 var(--warn)}.ev-card.is-bad{box-shadow:inset 0 3px 0 var(--bad)}
+.ev-card .k{font-weight:600;letter-spacing:-0.01em;line-height:1.3;color:var(--ink)}
+.ev-card ul{list-style:none;margin:10px 0 0;padding:0}
+.ev-card li{padding:9px 0;border-top:1px solid var(--line);font-size:var(--fs-small);line-height:1.4;color:var(--ink-2);overflow-wrap:anywhere}
+.ev-card li b{font-weight:600;color:var(--ink)}
+
 /* Bars */
 .bars{display:grid;gap:10px}
 .bar-row{display:grid;grid-template-columns:minmax(110px,170px) 1fr 64px;gap:14px;align-items:center;font-size:var(--fs-small)}

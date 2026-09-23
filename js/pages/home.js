@@ -28,7 +28,7 @@ export default function Home() {
           h("p", {}, h("span", { class: "tag" }, "Situation "), `${next.situation.split(". ")[0]}.`),
           h("p", {}, h("span", { class: "tag" }, "Skill "), skills[next.skill].name)),
         link(startHref, h("span", { class: "btn btn-lg" }, allDone ? "Replay and review " : p.done ? "Continue training " : "Start training ", arrow()))),
-      h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, p.done ? `${p.done} of ${p.total} scenarios completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : "15 scenarios · 4 skills · 5 levels, from recognizing a pattern to defending a recommendation."),
+      h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, p.done ? `${p.done} of ${p.total} scenarios completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : `${p.total} scenarios · on-premise and off-premise · ${Object.keys(skills).length} skills · 5 levels, from recognizing a pattern to defending a recommendation.`),
     ),
     h("section", { class: "section reveal" },
       eyebrow("Your territory"),
