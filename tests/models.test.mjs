@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as M from "../js/models.js";
+import { brands } from "../js/data.js";
 
 test("marginal contribution declines with spend and crosses zero at the optimum", () => {
   const p = { vmax: 1200, k: 60, unitMargin: 0.11 };
@@ -66,4 +67,10 @@ test("money formats negatives with the sign first and keeps half-K precision", (
   assert.equal(M.money(1500), "$1.5K");
   assert.equal(M.money(-4000), "−$4K");
   assert.equal(M.money(21000), "$21K");
+});
+test("trade allocation: model never funds a dollar that returns less than a dollar, and beats spreading by revenue", () => {
+  const model = M.allocateBudget(brands, 250), habit = M.allocateByRevenue(brands, 250);
+  assert.ok(model.steps.every(s => s.ret > 1));
+  assert.ok(model.net > habit.net);
+  assert.ok(model.spent <= 250);
 });

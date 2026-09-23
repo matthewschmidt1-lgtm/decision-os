@@ -8,23 +8,25 @@ export const distributors = [
   { id: "summit", name: "Summit Wholesale", shipments: 9, inventory: 12, depletion: 2, accounts: 24 },
 ];
 
-// 15 brands. revenue in $, growth %, margin trend pts, tradeSpend growth %, evidence for the bandit (mean return/hour, hours observed, uncertainty)
+// 15 brands. revenue $, growth %, margin = margin trend (pts), trade = trade spend growth %, mean/n/sd = return per hour ($K gross profit),
+// hours observed and uncertainty (bandit). gm = gross margin %, tradeK = annual trade spend ($K), avgRoi = gross profit per trade $ on average,
+// r0 = gross profit from the NEXT trade $, k = how fast returns diminish ($K), hoursNow = your selling hours per month today (of 40).
 export const brands = [
-  { id: "A", name: "Brand A", revenue: 18.2e6, growth: 12, margin: -1.2, trade: 21, mean: 0.95, n: 140, sd: 0.10, role: "Anchor" },
-  { id: "B", name: "Brand B", revenue: 11.4e6, growth: 4, margin: -2.8, trade: 34, mean: 0.55, n: 96, sd: 0.14, role: "Over-supported" },
-  { id: "C", name: "Brand C", revenue: 9.1e6, growth: -3, margin: 0.4, trade: -6, mean: 0.48, n: 88, sd: 0.12, role: "Declining" },
-  { id: "D", name: "Brand D", revenue: 6.3e6, growth: 18, margin: 1.9, trade: 8, mean: 1.12, n: 34, sd: 0.30, role: "Breakout" },
-  { id: "E", name: "Brand E", revenue: 5.8e6, growth: 2, margin: 0.1, trade: 3, mean: 0.51, n: 70, sd: 0.11, role: "Steady" },
-  { id: "F", name: "Brand F", revenue: 4.9e6, growth: 6, margin: 0.6, trade: 5, mean: 0.60, n: 60, sd: 0.13, role: "Steady" },
-  { id: "G", name: "Brand G", revenue: 4.1e6, growth: -1, margin: -0.4, trade: 11, mean: 0.44, n: 52, sd: 0.15, role: "Watch" },
-  { id: "H", name: "Brand H", revenue: 3.6e6, growth: 9, margin: 1.1, trade: 2, mean: 0.74, n: 18, sd: 0.38, role: "Promising" },
-  { id: "I", name: "Brand I", revenue: 3.2e6, growth: 1, margin: 0.2, trade: 4, mean: 0.47, n: 48, sd: 0.12, role: "Steady" },
-  { id: "J", name: "Brand J", revenue: 2.7e6, growth: 5, margin: 0.3, trade: 6, mean: 0.58, n: 40, sd: 0.16, role: "Steady" },
-  { id: "K", name: "Brand K", revenue: 2.1e6, growth: -4, margin: -1.0, trade: 15, mean: 0.36, n: 44, sd: 0.14, role: "Declining" },
-  { id: "L", name: "Brand L", revenue: 1.8e6, growth: 3, margin: 0.5, trade: 1, mean: 0.52, n: 30, sd: 0.20, role: "Steady" },
-  { id: "M", name: "Brand M", revenue: 1.2e6, growth: 7, margin: 0.9, trade: 0, mean: 0.62, n: 6, sd: 0.45, role: "Little data" },
-  { id: "N", name: "Brand N", revenue: 0.9e6, growth: 0, margin: 0.0, trade: 2, mean: 0.40, n: 22, sd: 0.22, role: "Steady" },
-  { id: "O", name: "Brand O", revenue: 0.6e6, growth: 14, margin: 1.4, trade: 1, mean: 0.70, n: 8, sd: 0.40, role: "New" },
+  { id: "A", name: "Brand A", revenue: 18.2e6, growth: 12, margin: -1.2, trade: 21, mean: 0.95, n: 140, sd: 0.10, role: "Anchor", gm: 42, tradeK: 1500, avgRoi: 1.5, r0: 0.9, k: 150, hoursNow: 12 },
+  { id: "B", name: "Brand B", revenue: 11.4e6, growth: 4, margin: -2.8, trade: 34, mean: 0.55, n: 96, sd: 0.14, role: "Over-supported", gm: 34, tradeK: 2500, avgRoi: 1.1, r0: 0.6, k: 100, hoursNow: 8 },
+  { id: "C", name: "Brand C", revenue: 9.1e6, growth: -3, margin: 0.4, trade: -6, mean: 0.48, n: 88, sd: 0.12, role: "Declining", gm: 38, tradeK: 800, avgRoi: 1.0, r0: 0.8, k: 80, hoursNow: 5 },
+  { id: "D", name: "Brand D", revenue: 6.3e6, growth: 18, margin: 1.9, trade: 8, mean: 1.12, n: 34, sd: 0.30, role: "Breakout", gm: 46, tradeK: 450, avgRoi: 1.4, r0: 2.2, k: 120, hoursNow: 2 },
+  { id: "E", name: "Brand E", revenue: 5.8e6, growth: 2, margin: 0.1, trade: 3, mean: 0.51, n: 70, sd: 0.11, role: "Steady", gm: 40, tradeK: 500, avgRoi: 1.2, r0: 1.1, k: 60, hoursNow: 3 },
+  { id: "F", name: "Brand F", revenue: 4.9e6, growth: 6, margin: 0.6, trade: 5, mean: 0.60, n: 60, sd: 0.13, role: "Steady", gm: 41, tradeK: 400, avgRoi: 1.3, r0: 1.3, k: 70, hoursNow: 2 },
+  { id: "G", name: "Brand G", revenue: 4.1e6, growth: -1, margin: -0.4, trade: 11, mean: 0.44, n: 52, sd: 0.15, role: "Watch", gm: 36, tradeK: 450, avgRoi: 0.9, r0: 0.7, k: 60, hoursNow: 2 },
+  { id: "H", name: "Brand H", revenue: 3.6e6, growth: 9, margin: 1.1, trade: 2, mean: 0.74, n: 18, sd: 0.38, role: "Promising", gm: 44, tradeK: 220, avgRoi: 1.3, r0: 1.8, k: 90, hoursNow: 1.5 },
+  { id: "I", name: "Brand I", revenue: 3.2e6, growth: 1, margin: 0.2, trade: 4, mean: 0.47, n: 48, sd: 0.12, role: "Steady", gm: 39, tradeK: 280, avgRoi: 1.1, r0: 0.95, k: 50, hoursNow: 1.5 },
+  { id: "J", name: "Brand J", revenue: 2.7e6, growth: 5, margin: 0.3, trade: 6, mean: 0.58, n: 40, sd: 0.16, role: "Steady", gm: 41, tradeK: 220, avgRoi: 1.2, r0: 1.2, k: 50, hoursNow: 1 },
+  { id: "K", name: "Brand K", revenue: 2.1e6, growth: -4, margin: -1.0, trade: 15, mean: 0.36, n: 44, sd: 0.14, role: "Declining", gm: 33, tradeK: 280, avgRoi: 0.8, r0: 0.5, k: 40, hoursNow: 1.5 },
+  { id: "L", name: "Brand L", revenue: 1.8e6, growth: 3, margin: 0.5, trade: 1, mean: 0.52, n: 30, sd: 0.20, role: "Steady", gm: 40, tradeK: 130, avgRoi: 1.2, r0: 1.3, k: 40, hoursNow: 0.5 },
+  { id: "M", name: "Brand M", revenue: 1.2e6, growth: 7, margin: 0.9, trade: 0, mean: 0.62, n: 6, sd: 0.45, role: "Little data", gm: 45, tradeK: 50, avgRoi: 1.3, r0: 1.6, k: 30, hoursNow: 0 },
+  { id: "N", name: "Brand N", revenue: 0.9e6, growth: -2, margin: 0.0, trade: 2, mean: 0.40, n: 22, sd: 0.22, role: "Under-supported", gm: 37, tradeK: 70, avgRoi: 1.0, r0: 1.2, k: 30, hoursNow: 0 },
+  { id: "O", name: "Brand O", revenue: 0.6e6, growth: 14, margin: 1.4, trade: 1, mean: 0.70, n: 8, sd: 0.40, role: "New", gm: 47, tradeK: 40, avgRoi: 1.4, r0: 1.7, k: 30, hoursNow: 0 },
 ];
 export const brandById = Object.fromEntries(brands.map(b => [b.id, b]));
 

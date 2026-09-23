@@ -138,6 +138,35 @@ export function fingerprint({ volume, price, tradeSpend, marginRate = 0.32 }) {
   return { sales: round(sales * 100, 1), volume, price, margin: round(margin, 1), tradeSpend };
 }
 
+/* ---------- 09 Trade budget allocation (greedy marginal analysis) ---------- */
+// Incremental gross profit ($K) from spending x ($K) more on a brand, with diminishing returns.
+export const tradeGain = (b, x) => b.r0 * b.k * (1 - Math.exp(-x / b.k));
+export const nextDollar = (b, x) => b.r0 * Math.exp(-x / b.k);
+export const quadrant = (b) => b.growth >= 0 ? (b.r0 > 1 ? "invest" : "protect") : (b.r0 > 1 ? "fix" : "diagnose");
+// Give each chunk to the brand whose next chunk returns the most; stop when no chunk returns more than it costs.
+export function allocateBudget(brands, budget, step = 10) {
+  const x = Object.fromEntries(brands.map(b => [b.id, 0]));
+  const steps = []; let spent = 0;
+  while (spent + step <= budget) {
+    let best = null, bestR = -Infinity;
+    for (const b of brands) { const r = (tradeGain(b, x[b.id] + step) - tradeGain(b, x[b.id])) / step; if (r > bestR) { bestR = r; best = b; } }
+    if (bestR <= 1) break;
+    x[best.id] += step; spent += step; steps.push({ id: best.id, ret: bestR, amount: step });
+  }
+  return summarize(brands, x, budget, steps);
+}
+// The habit: spread the budget in proportion to revenue.
+export function allocateByRevenue(brands, budget) {
+  const total = brands.reduce((a, b) => a + b.revenue, 0);
+  const x = Object.fromEntries(brands.map(b => [b.id, budget * b.revenue / total]));
+  return summarize(brands, x, budget, []);
+}
+function summarize(brands, x, budget, steps) {
+  const spent = Object.values(x).reduce((a, v) => a + v, 0);
+  const gain = brands.reduce((a, b) => a + tradeGain(b, x[b.id]), 0);
+  return { x, steps, spent, gain, net: gain - spent, unspent: budget - spent };
+}
+
 /* ---------- Formatting helpers ---------- */
 export const pct = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}%`;
 export const money = (x) => {
