@@ -8,7 +8,7 @@ export default async function Lesson({ id }) {
   const l = lessonBySlug[id];
   if (!l) return (await import("./notfound.js")).default();
   setMeta({ title: l.title, description: l.tagline });
-  const i = lessons.indexOf(l); const next = lessons[(i + 1) % lessons.length];
+  const i = lessons.indexOf(l); const next = lessons[i + 1];
   const d = l.decision ? decisionById[l.decision] : null;
   const widget = widgetFor[l.widget](d || {});
   const step = (n, title, body) => h("section", { class: "step reveal", style: { padding: "36px 0" } }, h("span", { class: "n" }, n), h("div", { class: "stack", style: { "--gap": "14px", minWidth: 0 } }, h("h2", { style: { fontSize: "var(--fs-h3)" } }, title), body));
@@ -20,6 +20,6 @@ export default async function Lesson({ id }) {
       step("03", "See it in sales", [h("p", { class: "lede" }, l.sales), d ? link(`/decisions/${d.id}`, h("span", { class: "link" }, `Open the real decision: ${d.verb} ${d.headline} `, arrow())) : null]),
       step("04", "Apply it", h("ul", { style: { margin: 0, paddingLeft: "1.2em", display: "grid", gap: "8px" } }, l.apply.map(a => h("li", {}, a))))),
     h("nav", { class: "section", "aria-label": "Next lesson", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },
-      link("/learn", h("span", { class: "btn btn-ghost" }, "All algorithms")), link(`/learn/${next.slug}`, h("span", { class: "btn" }, `Next: ${next.title} `, arrow()))),
+      link("/learn", h("span", { class: "btn btn-ghost" }, "All algorithms")), next ? link(`/learn/${next.slug}`, h("span", { class: "btn" }, `Next: ${next.title} `, arrow())) : link("/practice", h("span", { class: "btn" }, `That's all ${lessons.length}. Put them to work in Practice `, arrow()))),
   );
 }

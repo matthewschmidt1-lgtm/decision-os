@@ -140,5 +140,11 @@ export function fingerprint({ volume, price, tradeSpend, marginRate = 0.32 }) {
 
 /* ---------- Formatting helpers ---------- */
 export const pct = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}%`;
-export const money = (x) => x >= 1e6 ? `$${(x / 1e6).toFixed(1)}M` : x >= 1e3 ? `$${Math.round(x / 1e3)}K` : `$${Math.round(x)}`;
+export const money = (x) => {
+  const sign = x < 0 ? "−" : ""; const a = Math.abs(x);
+  if (a >= 1e6) return `${sign}$${(a / 1e6).toFixed(1)}M`;
+  if (a >= 1e4) return `${sign}$${Math.round(a / 1e3)}K`;
+  if (a >= 1e3) return `${sign}$${(Math.round(a / 100) / 10).toString()}K`;
+  return `${sign}$${Math.round(a)}`;
+};
 export const hours = (h) => `${h.toFixed(1)}h`;

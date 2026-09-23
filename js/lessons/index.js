@@ -3,7 +3,7 @@ export const lessons = [
   { slug: "expected-value", title: "Expected Value", tagline: "Is this opportunity worth pursuing?", widget: "ev",
     concept: "Multiply what you'd gain by how likely you are to gain it, then subtract what it costs to try. That number, not the size of the prize, is what an opportunity is worth.",
     formula: "EV = P(success) × value − cost of pursuing",
-    sales: "Big account = important is the most expensive habit in sales. A $95K account at 18% odds is worth less than a $21K account at 84%. Expected value makes the small, likely win visible.",
+    sales: "Big account = important is the most expensive habit in sales. A $95K account at 15% odds is worth less than a $21K account at 84%. Expected value makes the small, likely win visible.",
     apply: ["Rank this week's visits by expected value, not account size.", "When a prospect feels exciting, write down the probability before the value.", "Include the cost of pursuing: your hours are the scarcest input."],
     decision: "capture-cedar" },
   { slug: "bayesian-updating", title: "Bayesian Updating", tagline: "Prior belief → new evidence → updated belief.", widget: "bayes",

@@ -61,3 +61,9 @@ test("bayes widget evidence lands above 50% for the Fresh Thyme case", () => {
   const steps = M.bayesUpdate(0.35, [{ name: "a", lr: 2.0 }, { name: "b", lr: 1.8 }, { name: "c", lr: 1.5 }, { name: "d", lr: 0.7 }]);
   assert.ok(steps.at(-1).p > 0.5);
 });
+test("money formats negatives with the sign first and keeps half-K precision", () => {
+  assert.equal(M.money(-450), "−$450");
+  assert.equal(M.money(1500), "$1.5K");
+  assert.equal(M.money(-4000), "−$4K");
+  assert.equal(M.money(21000), "$21K");
+});

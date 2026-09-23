@@ -23,8 +23,9 @@ export function marginalWidget({ compact = false } = {}) {
     ba.update([sc.volume, sc.contribution]);
     const extra = sc.spend - base.spend;
     if (v === 0) line.set("This is where you are now. Each additional dollar still returns slightly more than it costs.");
-    else if (sc.spend > opt + 2) line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume, but reduces expected contribution by ${M.pct(Math.abs(sc.contributionPct))}. You are past the point of diminishing return.`, "warn");
-    else if (v < 0) line.set(`Cutting $${Math.abs(extra).toFixed(0)}K loses ${M.pct(sc.volumePct)} volume and ${sc.contributionPct < 0 ? "reduces" : "improves"} contribution by ${M.pct(Math.abs(sc.contributionPct))}.`, sc.contributionPct < 0 ? "warn" : "good");
+    else if (v > 0 && sc.contributionPct < 0) line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume, but lowers expected contribution by ${Math.abs(sc.contributionPct).toFixed(1)}%. The extra spend costs more than the volume it buys.`, "warn");
+    else if (v > 0 && sc.spend > opt) line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume and still adds ${M.pct(sc.contributionPct)} contribution overall, but the last dollars are now losing money. You've passed the peak of the curve.`, "warn");
+    else if (v < 0) line.set(`Cutting $${Math.abs(extra).toFixed(0)}K loses ${Math.abs(sc.volumePct).toFixed(1)}% of volume and ${sc.contributionPct < 0 ? "lowers" : "raises"} contribution by ${Math.abs(sc.contributionPct).toFixed(1)}%.${sc.contributionPct < 0 ? " At today's spend, the promotion is still paying for itself." : ""}`, sc.contributionPct < 0 ? "warn" : "good");
     else line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume and ${M.pct(sc.contributionPct)} contribution. Still worth it, barely.`, "good");
   } });
   const reset = h("button", { type: "button", class: "link", style: { fontSize: "var(--fs-small)" }, onClick: () => { sl.set(0); sl.querySelector("input").dispatchEvent(new Event("input")); } }, "Reset to today's spend");
@@ -49,9 +50,10 @@ export function utilityWidget(options, { initial = { volume: 30, revenue: 30, ma
   const keys = ["volume", "revenue", "margin"];
   const sliders = {};
   const rebalance = (k, v) => {
-    const others = keys.filter(x => x !== k); const rest = others.reduce((a, x) => a + w[x], 0); const target = 100 - v;
-    others.forEach(x => { w[x] = rest > 0 ? Math.round((w[x] / rest) * target / 5) * 5 : Math.round(target / 2 / 5) * 5; sliders[x].set(w[x]); });
-    w[k] = v; render();
+    const [a, b] = keys.filter(x => x !== k); const rest = w[a] + w[b]; const target = 100 - v;
+    w[a] = Math.round((rest > 0 ? (w[a] / rest) * target : target / 2) / 5) * 5;
+    w[b] = target - w[a];
+    w[k] = v; sliders[a].set(w[a]); sliders[b].set(w[b]); render();
   };
   keys.forEach(k => { sliders[k] = slider({ label: k[0].toUpperCase() + k.slice(1), min: 0, max: 100, step: 5, value: w[k], format: v => `${v}%`, onInput: v => rebalance(k, v) }); });
   render();
@@ -59,6 +61,7 @@ export function utilityWidget(options, { initial = { volume: 30, revenue: 30, ma
 }
 
 /* Bandit: allocate 10 hours across brands; exploration slider */
+const explorationLabel = v => v < 0.25 ? "exploit only" : v < 0.75 ? "balanced" : v < 1.2 ? "curious" : "explore heavily";
 export function banditWidget({ hours = 10 } = {}) {
   const arms = brands.map(b => ({ id: b.id, name: b.name, mean: b.mean, n: b.n, sd: b.sd }));
   let c = 0.5, mode = "model";
@@ -75,13 +78,14 @@ export function banditWidget({ hours = 10 } = {}) {
       line.set(`This is the habit: time follows revenue. Brand A gets ${byRevenue[0].hours.toFixed(1)} hours because it's biggest. Brand D gets ${dRev.hours.toFixed(1)}. The model would give Brand D ${d.hours.toFixed(1)}, because its return on the next hour is the highest in the portfolio.`, "warn");
       return;
     }
-    const top = alloc.slice(0, 6); const rest = alloc.slice(6).reduce((a, x) => a + x.hours, 0);
+    const top = alloc.slice(0, 6); const rest = Math.max(0, Math.round((hours - top.reduce((a, x) => a + x.hours, 0)) * 10) / 10);
     list.replaceChildren(...top.map((a, i) => bar(a.name, a.hours, 4, { tone: i === 0 ? "accent" : "", format: M.hours })), bar("Others", rest, 4, { tone: "muted", format: M.hours }));
     const explore = alloc.filter(a => a.n < 20).reduce((a, x) => a + x.hours, 0);
     const lead = alloc[0];
-    line.set(c < 0.25 ? `Pure exploitation. ${lead.name} gets the most time because its proven return is highest. Brands with little data get almost nothing, so you never learn whether they'd work.` : c > 1 ? `Heavy exploration. ${explore.toFixed(1)} hours go to brands with little evidence. You'll learn a lot, at the cost of known return.` : `Balanced. ${lead.name} leads on proven return, while ${explore.toFixed(1)} hours are spent learning whether Brand M and Brand O are real opportunities.`);
+    const mode_ = explorationLabel(c);
+    line.set(mode_ === "exploit only" ? `Pure exploitation. ${lead.name} gets the most time because its proven return is highest. Brands with little data get almost nothing, so you never learn whether they'd work.` : mode_ === "explore heavily" ? `Heavy exploration. ${explore.toFixed(1)} hours go to brands with little evidence. You'll learn a lot, at the cost of known return.` : mode_ === "curious" ? `Curious. ${lead.name} still leads, but ${explore.toFixed(1)} hours now go to brands you know little about. You're paying a little known return to learn faster.` : `Balanced. ${lead.name} leads on proven return, while ${explore.toFixed(1)} hours are spent learning whether Brand M and Brand O are real opportunities.`);
   };
-  const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: 0.5, format: v => v < 0.25 ? "exploit only" : v < 0.75 ? "balanced" : v < 1.2 ? "curious" : "explore heavily", onInput: v => { c = v; render(); } });
+  const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: 0.5, format: explorationLabel, onInput: v => { c = v; render(); } });
   render();
   const toggle = segmented([{ value: "model", label: "Model's allocation" }, { value: "revenue", label: "If time followed revenue" }], "model", v => { mode = v; render(); });
   return h("div", { class: "stack", style: { "--gap": "22px" } }, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "eyebrow" }, `Your next ${hours} hours`), toggle), list, sl, line, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "A real bandit picks one arm at a time and learns. This is the same idea turned into a time split: each brand's score is proven return plus an uncertainty bonus, and hours follow the scores. Return-per-hour figures are illustrative."));
@@ -106,7 +110,11 @@ export function bayesWidget() {
     tween(big, last * 100, p * 100, v => `${Math.round(v)}%`); last = p;
     trail.replaceChildren(...steps.map((st, i) => bar(i === 0 ? "Prior" : `After evidence ${i}`, st.p * 100, 100, { tone: i === steps.length - 1 ? "accent" : "muted", format: v => `${v.toFixed(0)}%` })));
     const on = evidence.filter(e => e.on).length;
-    line.set(on === 0 ? "No evidence yet. Your belief is just the base rate: about a third of second-SKU asks get a yes." : `${on} pieces of evidence moved the estimate from ${Math.round(prior * 100)}% to ${Math.round(p * 100)}%. The rep's comment counts, but a rep carrying 60 brands saying 'don't bother' is weak evidence. Likelihood ratios here are judgment calls; the habit is weighing each signal by how surprising it would be if you were wrong.`);
+    const active = evidence.filter(e => e.on);
+    const rep = evidence[3];
+    const repLine = rep.on ? " The rep's 'don't bother' pulls the estimate down, but only a little: a rep carrying 60 brands says that often." : " With the rep's comment off, the estimate climbs. Notice how little that one opinion was worth.";
+    const strongest = [...active].sort((a, b) => b.lr - a.lr)[0];
+    line.set(on === 0 ? "No evidence yet. Your belief is just the base rate: about a third of second-SKU asks get a yes." : `${on} ${on === 1 ? "piece" : "pieces"} of evidence moved the estimate from ${Math.round(prior * 100)}% to ${Math.round(p * 100)}%.${strongest && strongest.lr > 1 ? ` The strongest signal: ${strongest.name}.` : ""}${repLine} Likelihood ratios are judgment calls; the habit is weighing each signal by how surprising it would be if you were wrong.`);
   };
   const toggles = evidence.map(e => h("button", { type: "button", class: "pill", "aria-pressed": String(e.on), onClick: (ev) => { e.on = !e.on; ev.currentTarget.setAttribute("aria-pressed", String(e.on)); render(); } }, `${e.name} · ×${e.lr}`));
   render();
@@ -121,7 +129,7 @@ export function evWidget({ p = 0.84, value = 21000, cost = 1500 } = {}) {
   const big = h("span", { class: "num", style: { fontSize: "clamp(2.5rem,6vw,4rem)", fontWeight: 500, letterSpacing: "-0.03em" } });
   const formula = h("p", { class: "mono muted", style: { fontSize: "var(--fs-small)" } });
   const line = says("");
-  const compare = { name: "Large, unlikely account", p: 0.18, value: 95000, cost: 6000 };
+  const compare = { name: "Large, unlikely account", p: 0.15, value: 95000, cost: 6000 };
   let last = 0;
   const render = () => {
     const ev = M.expectedValue(st); tween(big, last, ev, v => M.money(v)); last = ev;
@@ -149,14 +157,15 @@ export function treeWidget() {
   ] });
   const view = h("div", {});
   const line = says("");
-  const node = (n, dim = false) => h("div", { class: `node ${dim ? "dim" : ""}` }, h("span", { class: "n" }, n.label), h("span", { class: "v" }, `$${n.value.toFixed(0)}K`));
+  const node = (n, dim = false) => h("div", { class: `node ${dim ? "dim" : ""}` }, h("span", { class: "n" }, n.label), h("span", { class: `v ${n.value < 0 ? "bad" : ""}` }, `${n.value < 0 ? "−" : ""}$${Math.abs(n.value).toFixed(0)}K`));
   const render = () => {
     const t = M.evaluateTree(tree(), payoffs);
-    const best = t.branches[0].node.value > t.branches[1].node.value ? 0 : 1;
+    const contrib = t.branches.map(b => b.p * b.node.value);
+    const best = contrib[0] >= contrib[1] ? 0 : 1;
     view.replaceChildren(h("div", { class: "tree" }, node(t), h("div", { class: "edge" }),
       h("div", { class: "branch" }, ...t.branches.map((b, i) => h("div", {}, h("div", { class: "edge" }), h("span", { class: "tag" }, `${b.label} · ${Math.round(b.p * 100)}%`), h("div", { style: { height: "6px" } }), node(b.node, i !== best), h("div", { class: "edge" }),
         h("div", { class: "branch" }, ...b.node.branches.map(l => h("div", {}, h("div", { class: "edge" }), h("span", { class: "tag" }, `${l.label} · ${Math.round(l.p * 100)}%`), h("div", { style: { height: "6px" } }), node(l.node, i !== best)))))))));
-    line.set(`Rolling back from the leaves, the opportunity is worth about $${t.value.toFixed(0)}K today. The ${t.branches[best].label.toLowerCase()} path carries most of that value, so learning velocity first is worth more than learning distribution first.`);
+    line.set(`Rolling back from the leaves, the opportunity is worth about $${t.value.toFixed(0)}K today. The ${t.branches[best].label.toLowerCase()} path contributes $${contrib[best].toFixed(0)}K of that, against $${contrib[1 - best].toFixed(0)}K from the ${t.branches[1 - best].label.toLowerCase()} path. ${best === 0 ? "Velocity is the fact worth confirming first." : "The downside branch now dominates. Confirm velocity before you invest in distribution."}`, best === 0 ? "" : "warn");
   };
   const sliders = [
     slider({ label: "P(high velocity)", min: 5, max: 95, step: 5, value: 55, format: v => `${v}%`, onInput: v => { st.pHigh = v / 100; render(); } }),
@@ -191,11 +200,11 @@ export function voiWidget() {
   const beliefs = h("div", { class: "bars" });
   const render = () => {
     const r = M.valueOfInformation(causes, actions, diagnostics);
-    const max = Math.max(1, ...r.diagnostics.map(d => d.value));
-    list.replaceChildren(...r.diagnostics.map((d, i) => bar(d.name, d.value, max, { tone: i === 0 ? "accent" : "muted", format: v => `$${v.toFixed(1)}K` })));
+    const max = Math.max(1, ...r.diagnostics.map(d => d.net));
+    list.replaceChildren(...r.diagnostics.map((d, i) => bar(d.name, Math.max(0, d.net), max, { tone: i === 0 ? "accent" : "muted", format: () => `${d.net < 0 ? "−" : ""}$${Math.abs(d.net).toFixed(1)}K` })));
     beliefs.replaceChildren(...causes.map(c => bar(c.name, c.p * 100, 50, { tone: "muted", format: v => `${v.toFixed(0)}%` })));
     const top = r.diagnostics[0];
-    line.set(`Acting now, the best move is "${r.now.id}" worth about $${r.now.ev.toFixed(1)}K. Knowing everything would add $${r.evpi}K. The single most valuable thing to learn is "${top.name}" (worth $${top.value}K for a cost of $${top.cost}K).`);
+    line.set(`Acting now, the best move is "${r.now.id}" worth about $${r.now.ev.toFixed(1)}K. Knowing everything would add $${r.evpi}K. The single most valuable thing to learn is "${top.name}" (worth $${top.value}K for a cost of $${top.cost}K, so $${top.net}K net). Bars show value net of what each check costs.`);
   };
   const sl = slider({ label: "How likely is distributor inventory the cause?", min: 5, max: 70, step: 5, value: 30, format: v => `${v}%`, onInput: v => {
     const inv = causes.find(c => c.id === "inventory"); const others = causes.filter(c => c !== inv); const rest = others.reduce((a, c) => a + c.p, 0);
@@ -215,7 +224,7 @@ export function fingerprintWidget({ volume = 5, price = 3, tradeSpend = 14 } = {
     const f = M.fingerprint(st);
     view.replaceChildren(h("div", { class: "tree" }, node("Sales", f.sales, f.sales >= 0 ? "good" : "bad"), h("div", { class: "edge" }),
       h("div", { class: "branch" }, h("div", {}, h("div", { class: "edge" }), node("Volume", f.volume, f.volume >= 0 ? "good" : "bad"), h("div", { class: "edge" }), node("Margin", f.margin, f.margin >= 0 ? "good" : "bad"), h("div", { class: "edge" }), node("Trade spend", f.tradeSpend, f.tradeSpend > 8 ? "bad" : "")), h("div", {}, h("div", { class: "edge" }), node("Price", f.price, f.price >= 0 ? "good" : "bad")))));
-    line.set(f.margin < 0 && f.sales > 0 ? `Sales are up ${f.sales}% but margin is down ${Math.abs(f.margin)}%. The growth was bought with trade spend, not earned with demand.` : f.margin >= 0 && f.sales > 0 ? `Sales up ${f.sales}% and margin up ${f.margin}%. This is the kind of growth that compounds.` : `Sales are flat or down. Look at whether price or volume is doing the damage.`, f.margin < 0 ? "warn" : "good");
+    line.set(f.margin < 0 && f.sales > 0 ? `Sales are up ${f.sales}% but margin is down ${Math.abs(f.margin)}%. The growth was bought with trade spend, not earned with demand.` : f.margin >= 0 && f.sales > 0 ? `Sales up ${f.sales}% and margin up ${f.margin}%. This is the kind of growth that compounds.` : `Sales are ${f.sales < 0 ? `down ${Math.abs(f.sales)}%` : "flat"}. Look at whether price or volume is doing the damage.`, f.margin < 0 || f.sales <= 0 ? "warn" : "good");
   };
   const sliders = [
     slider({ label: "Volume", min: -10, max: 15, step: 1, value: st.volume, format: v => `${v > 0 ? "+" : ""}${v}%`, onInput: v => { st.volume = v; render(); } }),

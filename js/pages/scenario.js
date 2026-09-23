@@ -3,6 +3,7 @@ import { scenarios, scenarioById, skills, tracks, challengeIds, qualityScore } f
 import { lessonBySlug } from "../lessons/index.js";
 import { recordResult, getResult, allResults } from "../store.js";
 import { setMeta } from "../app.js";
+import { nextUnplayedAfter, nextUnplayed } from "./practice.js";
 
 function setFor(setId) {
   if (setId === "challenge") return { title: "5-minute challenge", list: challengeIds.map(id => scenarioById[id]) };
@@ -22,9 +23,8 @@ export default async function Scenario({ id, params }) {
 
   // Progressive reveal: choice → feedback → why (evidence → reasoning → principle) → next move
   const feedback = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
-  const whyBtn = h("button", { type: "button", class: "btn btn-ghost", hidden: true }, "Why? ", h("span", { class: "arrow", "aria-hidden": "true" }, "↓"));
+  const whyBtn = h("button", { type: "button", class: "btn btn-ghost", hidden: true }, "Why? See the reasoning and the principle ", h("span", { class: "arrow", "aria-hidden": "true" }, "↓"));
   const why = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
-  const principleBtn = h("button", { type: "button", class: "btn btn-ghost", hidden: true }, "The principle ", h("span", { class: "arrow", "aria-hidden": "true" }, "↓"));
   const principle = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
   const nextNav = h("nav", { hidden: true, "aria-label": "Next", style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } });
 
@@ -42,19 +42,20 @@ export default async function Scenario({ id, params }) {
   whyBtn.addEventListener("click", () => {
     why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { class: "metrics", style: { marginTop: "8px" } }, s.evidence.map(e => metric(e[0], e[1], e[2])))),
       h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`)));
-    whyBtn.hidden = true; show(why); principleBtn.hidden = false;
-  });
-  principleBtn.addEventListener("click", () => {
+    whyBtn.hidden = true; why.hidden = false; why.classList.add("reveal", "in");
     principle.replaceChildren(h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "rgba(245,245,240,.6)" } }, "The principle"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px", letterSpacing: "-0.01em" } }, s.principle)),
       h("div", { class: "layer layer-2" }, eyebrow("Your next move"), h("p", {}, s.nextMove)),
       link(`/learn/${s.algorithm}`, h("span", { class: "link" }, `Learn the algorithm: ${lesson.title} `, arrow())));
-    principleBtn.hidden = true; show(principle);
+    principle.hidden = false; principle.classList.add("reveal", "in");
+    const after = nextUnplayedAfter(s.id);
     nextNav.replaceChildren(
-      set && nextInSet ? link(`/practice/${nextInSet.id}?set=${params.get("set")}&i=${i + 1}`, h("span", { class: "btn" }, `Next challenge · ${i + 2} of ${set.list.length} `, arrow()))
+      set && nextInSet ? link(`/practice/${nextInSet.id}?set=${params.get("set")}&i=${i + 1}`, h("span", { class: "btn" }, `Next · ${i + 2} of ${set.list.length} `, arrow()))
       : set && isLastInSet ? link(`/practice/summary?set=${params.get("set")}`, h("span", { class: "btn" }, "Finish ", arrow()))
-      : link(`/practice/${(scenarios.find(x => !allResults()[x.id] && x.id !== s.id) || scenarios[(scenarios.indexOf(s) + 1) % scenarios.length]).id}`, h("span", { class: "btn" }, "Next challenge ", arrow())),
-      link("/practice", h("span", { class: "btn btn-ghost" }, "All scenarios")));
-    show(nextNav);
+      : after ? link(`/practice/${after.id}`, h("span", { class: "btn" }, "Next challenge ", arrow()))
+      : link("/practice/summary", h("span", { class: "btn" }, "You've done them all. See your results ", arrow())),
+      link("/practice", h("span", { class: "btn btn-ghost" }, "Back to practice")));
+    nextNav.hidden = false; nextNav.classList.add("reveal", "in");
+    why.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   const optionEls = s.options.map((o, n) => h("button", { type: "button", class: "option choice", "aria-pressed": "false", onClick: e => choose(o, e.currentTarget) },
@@ -69,14 +70,14 @@ export default async function Scenario({ id, params }) {
     h("section", { class: "section reveal", style: { marginTop: "40px" } }, eyebrow("The decision"), h("h2", { style: { marginTop: "10px" } }, s.question), h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, "Pick one. You'll see the reasoning either way."),
       h("div", { class: "choices", style: { marginTop: "20px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `You've done this one before (you chose ${prior.option}). Replays don't change your score.`) : null),
     h("section", { class: "section", style: { marginTop: "40px" } }, feedback, h("div", { style: { marginTop: "20px" } }, whyBtn)),
-    h("section", { style: { marginTop: "24px" } }, why, h("div", { style: { marginTop: "20px" } }, principleBtn)),
+    h("section", { style: { marginTop: "24px" } }, why),
     h("section", { style: { marginTop: "24px" } }, principle),
     h("section", { class: "section" }, nextNav),
   );
 }
 
 export async function Summary({ params }) {
-  const set = setFor(params.get("set")) || { title: "Practice", list: scenarios };
+  const set = setFor(params.get("set")) || { title: "All scenarios", list: scenarios };
   setMeta({ title: "Nice work" });
   const r = allResults();
   const done = set.list.filter(s => r[s.id]);
@@ -89,6 +90,6 @@ export async function Summary({ params }) {
     h("section", { class: "section reveal" }, h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "rgba(245,245,240,.6)" } }, "One thing to remember"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px" } }, weakest.principle))),
     h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)", marginBottom: "12px" } }, "What you did"),
       done.map(s => link(`/practice/${s.id}`, h("span", { class: "decision-row" }, h("span", { class: `verb ${r[s.id].quality === "best" ? "good" : r[s.id].quality === "good" ? "" : "warn"}` }, r[s.id].quality === "best" ? "Strong" : r[s.id].quality === "good" ? "Reasonable" : "Revisit"), h("span", { class: "body" }, `${s.customer}: ${s.question}`), arrow())))),
-    h("section", { class: "section reveal", style: { display: "flex", gap: "12px", flexWrap: "wrap" } }, link("/practice", h("span", { class: "btn" }, "Next challenge ", arrow())), link("/", h("span", { class: "btn btn-ghost" }, "Home"))),
+    h("section", { class: "section reveal", style: { display: "flex", gap: "12px", flexWrap: "wrap" } }, (() => { const n = nextUnplayed(); return n ? link(`/practice/${n.id}`, h("span", { class: "btn" }, "Next challenge ", arrow())) : link("/practice", h("span", { class: "btn" }, "Back to practice ", arrow())); })(), link("/", h("span", { class: "btn btn-ghost" }, "Home"))),
   );
 }

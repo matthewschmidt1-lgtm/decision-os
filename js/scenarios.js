@@ -8,11 +8,13 @@ export const skills = {
 };
 export const levels = ["Recognize", "Diagnose", "Prioritize", "Act", "Defend"];
 
+const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => ids.includes(s.id) });
 export const tracks = [
-  { id: "meeting", title: "Practice a customer meeting", blurb: "A buyer pushes back. What do you say?", filter: s => ["Act", "Defend"].includes(s.level) },
-  { id: "opportunity", title: "Analyze a sales opportunity", blurb: "Is it worth pursuing, and how?", filter: s => s.skill === "strategy" || s.tags.includes("opportunity") },
-  { id: "focus", title: "Decide where to focus", blurb: "Limited hours, many accounts.", filter: s => s.skill === "prioritization" },
-  { id: "promo", title: "Handle a pricing or promotion issue", blurb: "Volume is easy to buy. Margin isn't.", filter: s => s.skill === "economics" || s.tags.includes("promo") || s.tags.includes("pricing") },
+  track("diagnose", "Diagnose what's really happening", "The top line says one thing. The numbers underneath say another.", ["flat-sales-hidden-loss", "kroger-decline", "share-loss", "price-gap"]),
+  track("meeting", "Practice a customer meeting", "A buyer pushes back. What do you say?", ["facings-cut", "shelf-move", "buyer-not-interested"]),
+  track("promo", "Handle a pricing or promotion issue", "Volume is easy to buy. Margin isn't.", ["promo-request", "display-hangover", "trade-efficiency"]),
+  track("focus", "Decide where to focus", "Limited hours, many accounts.", ["where-next-hour", "what-to-check-first", "distributor-load"]),
+  track("opportunity", "Analyze a sales opportunity", "Is it worth pursuing, and how?", ["new-item-acv", "on-premise-placement"]),
 ];
 export const challengeIds = ["kroger-decline", "promo-request", "distributor-load", "facings-cut", "where-next-hour"];
 
@@ -125,17 +127,17 @@ export const scenarios = [
   {
     id: "where-next-hour", customer: "Your territory", channel: "on", category: "Portfolio", level: "Prioritize", skill: "prioritization", algorithm: "expected-value", tags: ["opportunity", "time"],
     situation: "It's Thursday afternoon. You have one visit left in you. Three options are on the table.",
-    evidence: [["A · Regional chain HQ", "$95K if won · ~15% chance · 3-hour round trip"], ["B · Cedar Street Kitchen", "$21K if won · ~80% chance · 20 min away", "good"], ["C · Riverside Tavern (existing)", "renewal at risk · $18K · ~60% you save it with a visit"], ["Your gut", "the chain is the big one"]],
+    evidence: [["Regional chain HQ", "$95K if won · ~15% chance · 3-hour round trip"], ["Cedar Street Kitchen", "$21K if won · ~84% chance · 20 min away", "good"], ["The Lantern Room (existing)", "renewal at risk · $18K · ~60% you save it with a visit"], ["Your gut", "the chain is the big one"]],
     question: "Where do you go?",
     options: [
-      { label: "A. The regional chain. Big prize, worth the drive.", quality: "weak", feedback: "The gut answer. Expected value is roughly $14K, and the visit costs your whole afternoon. Big and unlikely loses to small and likely once you multiply." },
-      { label: "B. Cedar Street Kitchen", quality: "best", feedback: "Yes. About $17K of expected value for 20 minutes' drive, and you'll know the answer today. The chain is worth a well-prepared call, not a spontaneous drive." },
-      { label: "C. Riverside Tavern", quality: "good", feedback: "Defensible: about $11K of expected value and protecting a customer is cheaper than winning one. B still edges it, but if you believe the renewal risk is higher than 40%, C moves ahead. Notice how the answer depends on the probability." },
-      { label: "Call it a day and prep for the chain tomorrow", quality: "weak", feedback: "Prep is valuable, but you're forfeiting a near-certain $17K visit that takes 20 minutes. Do B, then prep." },
+      { label: "The regional chain. Big prize, worth the drive.", quality: "weak", feedback: "The gut answer. Expected value is roughly $14K, and the visit costs your whole afternoon. Big and unlikely loses to small and likely once you multiply." },
+      { label: "Cedar Street Kitchen", quality: "best", feedback: "Yes. About $18K of expected value for 20 minutes' drive, and you'll know the answer today. The chain is worth a well-prepared call, not a spontaneous drive." },
+      { label: "The Lantern Room", quality: "good", feedback: "Defensible: about $11K of expected value, and keeping a customer is cheaper than winning one. Cedar Street still wins unless the renewal is worth more than you think. At $30K or more, The Lantern Room moves ahead. Notice how the answer depends on the numbers you plug in." },
+      { label: "Call it a day and prep for the chain tomorrow", quality: "weak", feedback: "Prep is valuable, but you're forfeiting a likely $18K visit that takes 20 minutes. Do Cedar Street, then prep." },
     ],
-    reasoning: "Probability × value − cost. A: 0.15 × $95K = $14K, minus an afternoon. B: 0.8 × $21K = $17K, minus 20 minutes. C: 0.6 × $18K = $11K. The ranking flips your instinct because instinct weights the prize and forgets the odds.",
+    reasoning: "Probability × value − cost. The chain: 0.15 × $95K = $14K, minus an afternoon. Cedar Street: 0.84 × $21K = $18K, minus 20 minutes. The Lantern Room: 0.6 × $18K = $11K. The ranking flips your instinct because instinct weights the prize and forgets the odds.",
     principle: "Rank opportunities by expected value, not by size. Then check how sensitive the ranking is to your probability guesses.",
-    nextMove: "Go to Cedar Street. Book the chain as a proper meeting with a prepared category story. Call Riverside from the car.",
+    nextMove: "Go to Cedar Street. Book the chain as a proper meeting with a prepared category story. Call The Lantern Room from the car.",
   },
   {
     id: "facings-cut", customer: "Safeway", channel: "off", category: "Yogurt", level: "Defend", skill: "strategy", algorithm: "bayesian-updating", tags: ["oos", "shelf", "meeting"],
@@ -144,7 +146,7 @@ export const scenarios = [
     question: "What do you say?",
     options: [
       { label: "Accept the cut and ask to revisit in six months", quality: "weak", feedback: "You'd be conceding to a story the data doesn't support. With two facings the out-of-stocks get worse, velocity falls further, and the next conversation is about delisting." },
-      { label: "Show that the item was out of stock 9 days last month and propose fixing supply before judging velocity", quality: "best", feedback: "Right. The item isn't failing to sell; it's failing to be there. Velocity elsewhere is up. Reframe the meeting from 'your item is weak' to 'we're both losing sales to empty shelf,' and offer a specific fix." },
+      { label: "Show him the 9 days out of stock and fix supply first", quality: "best", feedback: "Right. The item isn't failing to sell; it's failing to be there. Velocity elsewhere is up. Reframe the meeting from 'your item is weak' to 'we're both losing sales to empty shelf,' and offer a specific fix." },
       { label: "Offer a promotion to prove demand", quality: "weak", feedback: "Promotion on a shelf that's empty a third of the time will produce more out-of-stocks and worse data. You'd be funding the buyer's argument." },
       { label: "Argue that four facings is fair share for the brand", quality: "good", feedback: "True, and worth saying second. But fair share is an argument about entitlement; out-of-stocks are an argument about the buyer's own lost sales. Lead with his money." },
     ],
@@ -174,7 +176,7 @@ export const scenarios = [
     question: "What do you recommend to the buyer?",
     options: [
       { label: "Ask to be moved back to eye level at the next reset", quality: "good", feedback: "Reasonable, but five months is a long time to bleed 14%, and 'move me back' is a share swap, which the buyer told you he doesn't want to hear." },
-      { label: "Propose a shelf-strip or a secondary location now, and bring a category case for the reset", quality: "best", feedback: "Strong. It acts now rather than in five months, and it frames the reset ask in the buyer's language: category growth. You need a bridge and a case, not just a complaint." },
+      { label: "Get a secondary placement now and build a reset case", quality: "best", feedback: "Strong. It acts now rather than in five months, and it frames the reset ask in the buyer's language: category growth. You need a bridge and a case, not just a complaint." },
       { label: "Run a price promotion to recover velocity", quality: "weak", feedback: "The cause is visibility, not price. Promotion buys temporary volume and leaves the shelf problem exactly where it is." },
       { label: "Accept it. Bottom shelf is still on shelf.", quality: "weak", feedback: "A 14% decline that compounds for five months is a delisting risk at the next review." },
     ],
@@ -198,8 +200,8 @@ export const scenarios = [
     nextMove: "Rewrite the review page: 'Category +9%, us +3%, share −0.7 pts to new entrants.' Then bring a plan that addresses it, because the buyer already knows.",
   },
   {
-    id: "trade-efficiency", customer: "Northwest Market", channel: "off", category: "Sparkling water", level: "Diagnose", skill: "economics", algorithm: "optimization", tags: ["promo", "margin"],
-    situation: "Northwest Market is your fastest-growing account. Finance just flagged it as your worst account on margin.",
+    id: "trade-efficiency", customer: "Sprouts", channel: "off", category: "Sparkling water", level: "Diagnose", skill: "economics", algorithm: "optimization", tags: ["promo", "margin"],
+    situation: "Sprouts is your fastest-growing account. Finance just flagged it as your worst account on margin.",
     evidence: [["Sales", "+11%"], ["Volume", "+3%"], ["Trade spend", "+21%", "bad"], ["Gross margin", "−4 pts", "bad"], ["Price per unit", "+8%"], ["Promo frequency", "every 3 weeks → every 2"]],
     question: "What drove the sales growth?",
     options: [
@@ -219,7 +221,7 @@ export const scenarios = [
     question: "How much should the rep's comment change your estimate?",
     options: [
       { label: "A lot. The rep knows the buyer. Move on.", quality: "weak", feedback: "The rep is one signal, and a noisy one: he carries 60 brands and 'don't bother' costs him nothing. Meanwhile you have three pieces of evidence pointing the other way." },
-      { label: "A little. Weigh it against strong velocity, competitor adds and a buyer asking for data.", quality: "best", feedback: "Right. Start at 35%. Top-third velocity, nearby competitor adds and 'send me the data' each raise the odds. The rep's comment lowers them, but it's weak evidence. You land above 50%, not below it." },
+      { label: "A little. The other evidence is stronger.", quality: "best", feedback: "Right. Start at 35%. Top-third velocity, nearby competitor adds and 'send me the data' each raise the odds. The rep's comment lowers them, but it's weak evidence. You land above 50%, not below it." },
       { label: "Not at all. Ignore the distributor.", quality: "good", feedback: "Tempting, but distributor reps do know things. Weak evidence still counts for something. Update a little, don't dismiss." },
       { label: "Ask the rep to pitch it for you", quality: "weak", feedback: "You'd be handing your best opportunity to the person who just told you it's dead, with 59 other brands competing for his attention." },
     ],
@@ -228,8 +230,8 @@ export const scenarios = [
     nextMove: "Send the buyer the data she asked for: your SKU-one velocity in her stores and the second SKU's performance at the two nearby competitors. Ask for a 12-store test.",
   },
   {
-    id: "what-to-check-first", customer: "Harbor Foods", channel: "off", category: "Frozen entrées", level: "Prioritize", skill: "prioritization", algorithm: "value-of-information", tags: ["diagnosis"],
-    situation: "Harbor Foods is underperforming and you don't know why. You have one afternoon before you need to tell your manager what's going on.",
+    id: "what-to-check-first", customer: "Giant Eagle", channel: "off", category: "Frozen entrées", level: "Prioritize", skill: "prioritization", algorithm: "value-of-information", tags: ["diagnosis"],
+    situation: "Giant Eagle is underperforming and you don't know why. You have one afternoon before you need to tell your manager what's going on.",
     evidence: [["Possible causes", "price · distribution · demand · execution · promotion · distributor inventory"], ["Depletion report", "free, 10 minutes"], ["Store visit with price check", "90 minutes"], ["Consumer panel pull", "3 days, costs a favour", "warn"], ["Distributor call", "15 minutes"], ["Your hunch", "distributor inventory (they loaded last quarter)"]],
     question: "What do you check first?",
     options: [
@@ -243,5 +245,13 @@ export const scenarios = [
     nextMove: "Depletion report first. If flat, call the distributor. If healthy, go to the store with a price check and a shelf photo. Report what you ruled out, not just what you found.",
   },
 ];
+// Balance where the strongest answer sits so position is never a tell (A/B/C/D roughly equal).
+const bestPos = [2, 0, 3, 1, 3, 1, 2, 0, 1, 3, 0, 2, 3, 0, 2];
+scenarios.forEach((s, i) => {
+  const best = s.options.find(o => o.quality === "best");
+  const rest = s.options.filter(o => o !== best);
+  rest.splice(bestPos[i % bestPos.length], 0, best);
+  s.options = rest;
+});
 export const scenarioById = Object.fromEntries(scenarios.map(s => [s.id, s]));
 export const qualityScore = { best: 1, good: 0.7, weak: 0.3 };
