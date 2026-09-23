@@ -49,7 +49,9 @@ async function render() {
   let mod;
   try { mod = route ? await route.load() : await import("./pages/notfound.js"); }
   catch (err) { console.error(err); mod = await import("./pages/notfound.js"); }
-  const view = await mod.default({ params, id: match?.[1], navigate });
+  let view;
+  try { view = await mod.default({ params, id: match?.[1], navigate }); }
+  catch (err) { console.error(err); view = (await import("./pages/notfound.js")).default(); }
   main.classList.remove("enter");
   main.replaceChildren(view);
   void main.offsetWidth; // restart transition

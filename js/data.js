@@ -1,3 +1,4 @@
+import { byKey } from "./ui.js";
 // Territory data. Deterministic so every visit tells the same story.
 
 export const user = { name: "Alex" };
@@ -28,7 +29,7 @@ export const brands = [
   { id: "N", name: "Brand N", revenue: 0.9e6, growth: -2, margin: 0.0, trade: 2, mean: 0.40, n: 22, sd: 0.22, role: "Under-supported", gm: 37, tradeK: 70, avgRoi: 1.0, r0: 1.2, k: 30, hoursNow: 0 },
   { id: "O", name: "Brand O", revenue: 0.6e6, growth: 14, margin: 1.4, trade: 1, mean: 0.70, n: 8, sd: 0.40, role: "New", gm: 47, tradeK: 40, avgRoi: 1.4, r0: 1.7, k: 30, hoursNow: 0 },
 ];
-export const brandById = Object.fromEntries(brands.map(b => [b.id, b]));
+export const brandById = byKey(brands);
 
 // Deterministic PRNG so the 84 accounts are stable
 function mulberry32(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -65,7 +66,7 @@ Object.assign(accounts[0], { name: "Northwest Market", channel: "off", distribut
 Object.assign(accounts[1], { name: "Riverside Tavern", channel: "on", distributor: "harbor", velocity: 11, margin: 0.8, volume: 9, trade: 4, distribution: 5, probability: 0.78, value: 26000, cost: 2000, brands: ["D", "H", "A"] });
 Object.assign(accounts[2], { name: "Harbor Foods", channel: "off", distributor: "cascade", velocity: 1, margin: -0.6, volume: 12, trade: 9, distribution: 10, distributorInventory: 19, probability: 0.44, value: 38000, cost: 6000, brands: ["A", "C", "E"] });
 Object.assign(accounts[3], { name: "Cedar Street Kitchen", channel: "on", distributor: "summit", velocity: 14, margin: 1.2, volume: 5, trade: 2, distribution: 4, probability: 0.84, value: 21000, cost: 1500, brands: ["H", "M", "O"] });
-export const accountById = Object.fromEntries(accounts.map(a => [a.id, a]));
+export const accountById = byKey(accounts);
 
 // The four decisions on the home screen
 export const decisions = [
@@ -101,13 +102,13 @@ export const decisions = [
     headline: "Brand B is receiving disproportionate trade support.",
     question: "Should trade support follow revenue, or follow return?",
     sees: [
-      ["Brand B share of revenue", "15%"], ["Brand B share of trade spend", "31%", "warn"], ["Trade spend growth", 34, "bad"],
-      ["Brand B volume", 4], ["Brand B margin", -2.8], ["Brand D margin", 1.9, "good"], ["Brand D expected return / hour", "1.12", "good"],
+      ["Brand B share of revenue", "15%"], ["Brand B share of trade spend", "32%", "warn"], ["Trade spend growth", 34, "bad"],
+      ["Brand B sales", 4], ["Brand B margin", -2.8], ["Brand D margin", 1.9, "good"], ["Brand D gross profit per selling hour", "$1,120", "good"],
     ],
-    tradeoff: "Brand B is the safe choice because it is established. But its return per dollar and per hour is now below three smaller brands.",
+    tradeoff: "Brand B is the safe choice because it is established. But its return per dollar and per hour is now below most smaller brands.",
     options: [
       { name: "Hold", volume: 3, margin: -1.0, revenue: 2.5 },
-      { name: "Rebalance", volume: 5, margin: 1.4, revenue: 3.8, note: "Shift 20% of Brand B trade to Brand D and Brand H." },
+      { name: "Rebalance", volume: 5, margin: 1.4, revenue: 3.8, note: "Shift $50–150K of Brand B's weakest events to Brand D and Brand H, then re-measure." },
       { name: "Cut", volume: 1, margin: 2.6, revenue: 0.8 },
     ],
     preferred: "Rebalance",
@@ -165,7 +166,7 @@ export const decisions = [
     changes: "If acceptance probability falls below roughly 45%, the visit no longer beats sending the distributor rep.",
   },
 ];
-export const decisionById = Object.fromEntries(decisions.map(d => [d.id, d]));
+export const decisionById = byKey(decisions);
 
 export const blindspots = [
   { id: "revenue-up", title: "Revenue is up. Something else isn't.", rows: [["Sales", 11], ["Volume", 3, "warn"], ["Trade spend", 21], ["Margin", -4]], read: "Price and promotion are producing sales, not demand. The margin line is the tell.", decisionId: "protect-northwest" },

@@ -1,3 +1,4 @@
+import { byKey } from "./ui.js";
 // Practice scenarios. Each is a short, realistic CPG case with imperfect data and two plausible answers.
 // quality: "best" | "good" | "weak". Feedback is written for the rep who chose that option.
 export const skills = {
@@ -439,5 +440,5 @@ scenarios.forEach((s, i) => {
   rest.splice(bestPos[i % bestPos.length], 0, best);
   s.options = rest;
 });
-export const scenarioById = Object.fromEntries(scenarios.map(s => [s.id, s]));
+export const scenarioById = byKey(scenarios);
 export const qualityScore = { best: 1, good: 0.7, weak: 0.3 };

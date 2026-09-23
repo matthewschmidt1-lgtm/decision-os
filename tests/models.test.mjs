@@ -90,5 +90,18 @@ test("brand insights: numbers match the budget model and each rule fires only wh
     assert.equal(slugs.includes("utility-and-trade-offs"), b.growth > 0 && b.margin < 0);
     assert.equal(slugs.includes("prediction-vs-decision"), b.avgRoi >= 1 && b.r0 < 1);
     if (b.r0 <= 1) assert.equal(BI.brandEconomics(b).room, 0);
+    const titles = BI.brandInsights(b).map(i => i.title);
+    // Never recommend a move worth less than the materiality threshold
+    const ec = BI.brandEconomics(b);
+    if (titles.some(t => t.includes("fund it to the $1 point"))) assert.ok(ec.roomNet >= BI.MATERIAL_K);
+    if (titles.some(t => t.includes("trim the weakest"))) assert.ok(ec.trimNet >= BI.MATERIAL_K);
+    // Every number rendered as $K must not round to "$0K"
+    for (const i of BI.brandInsights(b)) assert.ok(!/\$0K/.test(i.why), `${b.id}: ${i.why}`);
   }
+  // Trimming to the $1 point: k·ln(1/r0) less spend, net k·ln(1/r0) − k(1 − r0)
+  const B = BI.brandEconomics(byId.B);
+  assert.ok(Math.abs(B.trim - 51.1) < 0.2 && Math.abs(B.trimNet - 11.1) < 0.2, `B trim ${B.trim} / ${B.trimNet}`);
+  assert.ok(BI.brandEconomics(byId.B).overFunded && BI.brandEconomics(byId.K).overFunded && !BI.brandEconomics(byId.D).overFunded);
+  assert.equal(BI.$k(0.28), "$280");
+  assert.equal(BI.$k(2500), "$2.5M");
 });

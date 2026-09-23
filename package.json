@@ -5,12 +5,14 @@
   "description": "A decision-making operating system for CPG sales that teaches decision algorithms through real commercial decisions.",
   "type": "module",
   "scripts": {
-    "start": "serve -s . -l ${PORT:-3000}",
+    "start": "sh scripts/serve-site.sh",
     "dev": "python3 -m http.server 4173",
     "test": "node --test tests/"
   },
   "dependencies": {
     "serve": "^14.2.1"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }

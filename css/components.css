@@ -269,3 +269,4 @@ input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac
 tr.brand-row{cursor:pointer}
 tr.brand-row:hover td{background:var(--bg-elev)}
 tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.chart .dot{transition:cx .4s cubic-bezier(.22,1,.36,1),cy .4s cubic-bezier(.22,1,.36,1)}

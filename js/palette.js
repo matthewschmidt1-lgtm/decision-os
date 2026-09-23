@@ -8,7 +8,7 @@ import { navigate } from "./app.js";
 const canned = [
   { t: "Why is Brand A underperforming?", s: "Brand A is growing +12% but margin is −1.2 pts on +21% trade spend.", k: "answer", href: "/portfolio#chain" },
   { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
-  { t: "Where are we overspending?", s: "Brand B holds 31% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
+  { t: "Where are we overspending?", s: "Brand B holds 32% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
   { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
   { t: "Practice a customer meeting", s: "A buyer pushes back. What do you say?", k: "practice", href: "/practice/facings-cut?set=meeting&i=0" },
   { t: "Try a 5-minute challenge", s: "Five cases, immediate feedback.", k: "practice", href: "/practice/kroger-decline?set=challenge&i=0" },

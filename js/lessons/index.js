@@ -1,3 +1,4 @@
+import { byKey } from "../ui.js";
 // The Algorithm Library. Each lesson: Concept → Try it → See it in sales → Apply it.
 export const lessons = [
   { slug: "expected-value", title: "Expected Value", tagline: "Is this opportunity worth pursuing?", widget: "ev",
@@ -50,4 +51,4 @@ export const lessons = [
     sales: "Salespeople default to exploitation: the familiar accounts, the flagship brand. Exploration feels like wasted time until it finds the next Brand D. The right mix depends on how long you'll be in the territory and how much you still don't know.",
     apply: ["Make exploration a budget line, not an afterthought.", "Explore where uncertainty is highest and the potential is real.", "Exploit harder as the territory's unknowns shrink."] },
 ];
-export const lessonBySlug = Object.fromEntries(lessons.map(l => [l.slug, l]));
+export const lessonBySlug = byKey(lessons, "slug");

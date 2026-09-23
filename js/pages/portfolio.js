@@ -9,8 +9,8 @@ import { brandInsights, brandEconomics, QUESTION } from "../brandInsights.js";
 /* ---------- Shared helpers ---------- */
 const QUAD = {
   invest: { name: "Invest", line: "Growing, and the next dollar returns more than it costs.", act: "Fund it until the next dollar returns about $1, then stop." },
-  protect: { name: "Protect margin", line: "Growing, but the next dollar returns less than it costs.", act: "Hold trade flat. Move support to display or distribution, where it isn't paying for volume you'd get anyway." },
-  diagnose: { name: "Diagnose first", line: "Declining, and more spending won't fix it.", act: "Spend an hour, not a dollar. Find out whether it's distribution, price, execution, or demand." },
+  protect: { name: "Protect margin", line: "Growing, but the next dollar returns less than it costs.", act: "Don't add. Trim the weakest events until the last dollar returns about $1, and move the savings to brands above $1. Within the brand, shift from deep price cuts toward display and feature." },
+  diagnose: { name: "Diagnose first", line: "Declining, and the next trade dollar doesn't pay back.", act: "Stop adding dollars and trim what isn't paying back. Put one diagnostic hour in before any more selling time: distribution, price, execution, or demand." },
   fix: { name: "Fix and fund", line: "Declining, but it responds when supported.", act: "Find what broke, fix it, then fund it." },
 };
 const k$ = (v) => money(v * 1000);                      // $K → formatted
@@ -28,21 +28,23 @@ function openBrand(b) {
   const e = brandEconomics(b); const q = QUAD[e.quadrant];
   const tile = (label, value, tone = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${tone}` }, value));
   const pctS = v => `${Math.round(v * 100)}%`;
+  const pct1 = v => { const p = v * 100; return p < 10 ? `${p.toFixed(1)}%` : `${Math.round(p)}%`; };
   const content = h("div", { class: "stack", style: { "--gap": "18px" } },
     h("div", {}, h("p", { class: "tag" }, `${q.name} · ${b.role}`), h("h2", { id: "brand-title", style: { marginTop: "6px" } }, b.name), h("p", { class: "muted", style: { marginTop: "6px" } }, q.line)),
     h("div", { class: "exec-q" }, h("small", {}, "The question for leadership"), QUESTION[e.quadrant]),
     h("div", {}, eyebrow("Economics"), h("div", { class: "ev-tiles", style: { marginTop: "8px" } },
-      tile("Revenue", money(b.revenue)), tile("Growth", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
+      tile("Revenue", money(b.revenue)), tile("Sales growth vs. last year", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
       tile("Gross margin", `${b.gm}%, ${b.margin > 0 ? "up" : b.margin < 0 ? "down" : "flat"}${b.margin ? ` ${Math.abs(b.margin).toFixed(1)} pts` : ""}`),
-      tile("Trade spend", `${k$(b.tradeK)} · ${pctS(e.tradeRate)} of sales`),
-      tile("Avg return per trade $", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"), tile("Next trade $ returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"),
-      tile("Share of trade vs. gross profit", `${pctS(e.tradeShare)} vs. ${pctS(e.gpShare)}`, e.tradeShare - e.gpShare > 0.03 ? "bad" : ""),
-      tile("Your hours, today → model", `${e.hoursNowPer10.toFixed(1)} → ${e.hoursModelPer10.toFixed(1)} of 10`),
-      tile("Return per hour", `${perHour(b)}${b.n < 20 ? ` ±$${Math.round(b.sd * 1000)}` : ""}`))),
+      tile("Trade spend (annual)", `${k$(b.tradeK)} · ${pctS(e.tradeRate)} of sales`, e.tradeRate > 0.15 ? "bad" : ""),
+      tile("Past return per $1 of trade (average)", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"), tile("Next $1 of trade returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"),
+      tile("Share of portfolio trade / gross profit", `${pct1(e.tradeShare)} / ${pct1(e.gpShare)}`, e.overFunded ? "bad" : ""),
+      tile("Your hours per 10, today → rule of thumb", `${e.hoursNowPer10.toFixed(1)} → ${e.hoursModelPer10.toFixed(1)}`),
+      tile("Gross profit per selling hour", `${perHour(b)}${b.n < 20 ? " (little data)" : ""}`))),
     h("div", {}, eyebrow("Algorithms to think with"),
       ...brandInsights(b).map(a => h("div", { class: "algo" }, h("h4", {}, a.title), h("p", { class: "muted" }, a.why), h("p", { class: "ask" }, a.ask),
         link(`/learn/${a.slug}`, h("span", { class: "link", style: { fontSize: "var(--fs-small)" } }, "Learn how it works ", arrow()))))),
-    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `What to do: ${q.act} Figures are illustrative. Next-dollar returns assume each brand's returns shrink as spend rises; the "$1 point" is where one more dollar of trade returns one dollar of gross profit.`));
+    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `What to do: ${q.act}`),
+    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "How to read this: returns are incremental gross profit per $1 of trade, measured before the trade cost, so $1 is breakeven. Past return is the average over past trade; next-dollar return is for the next $1 above today's spend, and shrinks as spend rises. Small brands can sit below the spend where support starts to work well, so their next dollar can beat their average. In practice these come from post-event analysis or test-versus-control reads. Dollars and hours are separate budgets with separate returns. All figures are illustrative."));
   openModal({ label: `${b.name}: economics and algorithms`, content });
 }
 
@@ -84,10 +86,10 @@ function brandMap(initial) {
     selected = id; const b = brandById[id]; const q = QUAD[quadrant(b)];
     Object.entries(dots).forEach(([k, g]) => g.classList.toggle("on", k === id));
     chips.querySelectorAll("button").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.id === id)));
-    const lesson = b.avgRoi > 1 && b.r0 < 1
+    const lesson = b.avgRoi >= 1 && b.r0 < 1
       ? `On average, ${b.name}'s trade has paid back ${perDollar(b.avgRoi)} per dollar. The next dollar returns ${perDollar(b.r0)}. Average return tells you what worked. Next-dollar return tells you what to do.`
       : b.r0 > b.avgRoi + 0.2
-        ? `${b.name} returns more on its next dollar (${perDollar(b.r0)}) than it has on average (${perDollar(b.avgRoi)}). It's under-supported: each extra dollar still has room to work.`
+        ? `${b.name} returns more on its next dollar (${perDollar(b.r0)}) than it has on average (${perDollar(b.avgRoi)}). Small brands can sit below the spend where support starts to work well. It's under-supported: each extra dollar still has room to work.`
         : b.growth < 0
           ? `${b.name} is down ${Math.abs(b.growth)}%. Before spending to prop it up, find out why. An hour of diagnosis is cheaper than a quarter of promotion.`
           : `${b.name}'s next dollar returns about what its average has: ${perDollar(b.r0)}.`;
@@ -97,8 +99,8 @@ function brandMap(initial) {
       h("div", { class: "ev-tiles" },
         tile("Revenue", money(b.revenue)), tile("Growth", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
         tile("Gross margin", `${b.gm}%`), tile("Margin trend", `${b.margin > 0 ? "+" : b.margin < 0 ? "−" : ""}${Math.abs(b.margin).toFixed(1)} pts`, b.margin > 0 ? "good" : b.margin < 0 ? "bad" : ""),
-        tile("Trade spend", `${k$(b.tradeK)} · ${Math.round(b.tradeK * 1000 / b.revenue * 100)}%`), tile("Avg return per trade $", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"),
-        tile("Next trade $ returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"), tile("Return per hour", perHour(b))),
+        tile("Trade spend (annual)", `${k$(b.tradeK)} · ${Math.round(b.tradeK * 1000 / b.revenue * 100)}%`), tile("Past return per $1 (avg)", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"),
+        tile("Next $1 of trade returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"), tile("Gross profit per hour", perHour(b))),
       h("p", { class: "says" }, lesson),
       h("p", {}, h("b", { style: { fontWeight: 600 } }, "What to do: "), q.act),
       b.n < 10 ? h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Little data yet (dashed outline). These estimates could be well off. A small test is worth more than a big bet.") : null,
@@ -182,7 +184,7 @@ function nextDollarPlanner() {
   stepBtn.addEventListener("click", () => { const n = allocateBudget(brands, budget).steps.length; shown = Math.min(n, (shown === Infinity ? n : shown) + 1); render(); });
   allBtn.addEventListener("click", () => { shown = Infinity; render(); });
   restartBtn.addEventListener("click", () => { shown = 0; render(); });
-  const sl = slider({ label: "Extra trade budget this quarter", min: 50, max: 400, step: 25, value: budget, format: v => `$${v}K`, onInput: v => { budget = v; shown = Infinity; render(); } });
+  const sl = slider({ label: "Extra trade budget", min: 50, max: 400, step: 25, value: budget, format: v => `$${v}K`, onInput: v => { budget = v; shown = Infinity; render(); } });
   render();
   return h("div", { class: "stack", style: { "--gap": "20px" } },
     h("div", { class: "grid grid-2", style: { alignItems: "end" } }, sl, segmented([{ value: "model", label: "Highest next-dollar return first" }, { value: "habit", label: "Spread by revenue" }], plan, v => { plan = v; shown = Infinity; render(); })),
@@ -213,7 +215,7 @@ function nextHour() {
   const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: c, format: label, onInput: v => { c = v; render(); } });
   render();
   return h("div", { class: "stack", style: { "--gap": "18px" } },
-    h("div", { class: "legend" }, h("span", {}, h("i", { class: "key muted" }), "How you spend 10 hours today"), h("span", {}, h("i", { class: "key accent" }), "Model's 10 hours")),
+    h("div", { class: "legend" }, h("span", {}, h("i", { class: "key muted" }), "How you spend 10 hours today"), h("span", {}, h("i", { class: "key accent" }), "Rule-of-thumb 10 hours")),
     rowsEl, sl, line,
     h("div", { class: "layer layer-2" }, eyebrow("Why is Brand C so low?"), h("p", {}, "Brand C is down 3%, and an hour spent selling it returns little today, so the model pulls time away. But that's not the end of it. The most valuable hour for Brand C is a diagnostic one: find out whether it lost distribution, price, or shelf, before you spend more time or money on it."),
       link("/learn/value-of-information", h("span", { class: "link", style: { marginTop: "8px", display: "inline-flex" } }, "Learn: value of information ", arrow()))),
@@ -269,7 +271,7 @@ export default function Portfolio({ params }) {
       h("div", { class: "card reveal" }, nextDollarPlanner(),
         h("div", { style: { marginTop: "20px" } }, disclose("How the model decides", h("div", { class: "stack" },
           h("p", {}, "This is marginal analysis done one step at a time. Every brand has a curve: the first dollars of extra support return a lot, later dollars return less. Giving each $10K to whichever brand's next $10K returns the most keeps the returns across brands roughly equal at the end, which is where a budget is working hardest. When no brand's next dollar returns more than a dollar, spending more loses money, so the model stops."),
-          h("p", { class: "muted" }, "Average return tells you what past spending achieved. Next-dollar return tells you what the next decision will achieve. Brand A has paid back well on average, and its next dollar still doesn't."),
+          h("p", { class: "muted" }, "Average return tells you what past spending achieved. Next-dollar return tells you what the next decision will achieve. Brand A has paid back well on average, and its next dollar doesn't."),
           link("/learn/optimization", h("span", { class: "link" }, "Learn: optimization and marginal analysis ", arrow()))))))),
 
     h("section", { class: "section", id: "attention" },
@@ -287,14 +289,14 @@ export default function Portfolio({ params }) {
     h("section", { class: "section", id: "brands" },
       sectionHead("All brands", "Growth, margin, and the return on your time and money.", "Select a brand to see its economics, the question leadership should ask, and the decision algorithms that fit."),
       h("div", { class: "table-wrap reveal" }, h("table", { class: "table" },
-        h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Where it sits"), h("th", { class: "num" }, "Revenue"), h("th", { class: "num" }, "Growth"), h("th", { class: "num" }, "Gross margin"), h("th", { class: "num" }, "Trade % of sales"), h("th", { class: "num" }, "Avg return / $"), h("th", { class: "num" }, "Next $ returns"), h("th", { class: "num" }, "Return / hour"))),
+        h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Where it sits"), h("th", { class: "num" }, "Revenue"), h("th", { class: "num" }, "Sales growth"), h("th", { class: "num" }, "Gross margin"), h("th", { class: "num" }, "Trade % of sales"), h("th", { class: "num" }, "Past return / $1"), h("th", { class: "num" }, "Next $1 returns"), h("th", { class: "num" }, "Gross profit / hour"))),
         h("tbody", {}, brands.map(b => h("tr", { class: "brand-row", tabindex: "0", "aria-label": `${b.name}: open economics and algorithms`, onClick: () => openBrand(b), onKeydown: ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openBrand(b); } }, style: b.id === params.get("brand") ? { background: "var(--accent-soft)" } : null },
           h("td", {}, h("b", { style: { fontWeight: 500 } }, b.name), h("span", { class: "muted", "aria-hidden": "true", style: { marginLeft: "6px" } }, "›")), h("td", { class: "muted" }, QUAD[quadrant(b)].name), h("td", { class: "num" }, money(b.revenue)),
           h("td", { class: `num ${b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""}` }, pct(b.growth, 0)),
           h("td", { class: "num" }, `${b.gm}%`, h("span", { class: `muted ${b.margin > 0 ? "good" : b.margin < 0 ? "bad" : ""}`, style: { marginLeft: "6px", fontSize: "var(--fs-micro)" } }, `${b.margin > 0 ? "+" : b.margin < 0 ? "−" : ""}${Math.abs(b.margin).toFixed(1)}`)),
           h("td", { class: `num ${b.tradeK * 1000 / b.revenue > 0.15 ? "bad" : ""}` }, `${Math.round(b.tradeK * 1000 / b.revenue * 100)}%`),
           h("td", { class: "num" }, perDollar(b.avgRoi)), h("td", { class: `num ${b.r0 > 1 ? "good" : "bad"}` }, perDollar(b.r0)),
-          h("td", { class: "num" }, perHour(b), b.n < 10 ? h("span", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, " ±") : null))))))),
+          h("td", { class: "num" }, perHour(b), b.n < 20 ? h("span", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, " ±") : null))))))),
 
     h("section", { class: "section reveal" },
       h("div", { class: "card", style: { padding: "clamp(28px,5vw,48px)", display: "grid", gridTemplateColumns: "1fr auto", gap: "24px", alignItems: "center" } },

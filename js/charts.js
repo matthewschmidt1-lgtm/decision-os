@@ -19,7 +19,7 @@ export function lineChart({ width = 560, height = 260, series, marker, xLabel, y
   for (const v of [y0 + pady, (y0 + y1) / 2, y1 - pady]) { const yy = Y(v); svg.append(s("line", { class: "axis", x1: pad.l - 4, y1: yy, x2: pad.l, y2: yy })); svg.append(s("text", { class: "tick", x: pad.l - 8, y: yy + 4, "text-anchor": "end" }, Math.round(v))); }
   svg.append(s("text", { x: width - pad.r, y: height - 10, "text-anchor": "end" }, xLabel));
   svg.append(s("text", { x: pad.l, y: 12 }, yLabel));
-  const dot = s("circle", { class: "dot", r: 6, cx: X(marker?.[0] ?? x0), cy: Y(marker?.[1] ?? y0), style: "transition: cx .4s cubic-bezier(.22,1,.36,1), cy .4s cubic-bezier(.22,1,.36,1)" });
+  const dot = s("circle", { class: "dot", r: 6, cx: X(marker?.[0] ?? x0), cy: Y(marker?.[1] ?? y0) });
   const lbl = s("text", { class: "lbl mono", "text-anchor": "middle" }, "");
   if (marker) { svg.append(dot, lbl); }
   svg.setMarker = (x, y, text) => { dot.setAttribute("cx", X(x)); dot.setAttribute("cy", Y(y)); lbl.setAttribute("x", X(x)); lbl.setAttribute("y", Y(y) - 14); lbl.textContent = text ?? ""; };
