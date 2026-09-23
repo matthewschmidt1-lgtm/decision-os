@@ -1,9 +1,6 @@
 import { h, eyebrow, link, arrow } from "../ui.js";
 import { setMeta } from "../app.js";
 const principles = [
-  ["Simplicity", "Every screen has one primary question."],
-  ["Restraint", "Lots of whitespace. One strong colour, used for meaning."],
-  ["Hierarchy", "One thing is visually dominant."],
   ["Direct manipulation", "Sliders, cards, toggles, comparisons. You move it; it recalculates."],
   ["Teach through use", "The product explains itself as you interact with it."],
   ["Confidence without intimidation", "No walls of numbers. The model shows what it believes, and why."],
