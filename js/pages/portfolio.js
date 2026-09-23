@@ -39,8 +39,7 @@ export default function Portfolio({ params }) {
     h("section", { class: "reveal" }, eyebrow("Portfolio"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Fifteen brands. One system."),
       h("p", { class: "hero-sub" }, "Not fifteen dashboards. The portfolio as a set of claims on your time, your trade budget, and your distributors' attention."), h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Illustrative portfolio. Brand figures and return-per-hour estimates are generated for practice."),
       h("nav", { "aria-label": "On this page", class: "pill-list", style: { marginTop: "22px" } },
-        ...[["#attention", "Your next 10 hours"], ["#chain", "Commercial chain"], ["#fingerprint", "Economic fingerprint"], ["#brands", "All brands"]].map(([href, t]) => h("a", { href, class: "pill", onClick: (e) => { e.preventDefault(); e.stopPropagation(); document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState({}, "", href); } }, t)),
-        link("/accounts", h("span", { class: "pill", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, "Go to accounts →")))),
+        ...[["#attention", "Your next 10 hours"], ["#chain", "Commercial chain"], ["#fingerprint", "Economic fingerprint"], ["#brands", "All brands"]].map(([href, t]) => h("a", { href, class: "pill", onClick: (e) => { e.preventDefault(); e.stopPropagation(); document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState({}, "", href); } }, t)))),
 
     h("section", { class: "section reveal" },
       h("div", { class: "tree" },
