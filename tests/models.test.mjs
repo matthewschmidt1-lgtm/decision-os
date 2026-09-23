@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as M from "../js/models.js";
 import { brands } from "../js/data.js";
+import * as BI from "../js/brandInsights.js";
 
 test("marginal contribution declines with spend and crosses zero at the optimum", () => {
   const p = { vmax: 1200, k: 60, unitMargin: 0.11 };
@@ -73,4 +74,21 @@ test("trade allocation: model never funds a dollar that returns less than a doll
   assert.ok(model.steps.every(s => s.ret > 1));
   assert.ok(model.net > habit.net);
   assert.ok(model.spent <= 250);
+});
+test("brand insights: numbers match the budget model and each rule fires only where the economics support it", () => {
+  const byId = Object.fromEntries(brands.map(b => [b.id, b]));
+  const D = BI.brandEconomics(byId.D);
+  assert.ok(Math.abs(D.room - 94.6) < 0.5, `D room ${D.room}`);
+  assert.ok(Math.abs(D.roomNet - 49.4) < 0.5, `D net ${D.roomNet}`);
+  // Greedy allocation with an unlimited budget should fund D to within one $10K step of its $1 point
+  const big = M.allocateBudget(brands, 2000);
+  assert.ok(Math.abs(big.x.D - D.room) <= 10, `greedy ${big.x.D} vs room ${D.room}`);
+  for (const b of brands) {
+    const slugs = BI.brandInsights(b).map(i => i.slug);
+    assert.ok(slugs.includes("optimization"));
+    assert.equal(slugs.includes("value-of-information"), b.growth < 0);
+    assert.equal(slugs.includes("utility-and-trade-offs"), b.growth > 0 && b.margin < 0);
+    assert.equal(slugs.includes("prediction-vs-decision"), b.avgRoi >= 1 && b.r0 < 1);
+    if (b.r0 <= 1) assert.equal(BI.brandEconomics(b).room, 0);
+  }
 });

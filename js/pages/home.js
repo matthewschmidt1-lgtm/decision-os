@@ -2,8 +2,18 @@ import { h, link, arrow, eyebrow } from "../ui.js";
 import { decisions, brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
 import { reviewed, getChoice } from "../store.js";
-import { scenarioById, challengeIds, skills } from "../scenarios.js";
+import { scenarios, skills } from "../scenarios.js";
 import { progress, nextUnplayed } from "./practice.js";
+
+// Pick a different practice example on each visit: any unplayed scenario, never the one shown last time.
+function randomScenario(p) {
+  let last = null; try { last = sessionStorage.getItem("dos:lastHomeScenario"); } catch {}
+  const pool = scenarios.filter(s => !p.results[s.id]);
+  const choices = (pool.length ? pool : scenarios).filter(s => s.id !== last);
+  const pick = choices[Math.floor(Math.random() * choices.length)] || scenarios[0];
+  try { sessionStorage.setItem("dos:lastHomeScenario", pick.id); } catch {}
+  return pick;
+}
 
 const hour = new Date().getHours();
 const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -11,8 +21,8 @@ const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good 
 export default function Home() {
   setMeta({ title: null });
   const p = progress(); const allDone = p.done > 0 && !nextUnplayed();
-  const next = p.done ? (nextUnplayed() || scenarioById[challengeIds[0]]) : scenarioById[challengeIds[0]];
-  const startHref = allDone ? "/practice" : p.done ? `/practice/${next.id}` : `/practice/${challengeIds[0]}?set=challenge&i=0`;
+  const next = randomScenario(p);
+  const startHref = `/practice/${next.id}`;
   return h("div", {},
     h("section", { class: "reveal" },
       h("p", { class: "eyebrow" }, `${greet}.`),
@@ -27,7 +37,7 @@ export default function Home() {
           h("p", {}, h("span", { class: "tag" }, "Customer "), h("b", { style: { fontWeight: 500 } }, next.customer)),
           h("p", {}, h("span", { class: "tag" }, "Situation "), `${next.situation.split(". ")[0]}.`),
           h("p", {}, h("span", { class: "tag" }, "Skill "), skills[next.skill].name)),
-        link(startHref, h("span", { class: "btn btn-lg" }, allDone ? "Replay and review " : p.done ? "Continue training " : "Start training ", arrow()))),
+        link(startHref, h("span", { class: "btn btn-lg" }, allDone ? "Replay this one " : p.done ? "Continue training " : "Start training ", arrow()))),
       h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, p.done ? `${p.done} of ${p.total} scenarios completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : `${p.total} scenarios · on-premise and off-premise · ${Object.keys(skills).length} skills · 5 levels, from recognizing a pattern to defending a recommendation.`),
     ),
     h("section", { class: "section reveal" },

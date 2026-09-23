@@ -3,6 +3,8 @@ import { brands, distributors, brandById } from "../data.js";
 import { fingerprintWidget } from "../lessons/widgets.js";
 import { allocateHours, allocateBudget, allocateByRevenue, tradeGain, quadrant, money, pct } from "../models.js";
 import { setMeta } from "../app.js";
+import { openModal } from "../modal.js";
+import { brandInsights, brandEconomics, QUESTION } from "../brandInsights.js";
 
 /* ---------- Shared helpers ---------- */
 const QUAD = {
@@ -20,6 +22,29 @@ const totalTrade = brands.reduce((a, b) => a + b.tradeK, 0);
 const totalHours = brands.reduce((a, b) => a + b.hoursNow, 0);
 const jump = (href, t) => h("a", { href, class: "pill", onClick: (e) => { e.preventDefault(); e.stopPropagation(); document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState({}, "", href); } }, t);
 const sectionHead = (eb, title, sub) => h("div", { class: "section-head reveal" }, h("div", {}, eyebrow(eb), h("h2", { style: { marginTop: "10px" } }, title)), sub ? h("p", { class: "muted", style: { maxWidth: "44ch" } }, sub) : null);
+
+/* ---------- Brand popup: economics and the algorithms to think with ---------- */
+function openBrand(b) {
+  const e = brandEconomics(b); const q = QUAD[e.quadrant];
+  const tile = (label, value, tone = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${tone}` }, value));
+  const pctS = v => `${Math.round(v * 100)}%`;
+  const content = h("div", { class: "stack", style: { "--gap": "18px" } },
+    h("div", {}, h("p", { class: "tag" }, `${q.name} · ${b.role}`), h("h2", { id: "brand-title", style: { marginTop: "6px" } }, b.name), h("p", { class: "muted", style: { marginTop: "6px" } }, q.line)),
+    h("div", { class: "exec-q" }, h("small", {}, "The question for leadership"), QUESTION[e.quadrant]),
+    h("div", {}, eyebrow("Economics"), h("div", { class: "ev-tiles", style: { marginTop: "8px" } },
+      tile("Revenue", money(b.revenue)), tile("Growth", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
+      tile("Gross margin", `${b.gm}%, ${b.margin > 0 ? "up" : b.margin < 0 ? "down" : "flat"}${b.margin ? ` ${Math.abs(b.margin).toFixed(1)} pts` : ""}`),
+      tile("Trade spend", `${k$(b.tradeK)} · ${pctS(e.tradeRate)} of sales`),
+      tile("Avg return per trade $", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"), tile("Next trade $ returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"),
+      tile("Share of trade vs. gross profit", `${pctS(e.tradeShare)} vs. ${pctS(e.gpShare)}`, e.tradeShare - e.gpShare > 0.03 ? "bad" : ""),
+      tile("Your hours, today → model", `${e.hoursNowPer10.toFixed(1)} → ${e.hoursModelPer10.toFixed(1)} of 10`),
+      tile("Return per hour", `${perHour(b)}${b.n < 20 ? ` ±$${Math.round(b.sd * 1000)}` : ""}`))),
+    h("div", {}, eyebrow("Algorithms to think with"),
+      ...brandInsights(b).map(a => h("div", { class: "algo" }, h("h4", {}, a.title), h("p", { class: "muted" }, a.why), h("p", { class: "ask" }, a.ask),
+        link(`/learn/${a.slug}`, h("span", { class: "link", style: { fontSize: "var(--fs-small)" } }, "Learn how it works ", arrow()))))),
+    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `What to do: ${q.act} Figures are illustrative. Next-dollar returns assume each brand's returns shrink as spend rises; the "$1 point" is where one more dollar of trade returns one dollar of gross profit.`));
+  openModal({ label: `${b.name}: economics and algorithms`, content });
+}
 
 /* ---------- 1. Brand map ---------- */
 function brandMap(initial) {
@@ -77,6 +102,7 @@ function brandMap(initial) {
       h("p", { class: "says" }, lesson),
       h("p", {}, h("b", { style: { fontWeight: 600 } }, "What to do: "), q.act),
       b.n < 10 ? h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Little data yet (dashed outline). These estimates could be well off. A small test is worth more than a big bet.") : null,
+      h("button", { type: "button", class: "btn btn-ghost", style: { justifySelf: "start" }, onClick: () => openBrand(b) }, "Which algorithms apply? ", arrow()),
     );
   }
   select(selected);
@@ -259,11 +285,11 @@ export default function Portfolio({ params }) {
       h("div", { class: "card reveal" }, fingerprintWidget({ volume: 3, price: 8, tradeSpend: 21 }))),
 
     h("section", { class: "section", id: "brands" },
-      sectionHead("All brands", "Growth, margin, and the return on your time and money."),
+      sectionHead("All brands", "Growth, margin, and the return on your time and money.", "Select a brand to see its economics, the question leadership should ask, and the decision algorithms that fit."),
       h("div", { class: "table-wrap reveal" }, h("table", { class: "table" },
         h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Where it sits"), h("th", { class: "num" }, "Revenue"), h("th", { class: "num" }, "Growth"), h("th", { class: "num" }, "Gross margin"), h("th", { class: "num" }, "Trade % of sales"), h("th", { class: "num" }, "Avg return / $"), h("th", { class: "num" }, "Next $ returns"), h("th", { class: "num" }, "Return / hour"))),
-        h("tbody", {}, brands.map(b => h("tr", { style: b.id === params.get("brand") ? { background: "var(--accent-soft)" } : null },
-          h("td", {}, h("b", { style: { fontWeight: 500 } }, b.name)), h("td", { class: "muted" }, QUAD[quadrant(b)].name), h("td", { class: "num" }, money(b.revenue)),
+        h("tbody", {}, brands.map(b => h("tr", { class: "brand-row", tabindex: "0", "aria-label": `${b.name}: open economics and algorithms`, onClick: () => openBrand(b), onKeydown: ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openBrand(b); } }, style: b.id === params.get("brand") ? { background: "var(--accent-soft)" } : null },
+          h("td", {}, h("b", { style: { fontWeight: 500 } }, b.name), h("span", { class: "muted", "aria-hidden": "true", style: { marginLeft: "6px" } }, "›")), h("td", { class: "muted" }, QUAD[quadrant(b)].name), h("td", { class: "num" }, money(b.revenue)),
           h("td", { class: `num ${b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""}` }, pct(b.growth, 0)),
           h("td", { class: "num" }, `${b.gm}%`, h("span", { class: `muted ${b.margin > 0 ? "good" : b.margin < 0 ? "bad" : ""}`, style: { marginLeft: "6px", fontSize: "var(--fs-micro)" } }, `${b.margin > 0 ? "+" : b.margin < 0 ? "−" : ""}${Math.abs(b.margin).toFixed(1)}`)),
           h("td", { class: `num ${b.tradeK * 1000 / b.revenue > 0.15 ? "bad" : ""}` }, `${Math.round(b.tradeK * 1000 / b.revenue * 100)}%`),
