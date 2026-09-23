@@ -1,5 +1,6 @@
 import { observeReveals } from "./ui.js";
 import { initPalette } from "./palette.js";
+import { closeModal } from "./modal.js";
 
 const routes = [
   { path: /^\/$/, load: () => import("./pages/home.js") },
@@ -42,6 +43,7 @@ export function setNoIndex() {
 }
 
 async function render() {
+  closeModal();
   const { pathname, hash } = location;
   const params = new URLSearchParams(location.search);
   const route = routes.find(r => r.path.test(pathname));

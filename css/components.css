@@ -257,8 +257,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac
 
 /* Modal */
 .modal-backdrop{position:fixed;inset:0;z-index:120;background:rgba(23,23,23,.32);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:grid;place-items:center;padding:24px var(--gutter);animation:fade .18s ease both;overflow-y:auto}
-.modal{position:relative;width:min(760px,100%);max-height:calc(100dvh - 48px);overflow-y:auto;background:var(--bg-elev);border-radius:var(--r-lg);box-shadow:var(--shadow-2);padding:clamp(24px,4vw,40px);animation:pop .28s var(--ease) both;outline:none}
-.modal-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;color:var(--muted);display:grid;place-items:center}
+.modal{position:relative;width:min(760px,100%);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;background:var(--bg-elev);border-radius:var(--r-lg);box-shadow:var(--shadow-2);animation:pop .28s var(--ease) both;overflow:hidden}
+.modal-body{overflow-y:auto;padding:clamp(24px,4vw,40px);overscroll-behavior:contain}
+.modal-close{position:absolute;z-index:2;top:12px;right:12px;width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;color:var(--muted);display:grid;place-items:center;background:var(--bg-elev);box-shadow:0 0 0 1px var(--line)}
 .modal-close:hover{background:var(--bg-sunk);color:var(--ink)}
 .algo{padding:18px 0;border-top:1px solid var(--line);display:grid;gap:8px}
 .algo h4{margin:0;font-size:1.0625rem;font-weight:600}

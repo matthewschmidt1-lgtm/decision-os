@@ -4,6 +4,7 @@ import { rankByEV } from "./models.js";
 import { scenarios } from "./scenarios.js";
 const roi20 = rankByEV(accounts).filter(a => (a.ev / a.value) * 100 >= 20).length;
 import { navigate } from "./app.js";
+import { closeModal } from "./modal.js";
 
 const canned = [
   { t: "Why is Brand A underperforming?", s: "Brand A is growing +12% but margin is −1.2 pts on +21% trade spend.", k: "answer", href: "/portfolio#chain" },
@@ -42,7 +43,7 @@ export function initPalette() {
   }
   function paint() { list.querySelectorAll("li[role=option]").forEach((li, n) => li.setAttribute("aria-selected", String(n === sel))); if (items[sel]) input.setAttribute("aria-activedescendant", `opt-${sel}`); }
   function go(i) { close(); navigate(i.href); }
-  function open() { lastFocus = document.activeElement; dlg.hidden = false; input.value = ""; render(); input.focus(); document.body.style.overflow = "hidden"; }
+  function open() { closeModal(); lastFocus = document.activeElement; dlg.hidden = false; input.value = ""; render(); input.focus(); document.body.style.overflow = "hidden"; }
   function close() { dlg.hidden = true; document.body.style.overflow = ""; lastFocus?.focus?.(); }
 
   trigger.addEventListener("click", open);
