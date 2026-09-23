@@ -15,8 +15,9 @@ export default function Home() {
   return h("div", {},
     h("section", { class: "reveal" },
       h("p", { class: "eyebrow" }, `${greet}.`),
-      h("h1", { class: "hero", style: { marginTop: "16px" } }, "Get better at sales decisions by making them."),
-      h("p", { class: "hero-sub" }, "Decision OS is a training environment for CPG sales. You work through short, realistic situations: a Kroger decline, a Publix promo request, a distributor loading before quarter-end. You choose. Then you see the evidence, the reasoning, and the principle behind every recommendation, so the thinking sticks."),
+      h("h1", { class: "hero", style: { marginTop: "16px", maxWidth: "26ch", fontSize: "var(--fs-h1)" } }, "Decision OS puts you in the moment. A Kroger decline. A Publix promo request. A distributor loading up before quarter-end. You make the call."),
+      h("p", { class: "hero-sub" }, "Then Decision OS shows you what matters: the evidence, reasoning, and principle behind the recommendation."),
+      h("p", { class: "hero-sub", style: { marginTop: "14px", color: "var(--ink)", fontWeight: 500 } }, "Real decisions. Real judgment. Better salespeople."),
     ),
     h("section", { class: "reveal", style: { marginTop: "40px" } },
       h("div", { class: "grid grid-3" }, ...[
