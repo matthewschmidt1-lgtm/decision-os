@@ -24,11 +24,11 @@ const principles = [
 ];
 
 export default function About() {
-  setMeta({ title: "Principles", description: "The rules Decision OS is built on." });
+  setMeta({ title: "Learning Principles", description: "The rules Decision OS is built on." });
   return h("div", {},
-    h("section", { class: "reveal" }, eyebrow("Principles"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Don't show people algorithms. Let them experience them."),
+    h("section", { class: "reveal" }, eyebrow("Learning Principles"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Don't show people algorithms. Let them experience them."),
       h("p", { class: "hero-sub" }, "Decision OS is built on a hard rule: never give a salesperson a recommendation without showing the decision logic. Not the whole model. Enough to answer five questions.")),
-    h("section", { class: "section reveal" }, h("div", { class: "card card-sunk" }, h("ol", { style: { margin: 0, paddingLeft: "1.2em", display: "grid", gap: "8px", fontSize: "1.125rem" } }, ["What does it believe?", "Why does it believe it?", "What evidence matters?", "What is uncertain?", "What would change the recommendation?"].map(q => h("li", {}, q))))),
+    h("section", { class: "section reveal" }, h("div", { class: "card card-sunk" }, h("ol", { style: { margin: 0, paddingLeft: "1.2em", display: "grid", gap: "8px", fontSize: "1.125rem" } }, ["What do they believe?", "Why do they believe it?", "What evidence matters?", "What is uncertain?", "What would change the recommendation?"].map(q => h("li", {}, q))))),
     h("section", { class: "section" }, principles.map(p => h("div", { class: "step reveal", style: { padding: "40px 0" } },
       h("span", { class: "n" }, p.n),
       h("div", { class: "stack", style: { "--gap": "16px", maxWidth: "var(--measure)" } },
