@@ -113,3 +113,10 @@ test("accounts roll up to the territory margin trend shown on the home page", ()
   assert.ok(Math.abs(simple - situation.margin) < 0.1, `simple average ${simple.toFixed(2)}`);
   assert.ok(Math.abs(weighted - situation.margin) < 0.1, `weighted average ${weighted.toFixed(2)}`);
 });
+
+test("the Brand B rebalance range in the decision copy pays back on the model's own curves", () => {
+  const [B, D, H] = ["B", "D", "H"].map(id => brands.find(b => b.id === id));
+  const net = (x) => { let best = -Infinity; for (let y = 0; y <= x; y++) best = Math.max(best, M.tradeGain(D, y) + M.tradeGain(H, x - y)); return best + M.tradeGain(B, -x); };
+  assert.ok(net(50) > 0 && net(100) > 0, "shifting $50–100K from B to D and H should add gross profit");
+  assert.ok(net(75) > net(150), "the gain should peak inside the range, not at $150K");
+});

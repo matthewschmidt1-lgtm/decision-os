@@ -111,7 +111,7 @@ export const decisions = [
     tradeoff: "Brand B is the safe choice because it is established. But its return per dollar and per hour is now below most smaller brands.",
     options: [
       { name: "Hold", volume: 3, margin: -1.0, revenue: 2.5 },
-      { name: "Rebalance", volume: 5, margin: 1.4, revenue: 3.8, note: "Shift $50–150K of Brand B's weakest events to Brand D and Brand H, then re-measure." },
+      { name: "Rebalance", volume: 5, margin: 1.4, revenue: 3.8, note: "Shift $50–100K of Brand B's weakest events to Brand D and Brand H, then re-measure." },
       { name: "Cut", volume: 1, margin: 2.6, revenue: 0.8 },
     ],
     preferred: "Rebalance",
