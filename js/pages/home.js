@@ -1,7 +1,7 @@
 import { h, link, arrow, eyebrow } from "../ui.js";
 import { decisions, brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
-import { reviewed, getChoice } from "../store.js";
+import { reviewed } from "../store.js";
 import { scenarios, skills } from "../scenarios.js";
 import { progress, nextUnplayed } from "./practice.js";
 
@@ -46,10 +46,10 @@ export default function Home() {
       h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "The same reasoning, applied to a sample territory: 15 brands, 3 distributors, 84 accounts."),
     ),
     h("section", { class: "reveal", style: { marginTop: "24px" } },
-      decisions.map(d => { const c = getChoice(d.id); return link(`/decisions/${d.id}`, h("span", { class: "decision-row" },
+      decisions.map(d => link(`/decisions/${d.id}`, h("span", { class: "decision-row" },
         h("span", { class: `verb verb-${d.verb.toLowerCase()}` }, d.verb),
-        h("span", { class: "body" }, d.headline, c ? h("span", { class: "chip", style: { marginLeft: "10px", verticalAlign: "middle" } }, `You chose ${c.option}`) : null),
-        arrow())); }),
+        h("span", { class: "body" }, d.headline),
+        arrow()))),
       reviewed().length ? h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, `You've reviewed ${reviewed().length} of ${decisions.length}. Your choices are remembered on this device.`) : null,
     ),
     h("section", { class: "reveal", style: { marginTop: "40px", display: "flex", gap: "20px 32px", alignItems: "center", flexWrap: "wrap" } },

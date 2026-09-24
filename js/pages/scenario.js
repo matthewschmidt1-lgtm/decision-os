@@ -68,7 +68,7 @@ export default async function Scenario({ id, params }) {
     h("section", { class: "section reveal", style: { marginTop: "40px" } }, h("h2", { style: { fontSize: "var(--fs-h3)" } }, "What you know"), h("div", { style: { marginTop: "16px" } }, evidence(s.evidence, { optionTones: false })),
       h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Numbers are as messy as they are in the field. Some are lagged, some are estimates.")),
     h("section", { class: "section reveal", style: { marginTop: "40px" } }, eyebrow("The decision"), h("h2", { style: { marginTop: "10px" } }, s.question), h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, "Pick one. You'll see the reasoning either way."),
-      h("div", { class: "choices", style: { marginTop: "20px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `You've done this one before (you chose ${prior.option}). Replays don't change your score.`) : null),
+      h("div", { class: "choices", style: { marginTop: "20px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `You've played this one before. Replays don't change your score.`) : null),
     h("section", { class: "section", style: { marginTop: "40px" } }, feedback, h("div", { style: { marginTop: "20px" } }, whyBtn)),
     h("section", { style: { marginTop: "24px" } }, why),
     h("section", { style: { marginTop: "24px" } }, principle),
