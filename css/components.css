@@ -271,3 +271,22 @@ tr.brand-row{cursor:pointer}
 tr.brand-row:hover td{background:var(--bg-elev)}
 tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .chart .dot{transition:cx .4s cubic-bezier(.22,1,.36,1),cy .4s cubic-bezier(.22,1,.36,1)}
+
+/* Portfolio: rebalance rows (diverging bar: cuts left, adds right) */
+.rb-row{grid-template-columns:72px minmax(0,1fr) 128px 64px 92px;cursor:pointer;padding:4px 6px;margin:0 -6px;border-radius:var(--r-sm)}
+.rb-row:hover,.rb-row:focus-visible{background:var(--bg-sunk)}
+.rb-bar{display:grid;grid-template-columns:1fr 1fr;height:8px}
+.rb-neg,.rb-pos{display:flex;height:100%}
+.rb-neg{justify-content:flex-end;border-right:1px solid var(--line-strong)}
+.rb-neg i,.rb-pos i{display:block;height:100%;background:var(--bad);border-radius:4px 0 0 4px}
+.rb-pos i{background:var(--good);border-radius:0 4px 4px 0}
+.rb-from{font-size:var(--fs-micro);text-align:right;white-space:nowrap}
+.rb-d{text-align:right;font-weight:500;white-space:nowrap}
+.rb-v{text-align:right}
+.legend .key.good{background:var(--good)}.legend .key.bad{background:var(--bad)}
+@media (max-width:600px){
+  .rb-row{grid-template-columns:60px minmax(0,1fr) 84px;row-gap:4px}
+  .rb-from{grid-column:2;text-align:left}
+  .rb-v{grid-column:3}
+  .rb-d{grid-column:3;grid-row:1}
+}

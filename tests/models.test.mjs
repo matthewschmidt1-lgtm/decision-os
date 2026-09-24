@@ -78,8 +78,8 @@ test("trade allocation: model never funds a dollar that returns less than a doll
 test("brand insights: numbers match the budget model and each rule fires only where the economics support it", () => {
   const byId = Object.fromEntries(brands.map(b => [b.id, b]));
   const D = BI.brandEconomics(byId.D);
-  assert.ok(Math.abs(D.room - 94.6) < 0.5, `D room ${D.room}`);
-  assert.ok(Math.abs(D.roomNet - 49.4) < 0.5, `D net ${D.roomNet}`);
+  assert.ok(Math.abs(D.room - 212.9) < 0.5, `D room ${D.room}`);
+  assert.ok(Math.abs(D.roomNet - 111.1) < 0.5, `D net ${D.roomNet}`);
   // Greedy allocation with an unlimited budget should fund D to within one $10K step of its $1 point
   const big = M.allocateBudget(brands, 2000);
   assert.ok(Math.abs(big.x.D - D.room) <= 10, `greedy ${big.x.D} vs room ${D.room}`);
@@ -100,7 +100,7 @@ test("brand insights: numbers match the budget model and each rule fires only wh
   }
   // Trimming to the $1 point: k·ln(1/r0) less spend, net k·ln(1/r0) − k(1 − r0)
   const B = BI.brandEconomics(byId.B);
-  assert.ok(Math.abs(B.trim - 51.1) < 0.2 && Math.abs(B.trimNet - 11.1) < 0.2, `B trim ${B.trim} / ${B.trimNet}`);
+  assert.ok(Math.abs(B.trim - 766.2) < 0.5 && Math.abs(B.trimNet - 166.2) < 0.5, `B trim ${B.trim} / ${B.trimNet}`);
   assert.ok(BI.brandEconomics(byId.B).overFunded && BI.brandEconomics(byId.K).overFunded && !BI.brandEconomics(byId.D).overFunded);
   assert.equal(BI.$k(0.28), "$280");
   assert.equal(BI.$k(2500), "$2.5M");
@@ -114,9 +114,41 @@ test("accounts roll up to the territory margin trend shown on the home page", ()
   assert.ok(Math.abs(weighted - situation.margin) < 0.1, `weighted average ${weighted.toFixed(2)}`);
 });
 
-test("the Brand B rebalance range in the decision copy pays back on the model's own curves", () => {
+test("the Brand B shift range in the decision copy pays back on the model's own curves", () => {
   const [B, D, H] = ["B", "D", "H"].map(id => brands.find(b => b.id === id));
   const net = (x) => { let best = -Infinity; for (let y = 0; y <= x; y++) best = Math.max(best, M.tradeGain(D, y) + M.tradeGain(H, x - y)); return best + M.tradeGain(B, -x); };
-  assert.ok(net(50) > 0 && net(100) > 0, "shifting $50–100K from B to D and H should add gross profit");
-  assert.ok(net(75) > net(150), "the gain should peak inside the range, not at $150K");
+  assert.ok(net(300) > 0 && net(500) > 0, "shifting $300–500K from B to D and H should add gross profit");
+  assert.ok(net(400) > net(100) && net(400) > net(800), "the gain should peak inside the range");
+});
+
+test("rebalance: keeps the total, equalises next-dollar returns, and beats today's split", () => {
+  for (const floor of [0.5, 0.75, 0.9]) {
+    const r = M.rebalance(brands, { floor });
+    const after = Object.values(r.x).reduce((a, v) => a + v, 0);
+    assert.ok(Math.abs(after - r.total) < 0.5, `total kept at floor ${floor}`);
+    assert.ok(r.gain > 0, `rebalancing adds gross profit at floor ${floor}`);
+    for (const b of brands) {
+      assert.ok(r.x[b.id] >= floor * b.tradeK - 1e-6, `${b.id} respects the floor`);
+      // Unless held at the floor, every brand's next dollar ends at the same return
+      if (r.x[b.id] > floor * b.tradeK + 0.5) assert.ok(Math.abs(M.nextDollar(b, r.x[b.id] - b.tradeK) - r.lambda) < 0.01, `${b.id} at λ`);
+    }
+  }
+  // Letting the total shrink stops every brand at its $1 point, matching the brand popup's trim and room
+  const byId = Object.fromEntries(brands.map(b => [b.id, b]));
+  const s = M.rebalance(brands, { floor: 0.5, shrink: true });
+  assert.ok(Math.abs((byId.B.tradeK - s.x.B) - BI.brandEconomics(byId.B).trim) < 0.5);
+  assert.ok(Math.abs((s.x.D - byId.D.tradeK) - BI.brandEconomics(byId.D).room) < 0.5);
+  assert.ok(s.net > 0 && s.saved > 0);
+});
+test("rebalance ranges: robust moves hold at both ends of the estimate", () => {
+  const v = (id) => M.rebalanceRange(brands, id, { floor: 0.5 });
+  assert.equal(v("B").verdict, "cut");
+  assert.equal(v("D").verdict, "add");
+  assert.equal(v("M").verdict, "test", "a brand with little history should be tested, not bet on");
+  for (const b of brands) {
+    const r = v(b.id);
+    if (r.verdict === "add") assert.ok(r.lo >= 10 && r.hi >= 10);
+    if (r.verdict === "cut") assert.ok(r.lo <= -10 && r.hi <= -10);
+    assert.ok(b.r0Lo <= b.r0 && b.r0 <= b.r0Hi, `${b.id} range contains the estimate`);
+  }
 });

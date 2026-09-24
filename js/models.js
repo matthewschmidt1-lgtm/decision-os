@@ -167,6 +167,41 @@ function summarize(brands, x, budget, steps) {
   return { x, steps, spent, gain, net: gain - spent, unspent: budget - spent };
 }
 
+/* ---------- 10 Rebalancing today's budget (whole-budget marginal analysis) ---------- */
+// Keep the total fixed and move money until every brand's next dollar returns the same amount (λ), subject to a floor
+// (no brand below `floor` × today's spend). The curve extends below today's spend, so a cut gives up tradeGain(b, −cut).
+// Spend at a given λ: today + k·ln(r0/λ), where the brand's next dollar has fallen (or risen) to λ.
+const spendAt = (b, lam, floor) => Math.max(floor * b.tradeK, b.tradeK + b.k * Math.log(b.r0 / lam));
+function solveLambda(brands, total, floor) {
+  let lo = 1e-3, hi = 100;
+  for (let i = 0; i < 100; i++) { const m = Math.sqrt(lo * hi); if (brands.reduce((a, b) => a + spendAt(b, m, floor), 0) > total) lo = m; else hi = m; }
+  return Math.sqrt(lo * hi);
+}
+// shrink: let the total fall, so no brand is funded past the point where its next dollar returns $1.
+export function rebalance(brands, { floor = 0.5, shrink = false } = {}) {
+  const total = brands.reduce((a, b) => a + b.tradeK, 0);
+  const fixed = solveLambda(brands, total, floor);
+  const lambda = shrink ? Math.max(1, fixed) : fixed;
+  const x = Object.fromEntries(brands.map(b => [b.id, spendAt(b, lambda, floor)]));
+  const after = brands.reduce((a, b) => a + x[b.id], 0);
+  const gain = brands.reduce((a, b) => a + tradeGain(b, x[b.id] - b.tradeK), 0);   // change in gross profit
+  const saved = total - after;                                                       // trade dollars no longer spent
+  const moved = brands.reduce((a, b) => a + Math.max(0, b.tradeK - x[b.id]), 0);
+  // If the last dollar everywhere returns less than $1 with the total fixed, the total is bigger than it needs to be:
+  // this much could come out entirely before any brand's next dollar falls below $1.
+  const excess = Math.max(0, total - brands.reduce((a, b) => a + spendAt(b, Math.max(1, fixed), floor), 0));
+  return { x, lambda, gain, saved, net: gain + saved, moved, total, after, excess };
+}
+// Does a brand's recommendation survive its own uncertainty? Re-run with its return at the low and high end of its range.
+export function rebalanceRange(brands, id, opts = {}, material = 10) {
+  const at = (r0) => { const bs = brands.map(b => (b.id === id ? { ...b, r0 } : b)); const b = bs.find(v => v.id === id); return rebalance(bs, opts).x[id] - b.tradeK; };
+  const b = brands.find(v => v.id === id);
+  const lo = at(b.r0Lo), mid = at(b.r0), hi = at(b.r0Hi);
+  const all = [lo, mid, hi];
+  const verdict = all.every(d => d >= material) ? "add" : all.every(d => d <= -material) ? "cut" : all.every(d => Math.abs(d) < material) ? "hold" : "test";
+  return { lo, mid, hi, verdict };
+}
+
 /* ---------- Formatting helpers ---------- */
 export const pct = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}%`;
 export const money = (x) => {

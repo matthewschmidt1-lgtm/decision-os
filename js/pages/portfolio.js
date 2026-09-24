@@ -1,7 +1,7 @@
 import { h, s, link, arrow, eyebrow, bar, segmented, says, disclose, slider } from "../ui.js";
 import { brands, distributors, brandById } from "../data.js";
 import { fingerprintWidget } from "../lessons/widgets.js";
-import { allocateHours, allocateBudget, allocateByRevenue, tradeGain, quadrant, money, pct } from "../models.js";
+import { allocateHours, allocateBudget, allocateByRevenue, tradeGain, quadrant, rebalance, rebalanceRange, money, pct } from "../models.js";
 import { setMeta } from "../app.js";
 import { openModal } from "../modal.js";
 import { brandInsights, brandEconomics, QUESTION } from "../brandInsights.js";
@@ -36,7 +36,7 @@ function openBrand(b) {
       tile("Revenue", money(b.revenue)), tile("Sales growth vs. last year", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
       tile("Gross margin", `${b.gm}%, ${b.margin > 0 ? "up" : b.margin < 0 ? "down" : "flat"}${b.margin ? ` ${Math.abs(b.margin).toFixed(1)} pts` : ""}`),
       tile("Trade spend (annual)", `${k$(b.tradeK)} · ${pctS(e.tradeRate)} of sales`, e.tradeRate > 0.15 ? "bad" : ""),
-      tile("Past return per $1 of trade (average)", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"), tile("Next $1 of trade returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"),
+      tile("Past return per $1 of trade (average)", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"), tile("Next $1 of trade returns", `${perDollar(b.r0)} · range ${perDollar(b.r0Lo)}–${perDollar(b.r0Hi)}`, b.r0 > 1 ? "good" : "bad"),
       tile("Share of portfolio trade / gross profit", `${pct1(e.tradeShare)} / ${pct1(e.gpShare)}`, e.overFunded ? "bad" : ""),
       tile("Your hours per 10, today → rule of thumb", `${e.hoursNowPer10.toFixed(1)} → ${e.hoursModelPer10.toFixed(1)}`),
       tile("Gross profit per selling hour", `${perHour(b)}${b.n < 20 ? " (little data)" : ""}`))),
@@ -191,7 +191,70 @@ function nextDollarPlanner() {
     controls, log, rowsEl, tiles, line);
 }
 
-/* ---------- 4. The next hour ---------- */
+/* ---------- 4. Rebalance today's budget ---------- */
+function rebalancer() {
+  let shrink = false, floor = 0.5;
+  const rowsEl = h("div", { class: "share-list" });
+  const tiles = h("div", { class: "ev-tiles" });
+  const line = says("");
+  const ranges = h("div", { class: "stack", style: { "--gap": "6px" } });
+  const tile = (label, value, tone = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${tone}` }, value));
+  const signed = (v) => `${v >= 0 ? "+" : "−"}${k$(Math.abs(v))}`;
+  const spend = (v) => v >= 995 ? `$${(v / 1000).toFixed(2)}M` : k$(v);   // two decimals so a $40K move on a $1.5M brand shows
+  const VERDICT = { add: ["Robust", "chip-good"], cut: ["Robust", "chip-good"], hold: ["Hold", ""], test: ["Test first", "chip-warn"] };
+  const named = (list) => list.map(({ b, d }) => `${b.name} (${signed(d)})`);
+  const join = (a) => a.length < 2 ? a.join("") : `${a.slice(0, -1).join(", ")} and ${a.at(-1)}`;
+  const render = () => {
+    const opts = { floor, shrink };
+    const r = rebalance(brands, opts);
+    const rows = brands.map(b => ({ b, d: r.x[b.id] - b.tradeK, range: rebalanceRange(brands, b.id, opts) })).sort((a, c) => c.d - a.d);
+    const max = Math.max(...rows.map(x => Math.abs(x.d)), 1);
+    rowsEl.replaceChildren(...rows.map(({ b, d, range }) => {
+      const [label, cls] = VERDICT[range.verdict];
+      const w = `${(Math.abs(d) / max) * 100}%`;
+      return h("div", { class: "share-row rb-row", role: "button", tabindex: "0", "aria-haspopup": "dialog", "aria-label": `${b.name}: ${k$(b.tradeK)} today, ${k$(r.x[b.id])} after, ${signed(d)}. ${label}. Open economics and algorithms.`,
+        onClick: () => openBrand(b), onKeydown: ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openBrand(b); } } },
+        h("span", { class: "share-name" }, b.name),
+        h("div", { class: "rb-bar", "aria-hidden": "true" }, h("div", { class: "rb-neg" }, d < 0 ? h("i", { style: { width: w } }) : null), h("div", { class: "rb-pos" }, d > 0 ? h("i", { style: { width: w } }) : null)),
+        h("span", { class: "num rb-from muted" }, `${spend(b.tradeK)} → ${spend(r.x[b.id])}`),
+        h("span", { class: `num rb-d ${Math.abs(d) < 10 ? "muted" : d > 0 ? "good" : "bad"}` }, Math.abs(d) < 1 ? "—" : signed(d)),
+        h("span", { class: "rb-v" }, h("span", { class: `chip ${cls}` }, label)));
+    }));
+    const robust = rows.filter(x => x.range.verdict === "add" || x.range.verdict === "cut");
+    const tests = rows.filter(x => x.range.verdict === "test");
+    if (!shrink) {
+      tiles.replaceChildren(tile("Money moved", k$(r.moved)), tile("Extra gross profit a year", signed(r.gain), r.gain > 0 ? "good" : ""), tile("Next $1 now returns, in every brand", perDollar(r.lambda)), tile("Moves that hold across the range", `${robust.length} of ${brands.length}`));
+      const cuts = robust.filter(x => x.d < 0).sort((a, c) => a.d - c.d), adds = robust.filter(x => x.d > 0);
+      const addNames = named(adds.slice(0, 3)).concat(adds.length > 3 ? [`${adds.length - 3} more`] : []);
+      const moves = [cuts.length ? `Cut ${join(named(cuts))}` : "", adds.length ? `fund ${join(addNames)}` : ""].filter(Boolean).join(", and ");
+      line.set(`Same ${k$(r.total)}. ${moves ? `${moves[0].toUpperCase()}${moves.slice(1)}. Those moves hold` : "No move holds"} even at the edges of each estimate${tests.length ? `. ${tests.length} brands depend on the estimate: test before moving real money there` : ""}. After rebalancing, the next dollar returns ${perDollar(r.lambda)} in every brand${r.lambda < 0.995 ? `, below $1, so the budget is about ${k$(r.excess)} bigger than it needs to be. Choose “Let it shrink” to see it come out.` : "."}`, "good");
+    } else {
+      tiles.replaceChildren(tile("Budget after", spend(r.after)), tile("Trade dollars saved", k$(r.saved)), tile("Gross profit change", signed(r.gain), r.gain >= 0 ? "good" : "bad"), tile("Net gain a year", signed(r.net), r.net > 0 ? "good" : "bad"));
+      const held = brands.filter(b => r.x[b.id] <= floor * b.tradeK + 0.5).map(b => b.name);
+      const stop = held.length ? `Every brand stops where its next dollar returns $1, except ${join(held)}, which ${held.length > 1 ? "hit" : "hits"} the cut limit.` : "Every brand stops where its next dollar returns $1.";
+      line.set(`${stop} The budget falls by ${k$(r.saved)} to ${spend(r.after)}. ${r.gain < 0
+        ? `Gross profit falls by ${k$(-r.gain)}, but the dollars cut were returning less than they cost, so the business nets ${signed(r.net)} a year.`
+        : `Gross profit rises by ${k$(r.gain)} as money moves to brands that return more, so the business nets ${signed(r.net)} a year.`}`, "good");
+    }
+    ranges.replaceChildren(...(tests.length ? tests.map(({ b, range }) => h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `${b.name}: ${signed(range.lo)} to ${signed(range.hi)}, as its next dollar ranges from ${perDollar(b.r0Lo)} to ${perDollar(b.r0Hi)}.`)) : [h("p", { class: "muted" }, "Every move holds across the range of estimates.")]));
+  };
+  render();
+  return h("div", { class: "stack", style: { "--gap": "20px" } },
+    h("div", { style: { display: "flex", gap: "16px 28px", flexWrap: "wrap", alignItems: "center" } },
+      segmented([{ value: "fixed", label: `Keep ${k$(totalTrade)}` }, { value: "shrink", label: "Let it shrink" }], "fixed", v => { shrink = v === "shrink"; render(); }),
+      h("label", { class: "muted", style: { display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", fontSize: "var(--fs-small)" } }, "Cut any brand by at most",
+        segmented([{ value: "0.5", label: "Half" }, { value: "0.75", label: "A quarter" }, { value: "0.9", label: "10%" }], "0.5", v => { floor = Number(v); render(); }))),
+    h("div", { class: "legend" }, h("span", {}, h("i", { class: "key bad" }), "Cut"), h("span", {}, h("i", { class: "key good" }), "Add"), h("span", { class: "muted" }, "Select a brand for its economics")),
+    rowsEl, tiles, line,
+    disclose("How the ranges and limits work", h("div", { class: "stack" },
+      h("p", {}, "Every next-dollar return is an estimate. Brands with years of promotion history have narrow ranges; new and small brands have wide ones. For each brand, the model re-runs the whole rebalance with that brand's return at the low end of its range, then the high end."),
+      h("p", { class: "muted" }, "Robust: the move goes the same way, by at least $10K, across the whole range. Act on it. Test first: at one end of the range the brand should get more, at the other less or nothing. Run a test on a few events or accounts before moving real money. Hold: less than $10K either way."),
+      h("p", { class: "muted" }, "The cut limit stands in for contracts, retailer commitments and minimum brand support. The tighter it is, the less the model can move, and the less it finds."),
+      eyebrow("Depends on the estimate"), ranges,
+      link("/learn/optimization", h("span", { class: "link" }, "Learn: optimization and marginal analysis ", arrow())))));
+}
+
+/* ---------- 5. The next hour ---------- */
 function nextHour() {
   let c = 0.5;
   const rowsEl = h("div", { class: "share-list" });
@@ -256,7 +319,7 @@ export default function Portfolio({ params }) {
       h("p", { class: "hero-sub" }, "Your time and your trade dollars are the only two things you invest. This page shows where each one returns the most, and why that's rarely the biggest brand."),
       h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Illustrative portfolio. Brand figures, returns, and hours are generated for practice."),
       h("nav", { "aria-label": "On this page", class: "pill-list", style: { marginTop: "22px" } },
-        jump("#map", "Brand map"), jump("#share", "Fair share"), jump("#dollars", "Next dollar"), jump("#attention", "Next hour"), jump("#chain", "Commercial chain"), jump("#fingerprint", "Economic fingerprint"), jump("#brands", "All brands"))),
+        jump("#map", "Brand map"), jump("#share", "Fair share"), jump("#dollars", "Next dollar"), jump("#rebalance", "Rebalance"), jump("#attention", "Next hour"), jump("#chain", "Commercial chain"), jump("#fingerprint", "Economic fingerprint"), jump("#brands", "All brands"))),
 
     h("section", { class: "section", id: "map" },
       sectionHead("Brand map", "Which brands deserve more, and which have had enough?", "Across: is the brand growing? Up: what does the next trade dollar return in gross profit? Above the line, it pays back. Bubble size is revenue."),
@@ -273,6 +336,10 @@ export default function Portfolio({ params }) {
           h("p", {}, "This is marginal analysis done one step at a time. Every brand has a curve: the first dollars of extra support return a lot, later dollars return less. Giving each $10K to whichever brand's next $10K returns the most keeps the returns across brands roughly equal at the end, which is where a budget is working hardest. When no brand's next dollar returns more than a dollar, spending more loses money, so the model stops."),
           h("p", { class: "muted" }, "Average return tells you what past spending achieved. Next-dollar return tells you what the next decision will achieve. Brand A has paid back well on average, and its next dollar doesn't."),
           link("/learn/optimization", h("span", { class: "link" }, "Learn: optimization and marginal analysis ", arrow()))))))),
+
+    h("section", { class: "section", id: "rebalance" },
+      sectionHead("Rebalance", "Is today's budget in the right brands?", `The next dollar asks where new money should go. This asks the bigger question: move today's ${k$(totalTrade)} from brands where the next dollar returns less to brands where it returns more, until no move adds profit.`),
+      h("div", { class: "card reveal" }, rebalancer())),
 
     h("section", { class: "section", id: "attention" },
       sectionHead("The next hour", "Where should your next 10 hours go?", "Time works like trade dollars, with one difference: for brands you know little about, some time is worth spending just to find out."),
