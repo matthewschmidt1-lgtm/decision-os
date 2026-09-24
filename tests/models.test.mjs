@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as M from "../js/models.js";
-import { brands } from "../js/data.js";
+import { brands, accounts, situation } from "../js/data.js";
 import * as BI from "../js/brandInsights.js";
 
 test("marginal contribution declines with spend and crosses zero at the optimum", () => {
@@ -104,4 +104,12 @@ test("brand insights: numbers match the budget model and each rule fires only wh
   assert.ok(BI.brandEconomics(byId.B).overFunded && BI.brandEconomics(byId.K).overFunded && !BI.brandEconomics(byId.D).overFunded);
   assert.equal(BI.$k(0.28), "$280");
   assert.equal(BI.$k(2500), "$2.5M");
+});
+
+test("accounts roll up to the territory margin trend shown on the home page", () => {
+  const simple = accounts.reduce((s, a) => s + a.margin, 0) / accounts.length;
+  const weight = accounts.reduce((s, a) => s + a.value, 0);
+  const weighted = accounts.reduce((s, a) => s + a.margin * a.value, 0) / weight;
+  assert.ok(Math.abs(simple - situation.margin) < 0.1, `simple average ${simple.toFixed(2)}`);
+  assert.ok(Math.abs(weighted - situation.margin) < 0.1, `weighted average ${weighted.toFixed(2)}`);
 });

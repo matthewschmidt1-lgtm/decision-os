@@ -50,13 +50,16 @@ function makeAccount(i) {
   usedNames.add(name);
   const store = `#${String(1000 + ((i * 37) % 900)).padStart(4, "0")}`;
   const velocity = between(-14, 22);
-  const margin = between(-5, 4, 1);
+  const rawMargin = between(-5, 4, 1);
   const volume = between(-10, 18);
   const trade = between(-8, 30);
   const distribution = between(3, 12);
   const probability = between(0.12, 0.86, 2);
   const value = between(6, 48) * 1000;
   const cost = between(1, 9) * 1000;
+  // Bigger accounts run deeper promotions, so their margin slips more. Tuned so the accounts roll up to the
+  // territory's margin trend (situation.margin, −1.6 pts) whether averaged simply or weighted by size.
+  const margin = Math.round((rawMargin - 1.3 - 0.06 * (value / 1000 - 27)) * 10) / 10;
   return { id: `acct-${i + 1}`, name, store, channel, distributor: distributor.id, velocity, margin, volume, trade, distribution, probability, value, cost, brands: [pick(brands).id, pick(brands).id, pick(brands).id].filter((v, j, a) => a.indexOf(v) === j) };
 }
 export const accounts = Array.from({ length: 84 }, (_, i) => makeAccount(i));
