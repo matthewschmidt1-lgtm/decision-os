@@ -17,7 +17,7 @@ export default async function Decision({ id }) {
   const best = d.options.find(o => o.name === d.preferred) || d.options.reduce((a, b) => (b.margin > a.margin ? b : a));
   const prior = getChoice(d.id);
 
-  const line = says(prior ? `Last time you chose ${prior.option}. Pick again, or open the reasoning below.` : "Pick an option to see what the model expects. Then ask it why.");
+  const line = says(prior ? `Last time you chose ${prior.option}. Pick again to see what the model expects and why.` : "Pick an option to see what the model expects. Then ask it why.");
   const choose = (o, el, { scroll = true } = {}) => {
     optionEls.forEach(b => b.setAttribute("aria-pressed", "false")); el.setAttribute("aria-pressed", "true");
     revealPreferred();
@@ -45,9 +45,7 @@ export default async function Decision({ id }) {
       link(`/learn/${lessonFor[d.algorithm]}`, h("span", { class: "link" }, "Learn the algorithm ", arrow()))));
 
   const whySection = h("section", { class: "section reveal", hidden: true }, why);
-  // Returning to an answered decision: restore the selection, the badge and the open reasoning.
-  const priorIdx = prior ? d.options.findIndex(o => o.name === prior.option) : -1;
-  if (priorIdx >= 0) { optionEls[priorIdx].setAttribute("aria-pressed", "true"); revealPreferred(); why.open = true; }
+  // Returning to an answered decision starts fresh, like Practice: the badge and reasoning wait for a new choice.
   return h("article", {},
     h("header", { class: "reveal" }, h("p", { class: "tag" }, subject), h("p", { class: `tag verb-${d.verb.toLowerCase()}`, style: { marginTop: "6px" } }, d.verb),
       eyebrow("Question"), h("h1", { class: "hero", style: { marginTop: "12px", maxWidth: "24ch" } }, d.question)),
