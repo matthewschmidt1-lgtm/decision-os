@@ -3,7 +3,7 @@ import { decisions, decisionById, accountById, brandById } from "../data.js";
 import { widgetFor } from "../lessons/widgets.js";
 import { setMeta } from "../app.js";
 import { pct } from "../models.js";
-import { getChoice, setChoice } from "../store.js";
+import { setChoice } from "../store.js";
 
 const lessonFor = { marginal: "optimization", utility: "utility-and-trade-offs", voi: "value-of-information", ev: "expected-value" };
 const algoName = { marginal: "Marginal analysis", utility: "Multi-objective utility", voi: "Value of information", ev: "Expected value" };
@@ -15,9 +15,8 @@ export default async function Decision({ id }) {
   const subject = d.accountId ? `Account: ${accountById[d.accountId].name}` : d.brandId ? `Brand: ${brandById[d.brandId].name}` : "Territory";
   const i = decisions.indexOf(d); const isLast = i === decisions.length - 1; const next = decisions[i + 1];
   const best = d.options.find(o => o.name === d.preferred) || d.options.reduce((a, b) => (b.margin > a.margin ? b : a));
-  const prior = getChoice(d.id);
 
-  const line = says(prior ? `Last time you chose ${prior.option}. Pick again to see what the model expects and why.` : "Pick an option to see what the model expects. Then ask it why.");
+  const line = says("Pick an option to see what the model expects. Then ask it why.");
   const choose = (o, el, { scroll = true } = {}) => {
     optionEls.forEach(b => b.setAttribute("aria-pressed", "false")); el.setAttribute("aria-pressed", "true");
     revealPreferred();
@@ -45,7 +44,7 @@ export default async function Decision({ id }) {
       link(`/learn/${lessonFor[d.algorithm]}`, h("span", { class: "link" }, "Learn the algorithm ", arrow()))));
 
   const whySection = h("section", { class: "section reveal", hidden: true }, why);
-  // Returning to an answered decision starts fresh, like Practice: the badge and reasoning wait for a new choice.
+  // Returning to an answered decision starts fresh, like Practice: no hint of the earlier answer, and the badge and reasoning wait for a new choice.
   return h("article", {},
     h("header", { class: "reveal" }, h("p", { class: "tag" }, subject), h("p", { class: `tag verb-${d.verb.toLowerCase()}`, style: { marginTop: "6px" } }, d.verb),
       eyebrow("Question"), h("h1", { class: "hero", style: { marginTop: "12px", maxWidth: "24ch" } }, d.question)),
