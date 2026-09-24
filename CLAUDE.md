@@ -8,7 +8,7 @@ A training site for CPG sales. Reps practice real commercial decisions, then see
 ## Hard constraints
 
 - **Zero build step.** Vanilla ES modules, plain CSS, hand-drawn SVG. No framework, no bundler, no runtime dependencies. Don't introduce npm tooling: this Mac has no Node, npm, Homebrew, `gh`, or `railway` CLI.
-- **Every recommendation shows its reasoning.** Never display an answer without the logic behind it. Never reveal the preferred option before the user chooses (decisions and practice scenarios both hide it until a choice is made).
+- **Every recommendation shows its reasoning.** Never display an answer without the logic behind it. Never reveal the preferred option before the user chooses (decisions and practice scenarios both hide it until a choice is made, including on a revisit). The expected volume and margin on decision option cards stay visible before choosing: that's deliberate, so the user compares options rather than guesses.
 - **All data is illustrative** and must be labelled as such where it appears. Numbers must be internally consistent across pages (e.g. Brand B's share of trade is 32% everywhere).
 - **Design language:** Apple / Mike Markkula restraint. Tokens live in `css/tokens.css`: ivory `#F5F5F0`, ink `#171717`, muted `#7B7B76`, one accent `#2457D6`. Green, amber, and red are for meaning only. One primary question per screen. Must work at 375px with no horizontal scroll.
 
