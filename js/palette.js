@@ -13,7 +13,6 @@ const canned = [
   { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
   { t: "Practice a customer meeting", s: "A buyer pushes back. What do you say?", k: "practice", href: "/practice/facings-cut?set=meeting&i=0" },
   { t: "Try a 5-minute challenge", s: "Five cases, immediate feedback.", k: "practice", href: "/practice/kroger-decline?set=challenge&i=0" },
-  { t: "Is our trade budget in the right brands?", s: "Rebalance today's budget, with ranges on every estimate.", k: "portfolio", href: "/portfolio#rebalance" },
   { t: "Where should I spend my next 10 hours?", s: "Attention allocation across 15 brands.", k: "portfolio", href: "/portfolio#attention" },
   { t: "What should I learn before I decide?", s: "Value of information.", k: "learn", href: "/learn/value-of-information" },
 ];

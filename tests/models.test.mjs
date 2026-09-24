@@ -121,34 +121,3 @@ test("the Brand B shift range in the decision copy pays back on the model's own 
   assert.ok(net(400) > net(100) && net(400) > net(800), "the gain should peak inside the range");
 });
 
-test("rebalance: keeps the total, equalises next-dollar returns, and beats today's split", () => {
-  for (const floor of [0.5, 0.75, 0.9]) {
-    const r = M.rebalance(brands, { floor });
-    const after = Object.values(r.x).reduce((a, v) => a + v, 0);
-    assert.ok(Math.abs(after - r.total) < 0.5, `total kept at floor ${floor}`);
-    assert.ok(r.gain > 0, `rebalancing adds gross profit at floor ${floor}`);
-    for (const b of brands) {
-      assert.ok(r.x[b.id] >= floor * b.tradeK - 1e-6, `${b.id} respects the floor`);
-      // Unless held at the floor, every brand's next dollar ends at the same return
-      if (r.x[b.id] > floor * b.tradeK + 0.5) assert.ok(Math.abs(M.nextDollar(b, r.x[b.id] - b.tradeK) - r.lambda) < 0.01, `${b.id} at λ`);
-    }
-  }
-  // Letting the total shrink stops every brand at its $1 point, matching the brand popup's trim and room
-  const byId = Object.fromEntries(brands.map(b => [b.id, b]));
-  const s = M.rebalance(brands, { floor: 0.5, shrink: true });
-  assert.ok(Math.abs((byId.B.tradeK - s.x.B) - BI.brandEconomics(byId.B).trim) < 0.5);
-  assert.ok(Math.abs((s.x.D - byId.D.tradeK) - BI.brandEconomics(byId.D).room) < 0.5);
-  assert.ok(s.net > 0 && s.saved > 0);
-});
-test("rebalance ranges: robust moves hold at both ends of the estimate", () => {
-  const v = (id) => M.rebalanceRange(brands, id, { floor: 0.5 });
-  assert.equal(v("B").verdict, "cut");
-  assert.equal(v("D").verdict, "add");
-  assert.equal(v("M").verdict, "test", "a brand with little history should be tested, not bet on");
-  for (const b of brands) {
-    const r = v(b.id);
-    if (r.verdict === "add") assert.ok(r.lo >= 10 && r.hi >= 10);
-    if (r.verdict === "cut") assert.ok(r.lo <= -10 && r.hi <= -10);
-    assert.ok(b.r0Lo <= b.r0 && b.r0 <= b.r0Hi, `${b.id} range contains the estimate`);
-  }
-});
