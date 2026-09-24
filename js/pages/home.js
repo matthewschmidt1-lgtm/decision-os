@@ -80,6 +80,6 @@ export default function Home() {
         eyebrow("One question"),
         h("h2", { style: { marginTop: "12px", fontSize: "var(--fs-h1)" } }, "Where should you allocate your next 10 hours?"),
         h("p", { class: "muted", style: { marginTop: "14px", maxWidth: "48ch", marginInline: "auto" } }, "Three brands are competing for your next 10 hours. One of them deserves more than its size suggests."),
-        h("div", { style: { marginTop: "28px" } }, link("/portfolio#attention", h("span", { class: "btn" }, "Explore decision ", arrow()))))),
+        h("div", { style: { marginTop: "28px" } }, link("/decisions", h("span", { class: "btn" }, "Explore decision ", arrow()))))),
   );
 }
