@@ -135,7 +135,13 @@ export function evWidget({ p = 0.84, value = 21000, cost = 1500 } = {}) {
     const ev = M.expectedValue(st); tween(big, last, ev, v => M.money(v)); last = ev;
     formula.textContent = `${Math.round(st.p * 100)}% × ${M.money(st.value)} − ${M.money(st.cost)} = ${M.money(ev)}`;
     const evB = M.expectedValue(compare);
-    line.set(ev > evB ? `This small, likely opportunity (${M.money(ev)}) is worth more than the ${M.money(compare.value)} account at ${Math.round(compare.p * 100)}% odds (${M.money(evB)}). Size is not value.` : `Now the big account wins (${M.money(evB)} vs ${M.money(ev)}). Notice how far the odds had to fall.`, ev > evB ? "good" : "warn");
+    const atReal = st.p === p && st.value === value && st.cost === cost;
+    const long = `the ${M.money(compare.value)} long shot at ${Math.round(compare.p * 100)}% odds`;
+    if (ev > evB) line.set(`This small, likely opportunity (${M.money(ev)}) is worth more than ${long} (${M.money(evB)}). Size is not value.`, "good");
+    else if (atReal) line.set(ev < 0
+      ? `At these numbers, this account costs more to pursue than it's likely to return (${M.money(ev)}). Even ${long} is worth more (${M.money(evB)}). Move the sliders to see what would make it worth a visit.`
+      : `At these numbers, ${long} is worth more (${M.money(evB)} vs ${M.money(ev)}). Better odds or a lower cost would change that. Try the sliders.`, "warn");
+    else line.set(`Now ${long} wins (${M.money(evB)} vs ${M.money(ev)}).${ev < 0 ? " This one would cost more to pursue than it's likely to return." : ""}`, "warn");
   };
   const sliders = [
     slider({ label: "Probability of success", min: 5, max: 95, step: 1, value: Math.round(st.p * 100), format: v => `${Math.round(v)}%`, onInput: v => { st.p = v / 100; render(); } }),

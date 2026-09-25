@@ -103,7 +103,7 @@ function brandMap(initial) {
         tile("Next $1 of trade returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"), tile("Gross profit per hour", perHour(b))),
       h("p", { class: "says" }, lesson),
       h("p", {}, h("b", { style: { fontWeight: 600 } }, "What to do: "), q.act),
-      b.n < 10 ? h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Little data yet (dashed outline). These estimates could be well off. A small test is worth more than a big bet.") : null,
+      ...(b.n < 10 ? [h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Little data yet (dashed outline). These estimates could be well off. A small test is worth more than a big bet.")] : []),   // replaceChildren would print a null as "null"
       h("button", { type: "button", class: "btn btn-ghost", style: { justifySelf: "start" }, onClick: () => openBrand(b) }, "Which algorithms apply? ", arrow()),
     );
   }
