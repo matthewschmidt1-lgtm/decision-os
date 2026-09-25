@@ -15,3 +15,11 @@
   .decision-row .arrow{grid-column:2;grid-row:1}
 }
 @media print{.topbar,.footer,.palette-backdrop,.btn{display:none!important}.reveal{opacity:1;transform:none}}
+
+/* Practice scenario: situation → what you know → decision, on one rhythm */
+.sc-step{margin-top:40px}
+.sc-step>.eyebrow{margin-bottom:12px}
+.sc-situation{font-size:clamp(1.5rem,1.15rem + 1.2vw,2.125rem);line-height:1.22;letter-spacing:-0.02em;max-width:42ch}
+.sc-facts{padding:clamp(16px,2.4vw,24px)}
+.sc-question{font-size:var(--fs-h2);line-height:1.2}
+@media (max-width:600px){.sc-step{margin-top:32px}}

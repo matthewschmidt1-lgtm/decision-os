@@ -209,7 +209,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac
 
 /* Practice choices */
 .choices{display:grid;gap:10px}
-.option.choice{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:center;font-size:var(--fs-body);padding:18px 20px}
+.option.choice{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:center;font-size:var(--fs-body);padding:14px 18px}
 .option.choice:disabled{cursor:default}
 .option.choice:disabled:not([aria-pressed="true"]):not(.preferred){opacity:.55}
 .option.choice[aria-pressed="true"]{padding-right:52px}
