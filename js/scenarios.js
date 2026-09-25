@@ -7,7 +7,7 @@ export const skills = {
   strategy: { name: "Customer strategy", blurb: "Make the case a buyer will accept." },
   economics: { name: "Trade economics", blurb: "Know what volume costs." },
 };
-export const levels = ["Recognize", "Diagnose", "Prioritize", "Act", "Defend"];
+export const levels = ["Recognize", "Diagnose", "Prioritize", "Act", "Defend", "Lead"];
 
 const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => ids.includes(s.id) });
 export const tracks = [
@@ -17,6 +17,7 @@ export const tracks = [
   track("focus", "Decide where to focus", "Limited hours, many accounts, not enough supply.", ["where-next-hour", "what-to-check-first", "distributor-load", "allocation"]),
   track("onpremise", "Win on-premise", "Bars, restaurants and hotels: menus, back bars, staff and what you're allowed to offer.", ["tavern-pour-decline", "btg-winback", "featured-spots", "happy-hour-ask", "hotel-rtd-test", "placement-velocity", "rooftop-season", "mezcal-price-velocity"]),
   track("lapsed", "Win back a lost account", "No order in six months. Find out why before you chase it.", ["lapsed-accounts", "silent-lapse", "outage-winback"]),
+  track("value", "Sell the value", "When the answer is 'too expensive', the product's value is the reply.", ["value-too-expensive", "value-unseen-on-menu", "value-swap-request", "value-delist-review", "value-lead-sells-on-price", "value-lead-price-increase"]),
   track("turnaround", "Turn around a declining account", "Sales are down. Find out why before you spend a dollar.", ["cstore-decline", "ecommerce-rank", "walk-away"]),
   track("opportunity", "Analyze a sales opportunity", "Is it worth pursuing, and how?", ["new-item-acv", "on-premise-placement"]),
 ];
@@ -521,6 +522,97 @@ export const scenarios = [
     reasoning: "Expected value includes cost. Corner Fresh returns less each quarter while asking for more. Even if more visits held sales flat, the $5K of asks and 12 days of your time are worth more elsewhere. Sometimes the best move is to do less at an account.",
     principle: "Not every account deserves more effort. Sometimes the best decision is to step back and spend your time where it returns more.",
     nextMove: "Tell the owner you're moving his service to the distributor rep, with a quarterly check-in call. Book visits at the two most promising prospects in the next two weeks.",
+  },
+  // ---------- Sell the value: answer "too expensive" with what the product does for the customer ----------
+  {
+    id: "value-too-expensive", customer: "The Fresh Market", channel: "off", category: "Cold brew coffee", level: "Diagnose", skill: "diagnosis", algorithm: "utility-and-trade-offs", tags: ["pricing", "value", "meeting"],
+    situation: "At your category review, the buyer says: 'Your cold brew is too expensive. My shoppers won't keep paying $7.99.' He's deciding shelf space for the spring reset.",
+    evidence: [["Your buyers new to the category", "38%"], ["Dollar sales per store", "about 2× the category average"], ["Your 4-pack", "$7.99 · 11 units per store per week · 44% buy again"], ["Category average", "$6.49 · 7 units per store per week · 30% buy again"], ["Buyer's goal this year", "grow category dollars"]],
+    question: "What's really behind 'too expensive'?",
+    options: [
+      { label: "The price is too high. Propose a lower price point.", quality: "weak", feedback: "It sells 57% faster than the category at the higher price. His shoppers are already paying it, and coming back for more. Cutting price would give away dollars he's trying to grow." },
+      { label: "Shoppers in this category are price-sensitive", quality: "weak", feedback: "The data says the opposite. High velocity and high repeat at a $1.50 premium is what price-insensitive demand looks like." },
+      { label: "He's negotiating for trade money", quality: "good", feedback: "Possibly, and worth being ready for. But either way, what you need to show him is the same: what this item does for his category." },
+      { label: "He hasn't seen what the item does for his category. 'Too expensive' is a value question you haven't answered yet.", quality: "best", feedback: "Right. It brings the most dollars per store, brings new shoppers into the category, and they come back. That's exactly his goal for the year. He just hasn't been shown it." },
+    ],
+    reasoning: "Weigh the item against what the buyer is trying to achieve, not against the shelf price next to it. His objective is category dollars. At $7.99 and 11 units a week, your item earns about $88 per store per week against about $45 for the average item. It also brings shoppers the category didn't have, and 44% of them buy again. On his own objective, it's one of his best items.",
+    principle: "'Too expensive' usually means 'I don't see the value yet.' Answer it with what the product does for the shopper and for the buyer's business, not with a lower price.",
+    nextMove: "Rebuild the review around his goal: dollars per store, new-to-category shoppers and repeat, set against the category average. Then ask for the space the numbers justify.",
+  },
+  {
+    id: "value-unseen-on-menu", customer: "The Arden Hotel (bar)", channel: "on", category: "Gin", level: "Diagnose", skill: "diagnosis", algorithm: "bayesian-updating", tags: ["pricing", "value", "on-premise"],
+    situation: "The bar manager says your gin and tonic isn't selling because 'guests think $15 is too much.' He wants to drop it from the next menu.",
+    evidence: [["Average cocktail spend at the Arden", "$22 per guest"], ["The Arden", "$15 · gin not named on the menu, no description · staff don't mention it · 18 a week"], ["Sister hotel downtown", "$16 · gin named, with a short botanical note · staff have tasted it · 41 a week"]],
+    question: "What's most likely holding it back?",
+    options: [
+      { label: "The price. Guests here won't pay $15.", quality: "weak", feedback: "Guests here spend $22 on cocktails, and the same drink sells more than twice as many at $16 downtown. Price isn't the barrier." },
+      { label: "Guests don't know what they'd be paying for. Nothing on the menu or from the staff tells them.", quality: "best", feedback: "Right. On this menu it's an anonymous $15 gin and tonic. Downtown, guests see which gin, why it's different, and hear it from staff. Same drink, higher price, more than twice the sales." },
+      { label: "Gin just isn't popular with this crowd", quality: "good", feedback: "Possible, and worth checking. But the downtown guests are the same kind of hotel guest, and they order it 41 times a week. Start with what's different between the two bars." },
+      { label: "A cheaper gin and tonic would sell better", quality: "weak", feedback: "It might sell a few more at a lower price, but it treats the symptom. The evidence says guests aren't rejecting the price. They're not being shown the value." },
+    ],
+    reasoning: "The manager's belief is that price is the problem. Update it with the evidence. Guests at the Arden spend $22 on cocktails, so $15 is below what they usually pay. The sister hotel is close to a controlled test: same drink, $1 more, named on the menu with a description and staff who've tasted it, and it sells 41 a week against 18. What differs is how the value is presented, not the price.",
+    principle: "A price can't be judged apart from how the value is presented. If the guest can't see what makes it worth $15, it isn't worth $15 to them.",
+    nextMove: "Ask for two changes before the menu is cut: name the gin with a one-line description, and run a short staff tasting through your distributor. Compare sales after four weeks with the downtown bar.",
+  },
+  {
+    id: "value-swap-request", customer: "Ember & Oak (steakhouse)", channel: "on", category: "Bourbon", level: "Act", skill: "strategy", algorithm: "value-of-information", tags: ["pricing", "value", "on-premise"],
+    situation: "Food costs are up 9%. The owner wants to cut drink costs by swapping your bourbon out of the house Old Fashioned for a cheaper well bourbon. The menu names your brand.",
+    evidence: [["Old Fashioneds a week", "60 at $16, his best seller"], ["Swap to the well bourbon", "$1.20 a pour · not named on the menu · saves about $54 a week"], ["Keep your bourbon, raise the drink $2", "$2.10 a pour · named on the menu · adds about $120 a week, if sales hold"], ["Unknown", "whether guests order it for the named bourbon", "warn"], ["His real need", "protect overall margin"]],
+    question: "What do you recommend?",
+    options: [
+      { label: "Offer to cover part of his cost difference", quality: "weak", feedback: "It doesn't solve his margin problem for long, and in most states a supplier paying for a placement isn't allowed. It also teaches him that your price is negotiable." },
+      { label: "Accept the swap to protect the relationship", quality: "weak", feedback: "You'd give up his best-selling cocktail without testing whether guests would notice. The relationship is better served by solving his problem." },
+      { label: "Offer a lower-cost bourbon from your own portfolio for the Old Fashioned", quality: "good", feedback: "It meets his cost need and keeps you in the drink. But it gives up the named premium that may be exactly what guests are paying for." },
+      { label: "Keep your bourbon named, test the drink at $18 for four weeks, and agree that if sales fall below 56 a week, you'll revisit the swap together", quality: "best", feedback: "Right. It solves his margin need with the value of the name rather than a cheaper pour, and the test answers the one thing neither of you knows." },
+    ],
+    reasoning: "The owner's need is margin, and there are two ways to get it: lower cost or higher value. The swap saves about $54 a week. A $2 increase on a named premium bourbon adds about $120 a week if sales hold, and still beats the swap unless sales drop below about 56 a week (56 × $15.90 ≈ 60 × $14.80). What you don't know is whether guests order it for the name. A four-week test is cheap and answers exactly that.",
+    principle: "When a customer asks for a cheaper product, find the need underneath. The product's value can often meet it better than a lower cost can, but test it rather than argue it.",
+    nextMove: "Show him the two paths side by side, and offer a staff tasting through your distributor to support the new price. Agree the 56-a-week line before the test starts, and review the numbers with him together. You can advise on menu and price, but the price is his call.",
+  },
+  {
+    id: "value-delist-review", customer: "Raley's", channel: "off", category: "Granola", level: "Act", skill: "strategy", algorithm: "exploration-vs-exploitation", tags: ["pricing", "value", "distribution"],
+    situation: "Your premium granola is on the delist list for the next reset. The buyer says it's slow and priced $2 above the category, and offers to keep it if you fund a deeper promotion every other month.",
+    evidence: [["Velocity", "15% below the category average"], ["Where it sits", "40% of stores, bottom shelf"], ["Your granola's shoppers", "58% aged 25–40 · $62 basket"], ["Average store shopper", "31% aged 25–40 · $41 basket"], ["The chain's goal this year", "attract younger households"], ["Unknown", "how it sells at eye level", "warn"]],
+    question: "What do you propose?",
+    options: [
+      { label: "Fund the deeper promotion to stay on the shelf", quality: "weak", feedback: "It keeps the item for a quarter by lowering its price, not by showing its value. And a bottom-shelf item on deal still sits on the bottom shelf." },
+      { label: "Offer a smaller pack at a lower shelf price", quality: "good", feedback: "A real tool, and sometimes the right one. But it answers 'too expensive' before you've shown the buyer who this item brings into his store." },
+      { label: "Accept the delist in the weakest stores to protect the rest", quality: "weak", feedback: "It concedes the argument without making it. The item's strongest case, the shoppers it brings, hasn't been put in front of the buyer yet." },
+      { label: "Show him the shoppers it brings, and propose an 8-week test at eye level in 20 stores measured on velocity and basket", quality: "best", feedback: "Right. The item brings exactly the younger, bigger-basket households the chain wants. Its velocity was measured on the bottom shelf in 40% of stores, so a small test tells you both what it's really worth." },
+    ],
+    reasoning: "The velocity number looks bad, but it was measured on the bottom shelf in under half the stores, so it says little about what the item could do. What you do know is valuable to this buyer: its shoppers are younger and spend 50% more per trip, which is the chain's stated goal. Spend a little of the shelf to learn: a small eye-level test gives the buyer evidence instead of an argument.",
+    principle: "Sell the customer the shoppers your product brings, not just the units it moves. When the evidence is weak because of where the product sits, propose a test, not a discount.",
+    nextMove: "Bring the shopper profile and basket data to the buyer, framed against the chain's goal. Propose the 20-store eye-level test with a clear pass mark agreed in advance, and a plan for what happens if it misses.",
+  },
+  {
+    id: "value-lead-sells-on-price", customer: "Your region (40 reps)", channel: "off", category: "Portfolio", level: "Lead", skill: "strategy", algorithm: "utility-and-trade-offs", tags: ["pricing", "value", "leadership"],
+    situation: "You run a region of 40 reps. Placement wins are flat, and the price concessions reps give to win them keep growing. The CEO asks what you'll change.",
+    evidence: [["Account plans that lead with a price or promotion", "70%"], ["Win rate on new placements", "22%"], ["Win rate when reps led with value and a business case", "41%, on only 17 pitches: a signal, not proof"], ["What reps carry", "a price list and a promo calendar, with no value story for any brand"], ["Consumer research", "owned by the brand team, and never reaches the field"], ["Rep incentives", "case volume only"]],
+    question: "What needs to change?",
+    options: [
+      { label: "Give reps more promotion budget to win placements", quality: "weak", feedback: "It buys placements instead of selling them, and it deepens the habit that's eroding price." },
+      { label: "Mandate a value story in every pitch", quality: "weak", feedback: "A rule with nothing behind it. Reps can't tell a value story they were never given, and they'll comply on paper." },
+      { label: "Run a value-selling training program", quality: "good", feedback: "The right instinct. But without the tools, the coaching, and a scorecard that rewards value, training fades within a quarter and reps go back to the price list." },
+      { label: "Build the capability: a value story per brand from consumer research, account business cases, managers coaching plans on the customer's need, and a scorecard with win rate and price held", quality: "best", feedback: "Right. It changes what reps carry, how they're coached, and what counts as winning. That's what makes value selling the default rather than an exception." },
+    ],
+    reasoning: "Weigh what the organisation is actually optimising. Reps are paid on cases and equipped with a price list, so leading with price is the rational choice for them. The 41% win rate from value-led pitches is a small sample, but the gap is large enough to act on. Any fix that changes only one part, like the budget, a rule or a training, leaves the other forces in place.",
+    principle: "If reps only carry a price list, they'll only sell on price. Give them the value story, coach to the customer's need, and measure what value selling earns.",
+    nextMove: "Ask the brand team for a one-page value story on your top five brands within a month. Have managers review the next quarter's top account plans for the customer's need first. Add price held and win rate to the regional scorecard next to cases.",
+  },
+  {
+    id: "value-lead-price-increase", customer: "Your region (top 20 accounts)", channel: "off", category: "Portfolio", level: "Lead", skill: "strategy", algorithm: "expected-value", tags: ["pricing", "value", "leadership"],
+    situation: "The company is taking a 5% list price increase next quarter. Last year's increase mostly leaked back out through extra trade given to 'protect relationships.' As regional VP, you decide how your team takes this one to customers.",
+    evidence: [["Last year's increase kept, after give-backs", "about a third"], ["Accounts where reps brought a category growth plan with the increase", "kept about 85%"], ["Accounts that got a letter and a new price list", "kept about 30%"], ["Buyers' top complaint in the customer survey", "'suppliers bring increases with no plan for our business'"], ["Each point of price kept", "about $1.2M of gross profit for the region"]],
+    question: "How do you lead it?",
+    options: [
+      { label: "Hold the line: no trade give-backs allowed this year", quality: "good", feedback: "Discipline matters, and it would stop the worst leakage. But it treats the customer as an opponent. Without a plan for their business, you'll win the argument and lose the relationship." },
+      { label: "Explain the cost inflation clearly so buyers understand why", quality: "weak", feedback: "It's honest, and it's about your costs, not their business. Buyers told you exactly what they want, and it isn't your cost sheet." },
+      { label: "Phase it in smaller steps to soften the impact", quality: "weak", feedback: "It spreads the conversation over more meetings without changing what's said in any of them." },
+      { label: "Equip every rep to bring each top account a plan for what the increase funds for them, rehearse the top 20 conversations, and track price kept as a team measure", quality: "best", feedback: "Right. Buyers accept prices they understand in terms of their own business. Your own data says a plan keeps about 85% of the increase; a letter keeps about 30%." },
+    ],
+    reasoning: "Compare the expected result of each approach. On last year's evidence, a growth plan keeps about 85% of the increase and a letter about 30%. On a 5% increase that's roughly 4.25 points against 1.5, or about $3.3M of gross profit at $1.2M a point. The approach that wins is the one buyers asked for: a plan for their business, not an explanation of yours.",
+    principle: "A price increase is a value conversation. Customers accept prices they can see paying off in their own business.",
+    nextMove: "Before any letter goes out, have each rep draft a one-page plan per top account: what the product delivers for their shoppers, and where the company's investment goes in their category. Rehearse the top 20 with managers, and review price kept every month.",
   },
 ];
 // Balance where the strongest answer sits so position is never a tell (A/B/C/D roughly equal).
