@@ -40,7 +40,7 @@ Push to `main`. Railway runs `scripts/serve-site.sh`, which copies only the publ
 | `js/models.js` | Pure decision models: marginal analysis, utility ranking, UCB hour allocation, Bayes, expected value, decision tree, value of information, fingerprint, trade-budget allocation (`tradeGain`, `allocateBudget`, `quadrant`), `money`/`pct` formatting |
 | `js/data.js` | Territory data: 15 brands (with ROI fields), 3 distributors, 84 accounts, 4 territory decisions, blindspots |
 | `js/brandInsights.js` | Pure logic for the Portfolio brand popup: `brandEconomics`, `brandInsights`, leadership questions. Every number in the popup comes from here |
-| `js/scenarios.js` | 39 practice scenarios, tracks, 5-minute challenge ids, skills, levels |
+| `js/scenarios.js` | 42 practice scenarios, tracks, 5-minute challenge ids, skills, levels |
 | `js/lessons/` | Nine algorithm lessons (`index.js`) and their interactive widgets (`widgets.js`) |
 | `js/pages/` | One module per route: home, practice, scenario (+ summary), decisions, decision, portfolio, accounts, account, learn, lesson, about (Learning Principles), notfound |
 | `js/modal.js` | Single accessible modal (focus trap, Esc/×/backdrop close, `closeModal()` for router and palette) |
