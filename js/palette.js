@@ -8,13 +8,20 @@ import { closeModal } from "./modal.js";
 
 const canned = [
   { t: "Why is Brand A underperforming?", s: "Brand A is growing +12% but margin is −1.2 pts on +21% trade spend.", k: "answer", href: "/portfolio#chain" },
-  { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
   { t: "Where are we overspending?", s: "Brand B holds 32% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
+  { t: "Which brands deserve more trade?", s: "Growth against what the next trade dollar returns.", k: "portfolio", href: "/portfolio#map" },
+  { t: "Where should the next trade dollar go?", s: "Fund the highest return first, and stop at $1.", k: "portfolio", href: "/portfolio#dollars" },
+  { t: "Is the distributor's growth real?", s: "Shipments are up 14%. Check depletions first.", k: "decision", href: "/decisions/investigate-cascade" },
+  { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
   { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
-  { t: "Practice a customer meeting", s: "A buyer pushes back. What do you say?", k: "practice", href: "/practice/facings-cut?set=meeting&i=0" },
-  { t: "Try a 5-minute challenge", s: "Five cases, immediate feedback.", k: "practice", href: "/practice/kroger-decline?set=challenge&i=0" },
   { t: "Where should I spend my next 10 hours?", s: "Attention allocation across 15 brands.", k: "portfolio", href: "/portfolio#attention" },
+  { t: "Try a 5-minute challenge", s: "Five cases, immediate feedback.", k: "practice", href: "/practice/kroger-decline?set=challenge&i=0" },
+  { t: "Practice a customer meeting", s: "A buyer pushes back. What do you say?", k: "practice", href: "/practice/facings-cut?set=meeting&i=0" },
+  { t: "Practice on-premise", s: "Bars, restaurants and hotels: menus, back bars and staff.", k: "practice", href: "/practice/tavern-pour-decline?set=onpremise&i=0" },
+  { t: "Win back a lost account", s: "No order in six months. Find out why first.", k: "practice", href: "/practice/lapsed-accounts?set=lapsed&i=0" },
+  { t: "How am I doing?", s: "Your practice results by skill.", k: "practice", href: "/practice/summary" },
   { t: "What should I learn before I decide?", s: "Value of information.", k: "learn", href: "/learn/value-of-information" },
+  { t: "Why teach decisions this way?", s: "The learning principles behind Decision OS.", k: "learn", href: "/about" },
 ];
 
 export function initPalette() {
