@@ -66,7 +66,7 @@ export default async function Scenario({ id, params }) {
 
   return h("article", {},
     h("header", { class: "reveal" },
-      h("div", { class: "facts" }, set ? h("span", {}, h("b", {}, `${i + 1} / ${set.list.length}`), set.title) : null, h("span", {}, "Customer", h("b", {}, s.customer)), h("span", {}, "Category", h("b", {}, s.category)), h("span", {}, "Skill", h("b", {}, skills[s.skill].name)), h("span", { class: "chip" }, s.level)),
+      h("div", { class: "facts" }, set ? h("span", {}, h("b", {}, `${i + 1} / ${set.list.length}`), set.title) : null, h("span", {}, "Customer", h("b", {}, s.customer)), h("span", {}, "Category", h("b", {}, s.category)), h("span", {}, "Skill", h("b", {}, skills[s.skill].name)), h("span", {}, "Goal", h("b", {}, s.level))),
       // Three steps with one rhythm: the story, the facts (grouped on a panel), then the question and choices.
       h("div", { class: "sc-step" }, eyebrow("The situation"), h("h1", { class: "sc-situation" }, s.situation))),
     h("section", { class: "sc-step reveal" }, eyebrow("What you know"),
