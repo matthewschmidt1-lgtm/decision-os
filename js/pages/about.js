@@ -25,12 +25,12 @@ const principles = [
 
 // The Learning Loop: the six practice goals, each asking more than the last. Rendered as rising steps.
 const goals = [
-  ["Recognize", "Spot the pattern"],
-  ["Diagnose", "Find what's really happening"],
-  ["Prioritize", "Decide what comes first"],
-  ["Act", "Choose with incomplete information"],
-  ["Defend", "Make the case to a buyer"],
-  ["Lead", "Change how the team works"],
+  ["Recognize", "See the pattern"],
+  ["Diagnose", "Understand what’s driving it"],
+  ["Prioritize", "Decide what matters most"],
+  ["Act", "Choose under uncertainty"],
+  ["Defend", "Make the case"],
+  ["Lead", "Change how decisions get made"],
 ];
 
 function learningLoop() {
