@@ -40,7 +40,7 @@ export default async function Scenario({ id, params }) {
     show(feedback); whyBtn.hidden = false;
   };
   whyBtn.addEventListener("click", () => {
-    const reasoningEl = h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`));
+    const reasoningEl = h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { style: { marginTop: "14px", paddingTop: "12px", borderTop: "1px solid var(--line)", fontSize: "var(--fs-small)", color: "var(--ink-2)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`));
     why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { style: { marginTop: "12px" } }, evidence(s.evidence))), reasoningEl);
     whyBtn.hidden = true; why.hidden = false; why.classList.add("reveal", "in");
     principle.replaceChildren(h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "rgba(245,245,240,.6)" } }, "The principle"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px", letterSpacing: "-0.01em" } }, s.principle)),
