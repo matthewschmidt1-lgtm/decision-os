@@ -160,9 +160,14 @@ let io;
 export function observeReveals(root = document) {
   io ??= new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
   const vh = innerHeight;
-  root.querySelectorAll(".reveal:not(.in)").forEach((el, i) => {
-    el.style.transitionDelay = `${Math.min(i, 6) * 40}ms`;
-    if (el.getBoundingClientRect().top < vh * 0.92) requestAnimationFrame(() => el.classList.add("in")); else io.observe(el);
+  // Anything already on screen shows immediately, with no fade. Only sections scrolled into view later animate in.
+  let n = 0;
+  root.querySelectorAll(".reveal:not(.in)").forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < vh && r.bottom > 0) {
+      el.style.transition = "none"; el.classList.add("in");
+      requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ""; }));
+    } else { el.style.transitionDelay = `${Math.min(n++, 3) * 40}ms`; io.observe(el); }
   });
 }
 

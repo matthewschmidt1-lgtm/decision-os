@@ -42,6 +42,7 @@ export function setNoIndex() {
   const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.append(m);
 }
 
+let firstRender = true;
 async function render() {
   closeModal();
   const { pathname, hash } = location;
@@ -56,16 +57,17 @@ async function render() {
   catch (err) { console.error(err); view = (await import("./pages/notfound.js")).default(); }
   main.classList.remove("enter");
   main.replaceChildren(view);
-  void main.offsetWidth; // restart transition
-  main.classList.add("enter");
+  // No entrance animation on the first load: show the page as soon as it exists. Later navigations get a short fade.
+  if (!firstRender) { void main.offsetWidth; main.classList.add("enter"); }
+  firstRender = false;
   document.querySelectorAll(".nav a").forEach(a => {
     const href = a.getAttribute("href");
     a.toggleAttribute("aria-current", pathname === href || (href !== "/" && pathname.startsWith(href)));
     if (a.hasAttribute("aria-current")) a.setAttribute("aria-current", "page");
   });
-  observeReveals(main);
   if (hash) { const t = document.getElementById(hash.slice(1)); t ? t.scrollIntoView({ block: "start" }) : scrollTo(0, 0); }
   else scrollTo({ top: 0, behavior: "instant" });
+  observeReveals(main); // after scrolling, so "on screen" is measured where the reader actually is
   main.focus({ preventScroll: true });
 }
 
