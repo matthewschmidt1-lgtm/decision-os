@@ -40,8 +40,8 @@ export default async function Scenario({ id, params }) {
     show(feedback); whyBtn.hidden = false;
   };
   whyBtn.addEventListener("click", () => {
-    why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { style: { marginTop: "12px" } }, evidence(s.evidence))),
-      h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`)));
+    const reasoningEl = h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", {}, s.reasoning), h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}. You don't need the name to use it.`));
+    why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { style: { marginTop: "12px" } }, evidence(s.evidence))), reasoningEl);
     whyBtn.hidden = true; why.hidden = false; why.classList.add("reveal", "in");
     principle.replaceChildren(h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "rgba(245,245,240,.6)" } }, "The principle"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px", letterSpacing: "-0.01em" } }, s.principle)),
       h("div", { class: "layer layer-2" }, eyebrow("Your next move"), h("p", {}, s.nextMove)),
@@ -55,7 +55,10 @@ export default async function Scenario({ id, params }) {
       : link("/practice/summary", h("span", { class: "btn" }, "You've done them all. See your results ", arrow())),
       link("/practice", h("span", { class: "btn btn-ghost" }, "Back to practice")));
     nextNav.hidden = false; nextNav.classList.add("reveal", "in");
-    why.scrollIntoView({ behavior: "smooth", block: "start" });
+    // On phones the evidence repeats what's above and runs long, so land on the reasoning. Clear the sticky header either way.
+    const target = matchMedia("(max-width: 720px)").matches ? reasoningEl : why;
+    const header = document.querySelector(".topbar")?.offsetHeight || 0;
+    scrollTo({ top: target.getBoundingClientRect().top + scrollY - header - 16, behavior: "smooth" });
   });
 
   const optionEls = s.options.map((o, n) => h("button", { type: "button", class: "option choice", "aria-pressed": "false", onClick: e => choose(o, e.currentTarget) },
