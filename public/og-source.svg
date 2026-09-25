@@ -5,9 +5,10 @@
   <text x="88" y="232" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="66" font-weight="500" letter-spacing="-2" fill="#171717">Real decisions.</text>
   <text x="88" y="310" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="66" font-weight="500" letter-spacing="-2" fill="#171717">Real judgment.</text>
   <text x="88" y="388" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="66" font-weight="500" letter-spacing="-2" fill="#171717">Better results.</text>
-  <text x="88" y="470" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26" fill="#7B7B76">Decision training for CPG sales. You make the call.</text>
-  <text x="88" y="506" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26" fill="#7B7B76">Then see the evidence, reasoning, and principle behind it.</text>
-  <rect x="88" y="552" width="160" height="6" rx="3" fill="#2457D6"/>
+  <text x="88" y="462" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26" fill="#7B7B76">Sales doesn't happen in spreadsheets.</text>
+  <text x="88" y="498" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26" fill="#7B7B76">It happens in moments. You make the call.</text>
+  <text x="88" y="534" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26" fill="#7B7B76">Then see <tspan font-weight="700" fill="#171717">why</tspan> it was the right one.</text>
+  <rect x="88" y="568" width="160" height="6" rx="3" fill="#2457D6"/>
   <!-- practice card hint -->
   <rect x="790" y="150" width="330" height="330" rx="22" fill="#FBFBF8" stroke="#171717" stroke-opacity="0.1"/>
   <text x="818" y="190" font-family="Menlo, monospace" font-size="14" letter-spacing="1.5" fill="#7B7B76">THE DECISION</text>

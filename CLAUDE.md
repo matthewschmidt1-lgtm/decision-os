@@ -47,7 +47,7 @@ Push to `main`. Railway runs `scripts/serve-site.sh`, which copies only the publ
 | `js/store.js` | localStorage: decision choices and practice results, per device only |
 | `js/palette.js` | ⌘K command palette |
 | `css/` | `tokens.css`, `base.css` (layout, header, footer), `components.css`, `pages.css` |
-| `public/` | favicon, manifest, Open Graph image (`og-v3.png`; source `og-source.svg`) |
+| `public/` | favicon, manifest, Open Graph image (`og-v4.png`; source `og-source.svg`) |
 
 ## Conventions and gotchas
 
