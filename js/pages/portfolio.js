@@ -1,293 +1,274 @@
-import { h, s, link, arrow, eyebrow, bar, segmented, says, disclose, slider } from "../ui.js";
-import { brands, distributors, brandById } from "../data.js";
-import { fingerprintWidget } from "../lessons/widgets.js";
-import { allocateHours, allocateBudget, allocateByRevenue, tradeGain, quadrant, money, pct } from "../models.js";
+import { h, eyebrow, link, arrow, says } from "../ui.js";
 import { setMeta } from "../app.js";
-import { openModal } from "../modal.js";
-import { brandInsights, brandEconomics, QUESTION } from "../brandInsights.js";
+import { money, pct } from "../models.js";
+import { lessonBySlug } from "../lessons/index.js";
+import * as S from "../sim.js";
 
-/* ---------- Shared helpers ---------- */
-const QUAD = {
-  invest: { name: "Invest", line: "Growing, and the next dollar returns more than it costs.", act: "Fund it until the next dollar returns about $1, then stop." },
-  protect: { name: "Protect margin", line: "Growing, but the next dollar returns less than it costs.", act: "Don't add. Trim the weakest events until the last dollar returns about $1, and move the savings to brands above $1. Within the brand, shift from deep price cuts toward display and feature." },
-  diagnose: { name: "Diagnose first", line: "Declining, and the next trade dollar doesn't pay back.", act: "Stop adding dollars and trim what isn't paying back. Put one diagnostic hour in before any more selling time: distribution, price, execution, or demand." },
-  fix: { name: "Fix and fund", line: "Declining, but it responds when supported.", act: "Find what broke, fix it, then fund it." },
-};
-const k$ = (v) => money(v * 1000);                      // $K → formatted
-const perDollar = (v) => `$${v.toFixed(2)}`;            // return per $1
-const perHour = (b) => `$${Math.round(b.mean * 1000).toLocaleString()}`;
-const gp = (b) => b.revenue * b.gm / 100;
-const totalGP = brands.reduce((a, b) => a + gp(b), 0);
-const totalTrade = brands.reduce((a, b) => a + b.tradeK, 0);
-const totalHours = brands.reduce((a, b) => a + b.hoursNow, 0);
-const jump = (href, t) => h("a", { href, class: "pill", onClick: (e) => { e.preventDefault(); e.stopPropagation(); document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState({}, "", href); } }, t);
-const sectionHead = (eb, title, sub) => h("div", { class: "section-head reveal" }, h("div", {}, eyebrow(eb), h("h2", { style: { marginTop: "10px" } }, title)), sub ? h("p", { class: "muted", style: { maxWidth: "44ch" } }, sub) : null);
+// Portfolio: run eight brands for a year. Decide → simulate the quarter → see what happened → reallocate → debrief.
+// The decision-support hints (expected return, next $10K) are there to use or ignore; the algorithms are only named at year-end.
 
-/* ---------- Brand popup: economics and the algorithms to think with ---------- */
-function openBrand(b) {
-  const e = brandEconomics(b); const q = QUAD[e.quadrant];
-  const tile = (label, value, tone = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${tone}` }, value));
-  const pctS = v => `${Math.round(v * 100)}%`;
-  const pct1 = v => { const p = v * 100; return p < 10 ? `${p.toFixed(1)}%` : `${Math.round(p)}%`; };
-  const content = h("div", { class: "stack", style: { "--gap": "18px" } },
-    h("div", {}, h("p", { class: "tag" }, `${q.name} · ${b.role}`), h("h2", { id: "brand-title", style: { marginTop: "6px" } }, b.name), h("p", { class: "muted", style: { marginTop: "6px" } }, q.line)),
-    h("div", { class: "exec-q" }, h("small", {}, "The question for leadership"), QUESTION[e.quadrant]),
-    h("div", {}, eyebrow("Economics"), h("div", { class: "ev-tiles", style: { marginTop: "8px" } },
-      tile("Revenue", money(b.revenue)), tile("Sales growth vs. last year", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
-      tile("Gross margin", `${b.gm}%, ${b.margin > 0 ? "up" : b.margin < 0 ? "down" : "flat"}${b.margin ? ` ${Math.abs(b.margin).toFixed(1)} pts` : ""}`),
-      tile("Trade spend (annual)", `${k$(b.tradeK)} · ${pctS(e.tradeRate)} of sales`, e.tradeRate > 0.15 ? "bad" : ""),
-      tile("Past return per $1 of trade (average)", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"), tile("Next $1 of trade returns", `${perDollar(b.r0)} · range ${perDollar(b.r0Lo)}–${perDollar(b.r0Hi)}`, b.r0 > 1 ? "good" : "bad"),
-      tile("Share of portfolio trade / gross profit", `${pct1(e.tradeShare)} / ${pct1(e.gpShare)}`, e.overFunded ? "bad" : ""),
-      tile("Your hours per 10, today → rule of thumb", `${e.hoursNowPer10.toFixed(1)} → ${e.hoursModelPer10.toFixed(1)}`),
-      tile("Gross profit per selling hour", `${perHour(b)}${b.n < 20 ? " (little data)" : ""}`))),
-    h("div", {}, eyebrow("Algorithms to think with"),
-      ...brandInsights(b).map(a => h("div", { class: "algo" }, h("h4", {}, a.title), h("p", { class: "muted" }, a.why), h("p", { class: "ask" }, a.ask),
-        link(`/learn/${a.slug}`, h("span", { class: "link", style: { fontSize: "var(--fs-small)" } }, "Learn how it works ", arrow()))))),
-    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `What to do: ${q.act}`),
-    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "How to read this: returns are incremental gross profit per $1 of trade, measured before the trade cost, so $1 is breakeven. Past return is the average over past trade; next-dollar return is for the next $1 above today's spend, and shrinks as spend rises. Small brands can sit below the spend where support starts to work well, so their next dollar can beat their average. In practice these come from post-event analysis or test-versus-control reads. Dollars and hours are separate budgets with separate returns. All figures are illustrative."));
-  openModal({ label: `${b.name}: economics and algorithms`, content });
-}
+const KEY = "decision-os:sim:v1";
+const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && Array.isArray(v.plans)) return v; } catch {} return null; };
+const save = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} };
+const fresh = () => ({ plans: [], draft: S.lastYearPlan(), phase: "decide", note: "" });
 
-/* ---------- 1. Brand map ---------- */
-function brandMap(initial) {
-  let selected = initial;
-  const W = 640, H = 400, pad = { l: 52, r: 24, t: 28, b: 48 };
-  const x0 = -6, x1 = 20, y0 = 0.3, y1 = 2.4;
-  const X = v => pad.l + ((v - x0) / (x1 - x0)) * (W - pad.l - pad.r);
-  const Y = v => pad.t + ((y1 - v) / (y1 - y0)) * (H - pad.t - pad.b);
-  const R = b => 5 + Math.sqrt(b.revenue / 1e6) * 3.6;
-  const svg = s("svg", { class: "chart bmap", viewBox: `0 0 ${W} ${H}`, role: "group", "aria-label": "Brand map: sales growth against return on the next trade dollar" });
-  // quadrant shading and labels
-  svg.append(s("rect", { x: X(0), y: pad.t, width: X(x1) - X(0), height: Y(1) - pad.t, class: "q q-invest" }));
-  svg.append(s("line", { class: "axis", x1: X(0), y1: pad.t, x2: X(0), y2: H - pad.b }));
-  svg.append(s("line", { class: "breakeven", x1: pad.l, y1: Y(1), x2: W - pad.r, y2: Y(1) }));
-  svg.append(s("text", { class: "qlabel", x: W - pad.r - 6, y: pad.t + 16, "text-anchor": "end" }, "Invest"));
-  svg.append(s("text", { class: "qlabel", x: W - pad.r - 6, y: H - pad.b - 8, "text-anchor": "end" }, "Protect margin"));
-  svg.append(s("text", { class: "qlabel", x: pad.l + 6, y: H - pad.b - 8 }, "Diagnose first"));
-  svg.append(s("text", { class: "qlabel", x: pad.l + 6, y: pad.t + 16 }, "Fix and fund"));
-  svg.append(s("text", { class: "tick", x: W - pad.r, y: Y(1) - 6, "text-anchor": "end" }, "$1 back for every $1"));
-  for (const v of [-5, 0, 5, 10, 15, 20]) svg.append(s("text", { class: "tick", x: X(v), y: H - pad.b + 18, "text-anchor": "middle" }, `${v > 0 ? "+" : ""}${v}%`));
-  for (const v of [0.5, 1, 1.5, 2]) svg.append(s("text", { class: "tick", x: pad.l - 8, y: Y(v) + 4, "text-anchor": "end" }, `$${v.toFixed(1)}`));
-  svg.append(s("text", { x: W - pad.r, y: H - 8, "text-anchor": "end" }, "Sales growth"));
-  svg.append(s("text", { x: pad.l - 44, y: 14 }, "Gross profit from the next trade $"));
-  const dots = {};
-  for (const b of [...brands].sort((a, c) => c.revenue - a.revenue)) {
-    const g = s("g", { class: `bubble ${b.n < 10 ? "uncertain" : ""}`, tabindex: "0", role: "button", "aria-label": `${b.name}: growth ${pct(b.growth, 0)}, next trade dollar returns ${perDollar(b.r0)}` });
-    g.append(s("circle", { cx: X(b.growth), cy: Y(b.r0), r: R(b) }), s("text", { x: X(b.growth), y: Y(b.r0) + 4.5, "text-anchor": "middle" }, b.id));
-    g.addEventListener("click", () => select(b.id));
-    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(b.id); } });
-    dots[b.id] = g; svg.append(g);
-  }
-  const chips = h("div", { class: "pill-list", style: { marginTop: "14px" }, role: "group", "aria-label": "Choose a brand" },
-    ...brands.map(b => h("button", { type: "button", class: "pill", "aria-pressed": "false", dataset: { id: b.id }, onClick: () => select(b.id) }, b.id)));
-  const detail = h("div", { class: "stack", style: { "--gap": "14px" } });
-  const tile = (label, value, tone = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${tone}` }, value));
-  function select(id) {
-    selected = id; const b = brandById[id]; const q = QUAD[quadrant(b)];
-    Object.entries(dots).forEach(([k, g]) => g.classList.toggle("on", k === id));
-    chips.querySelectorAll("button").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.id === id)));
-    const lesson = b.avgRoi >= 1 && b.r0 < 1
-      ? `On average, ${b.name}'s trade has paid back ${perDollar(b.avgRoi)} per dollar. The next dollar returns ${perDollar(b.r0)}. Average return tells you what worked. Next-dollar return tells you what to do.`
-      : b.r0 > b.avgRoi + 0.2
-        ? `${b.name} returns more on its next dollar (${perDollar(b.r0)}) than it has on average (${perDollar(b.avgRoi)}). Small brands can sit below the spend where support starts to work well. It's under-supported: each extra dollar still has room to work.`
-        : b.growth < 0
-          ? `${b.name} is down ${Math.abs(b.growth)}%. Before spending to prop it up, find out why. An hour of diagnosis is cheaper than a quarter of promotion.`
-          : `${b.name}'s next dollar returns about what its average has: ${perDollar(b.r0)}.`;
-    detail.replaceChildren(
-      h("div", {}, h("p", { class: "tag" }, `${q.name} · ${b.role}`), h("h3", { style: { marginTop: "6px", fontSize: "var(--fs-h2)" } }, b.name)),
-      h("p", { class: "muted" }, q.line),
-      h("div", { class: "ev-tiles" },
-        tile("Revenue", money(b.revenue)), tile("Growth", pct(b.growth, 0), b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""),
-        tile("Gross margin", `${b.gm}%`), tile("Margin trend", `${b.margin > 0 ? "+" : b.margin < 0 ? "−" : ""}${Math.abs(b.margin).toFixed(1)} pts`, b.margin > 0 ? "good" : b.margin < 0 ? "bad" : ""),
-        tile("Trade spend (annual)", `${k$(b.tradeK)} · ${Math.round(b.tradeK * 1000 / b.revenue * 100)}%`), tile("Past return per $1 (avg)", perDollar(b.avgRoi), b.avgRoi >= 1 ? "" : "bad"),
-        tile("Next $1 of trade returns", perDollar(b.r0), b.r0 > 1 ? "good" : "bad"), tile("Gross profit per hour", perHour(b))),
-      h("p", { class: "says" }, lesson),
-      h("p", {}, h("b", { style: { fontWeight: 600 } }, "What to do: "), q.act),
-      ...(b.n < 10 ? [h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Little data yet (dashed outline). These estimates could be well off. A small test is worth more than a big bet.")] : []),   // replaceChildren would print a null as "null"
-      h("button", { type: "button", class: "btn btn-ghost", style: { justifySelf: "start" }, onClick: () => openBrand(b) }, "Which algorithms apply? ", arrow()),
-    );
-  }
-  select(selected);
-  return h("div", { class: "grid bmap-grid" }, h("div", {}, svg, chips), h("div", { class: "card card-sunk" }, detail));
-}
+const $k = (v) => money(v * 1000);                                          // $K → "$1.2M" / "$450K"
+const signed$ = (v) => `${v >= 0 ? "+" : "−"}${$k(Math.abs(v))}`;
+const pts = (v) => (Math.abs(v) < 0.5 ? "0%" : pct(v, 0));
+const per$ = (v) => `$${v.toFixed(2)}`;
+const delta = (v) => (Math.abs(v) < 0.5 ? "0" : `${v > 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}`);
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const tone = (v) => (v > 0.5 ? "good" : v < -0.5 ? "bad" : "");
+const tile = (label, value, sub, cls = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${cls}` }, value), sub ? h("span", { class: "sim-sub" }, sub) : null);
 
-/* ---------- 2. Fair share ---------- */
-function fairShare() {
-  let mode = "trade";
-  const list = h("div", { class: "share-list" });
-  const line = says("");
-  const render = () => {
-    const rows = brands.map(b => {
-      const effort = mode === "trade" ? b.tradeK / totalTrade : b.hoursNow / totalHours;
-      const ret = gp(b) / totalGP;
-      return { b, effort: effort * 100, ret: ret * 100, gap: Math.round((effort - ret) * 100) };
-    }).sort((a, c) => c.gap - a.gap);
-    const max = Math.max(...rows.map(r => Math.max(r.effort, r.ret)));
-    list.replaceChildren(...rows.map(r => h("div", { class: "share-row" },
-      h("span", { class: "share-name" }, r.b.name),
-      h("div", { class: "share-bars" },
-        h("div", { class: "bar-track thin", title: "Share of effort" }, h("div", { class: "bar-fill", style: { width: `${(r.effort / max) * 100}%` } })),
-        h("div", { class: "bar-track thin", title: "Share of gross profit" }, h("div", { class: "bar-fill accent", style: { width: `${(r.ret / max) * 100}%` } }))),
-      h("span", { class: `share-gap ${r.gap > 3 ? "bad" : r.gap < -3 ? "good" : "muted"}` }, r.gap === 0 ? "even" : `${r.gap > 0 ? "+" : "−"}${Math.abs(r.gap)} ${Math.abs(r.gap) === 1 ? "pt" : "pts"}`))));
-    const over = rows[0], under = rows.at(-1);
-    const what = mode === "trade" ? "of trade dollars" : "of your selling hours";
-    line.set(`${over.b.name} takes ${over.effort.toFixed(0)}% ${what} and earns ${over.ret.toFixed(0)}% of gross profit. ${under.b.name} earns ${under.ret.toFixed(0)}% of gross profit on ${under.effort.toFixed(0)}% ${what}. When effort and return drift this far apart, habit is usually doing the deciding.`, "warn");
+export default function Portfolio() {
+  setMeta({ title: "Portfolio", description: "Run eight brands for a year. Two budgets, four quarters, and a year-end review of how you decide." });
+  let st = load() || fresh();
+  const stage = h("div", { class: "sim-stage" });
+  const track = h("ol", { class: "sim-track", "aria-label": "Your year" });
+  const persist = () => save(st);
+
+  const render = ({ scroll = false } = {}) => {
+    const year = S.replay(st.plans);
+    drawTrack(year);
+    if (st.phase === "review" && st.plans.length === 4) stage.replaceChildren(reviewView());
+    else if (st.phase === "results" && st.plans.length) stage.replaceChildren(resultsView(year.quarters.at(-1)));
+    else { st.phase = "decide"; if (!st.draft) st.draft = S.lastYearPlan(); stage.replaceChildren(decideView(year.state, year.quarters.at(-1))); }
+    if (scroll) stage.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
   };
-  render();
-  return h("div", { class: "stack", style: { "--gap": "18px" } },
-    h("div", { style: { display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", alignItems: "center" } },
-      segmented([{ value: "trade", label: "Trade dollars" }, { value: "hours", label: "Your hours" }], mode, v => { mode = v; render(); }),
-      h("div", { class: "legend" }, h("span", {}, h("i", { class: "key ink" }), "Share of effort"), h("span", {}, h("i", { class: "key accent" }), "Share of gross profit"), h("span", { class: "muted" }, "Gap"))),
-    list, line);
-}
 
-/* ---------- 3. The next dollar ---------- */
-function nextDollarPlanner() {
-  let budget = 250, plan = "model";
-  const rowsEl = h("div", { class: "share-list" });
-  const tiles = h("div", { class: "ev-tiles" });
-  const line = says("");
-  const log = h("p", { class: "muted mono", style: { fontSize: "var(--fs-micro)", minHeight: "1.4em" } });
-  const tile = (label, value, tone = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${tone}` }, value));
-  const render = () => {
-    const model = allocateBudget(brands, budget), habit = allocateByRevenue(brands, budget);
-    const x = plan === "model" ? model.x : habit.x;
-    if (plan === "model") {
-      log.textContent = model.unspent > 0 ? `$${budget - model.unspent}K placed, then it stops: no brand's next $10K returns more than it costs, so $${model.unspent}K stays in your pocket.` : `All $${budget}K placed, $10K at a time, each to the brand whose next $10K returns the most.`;
-    } else log.textContent = "Each brand gets a share of the budget equal to its share of revenue.";
-    const spent = Object.values(x).reduce((a, v) => a + v, 0);
-    const gain = brands.reduce((a, b) => a + tradeGain(b, x[b.id]), 0);
-    const max = Math.max(40, ...Object.values(x));
-    rowsEl.replaceChildren(...[...brands].sort((a, b) => x[b.id] - x[a.id] || b.r0 - a.r0).map(b => {
-      const nd = (tradeGain(b, x[b.id] + 10) - tradeGain(b, x[b.id])) / 10;
-      return h("div", { class: "share-row plan-row" },
-        h("span", { class: "share-name" }, b.name),
-        h("div", { class: "bar-track" }, h("div", { class: `bar-fill ${plan === "model" ? "accent" : ""}`, style: { width: `${(x[b.id] / max) * 100}%` } })),
-        h("span", { class: "num", style: { textAlign: "right", fontWeight: 500 } }, x[b.id] ? k$(x[b.id]) : "—"),
-        h("span", { class: `num share-gap ${nd > 1.005 ? "good" : x[b.id] ? "muted" : "bad"}`, title: "Gross profit per dollar from the next $10K" }, `next $10K: ${perDollar(nd)}/$`));
+  function drawTrack(year) {
+    const at = st.phase === "review" ? 5 : st.phase === "results" ? st.plans.length : st.plans.length + 1;
+    const steps = ["Start", ...S.QUARTERS.map((q) => q.id), "Review"];
+    track.replaceChildren(...steps.map((label, i) => {
+      const q = year.quarters[i - 1];
+      const state = i < at ? "done" : i === at ? "now" : "next";
+      return h("li", { class: `sim-node is-${state}`, "aria-current": state === "now" ? "step" : null },
+        h("span", { class: "dot", "aria-hidden": "true" }), h("span", { class: "lbl" }, label),
+        q ? h("span", { class: "val" }, $k(q.gp)) : null);
     }));
-    tiles.replaceChildren(tile("Spent", k$(spent)), tile("Gross profit gained", k$(gain)), tile("Net return", `${gain - spent >= 0 ? "+" : ""}${k$(gain - spent)}`, gain - spent >= 0 ? "good" : "bad"), tile("Left unspent", k$(Math.max(0, Math.round(budget - spent)))));
-    const worst = [...brands].sort((a, b) => habit.x[b.id] - habit.x[a.id]).slice(0, 2);
-    line.set(`Same $${budget}K. The model's plan nets ${model.net >= 0 ? "+" : ""}${k$(model.net)}${model.unspent > 0 ? ` and leaves $${model.unspent}K unspent` : ""}. Spreading it by revenue nets ${habit.net >= 0 ? "+" : ""}${k$(habit.net)}: ${worst[0].name} and ${worst[1].name} get ${k$(habit.x[worst[0].id] + habit.x[worst[1].id])}, where the next dollar returns ${perDollar(worst[0].r0)} and ${perDollar(worst[1].r0)}.`, model.net > habit.net ? "good" : "");
-  };
-  const sl = slider({ label: "Extra trade budget", min: 50, max: 400, step: 25, value: budget, format: v => `$${v}K`, onInput: v => { budget = v; render(); } });
-  render();
-  return h("div", { class: "stack", style: { "--gap": "20px" } },
-    h("div", { class: "grid grid-2", style: { alignItems: "end" } }, sl, segmented([{ value: "model", label: "Highest next-dollar return first" }, { value: "habit", label: "Spread by revenue" }], plan, v => { plan = v; render(); })),
-    log, rowsEl, tiles, line);
-}
+  }
 
-/* ---------- 4. The next hour ---------- */
-function nextHour() {
-  let c = 0.5;
-  const rowsEl = h("div", { class: "share-list" });
-  const line = says("");
-  const label = v => v < 0.25 ? "exploit only" : v < 0.75 ? "balanced" : v < 1.2 ? "curious" : "explore heavily";
-  const render = () => {
-    const alloc = allocateHours(brands.map(b => ({ id: b.id, name: b.name, mean: b.mean, n: b.n, sd: b.sd })), 10, c);
-    const now = Object.fromEntries(brands.map(b => [b.id, b.hoursNow / totalHours * 10]));
-    const model = Object.fromEntries(alloc.map(a => [a.id, a.hours]));
-    const max = Math.max(...Object.values(now), ...Object.values(model));
-    rowsEl.replaceChildren(...[...brands].sort((a, b) => model[b.id] - model[a.id]).map(b => h("div", { class: "share-row" },
-      h("span", { class: "share-name" }, b.name),
-      h("div", { class: "share-bars" },
-        h("div", { class: "bar-track thin" }, h("div", { class: "bar-fill muted", style: { width: `${(now[b.id] / max) * 100}%` } })),
-        h("div", { class: "bar-track thin" }, h("div", { class: "bar-fill accent", style: { width: `${(model[b.id] / max) * 100}%` } }))),
-      h("span", { class: "share-gap num" }, `${now[b.id].toFixed(1)} → ${model[b.id].toFixed(1)}h`))));
-    const shifts = brands.map(b => ({ b, d: model[b.id] - now[b.id] })).sort((a, b) => b.d - a.d);
-    const up = shifts[0], down = shifts.at(-1);
-    line.set(`The biggest shift: ${up.b.name} goes from ${now[up.b.id].toFixed(1)} to ${model[up.b.id].toFixed(1)} hours, because each hour returns about ${perHour(up.b)} in gross profit. ${down.b.name} drops from ${now[down.b.id].toFixed(1)} to ${model[down.b.id].toFixed(1)}. At "${label(c)}", brands you know little about, like M and O, get ${(model.M + model.O).toFixed(1)} hours so you can find out whether they're real.`);
-  };
-  const sl = slider({ label: "Appetite for exploration", min: 0, max: 1.5, step: 0.1, value: c, format: label, onInput: v => { c = v; render(); } });
-  render();
-  return h("div", { class: "stack", style: { "--gap": "18px" } },
-    h("div", { class: "legend" }, h("span", {}, h("i", { class: "key muted" }), "How you spend 10 hours today"), h("span", {}, h("i", { class: "key accent" }), "Rule-of-thumb 10 hours")),
-    rowsEl, sl, line,
-    h("div", { class: "layer layer-2" }, eyebrow("Why is Brand C so low?"), h("p", {}, "Brand C is down 3%, and an hour spent selling it returns little today, so the model pulls time away. But that's not the end of it. The most valuable hour for Brand C is a diagnostic one: find out whether it lost distribution, price, or shelf, before you spend more time or money on it."),
-      link("/learn/value-of-information", h("span", { class: "link", style: { marginTop: "8px", display: "inline-flex" } }, "Learn: value of information ", arrow()))),
-    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "A real bandit picks one option at a time and learns. This is the same idea as a time split: each brand's score is its proven return per hour plus a bonus for how little you know. Figures are illustrative."));
-}
+  // ---------- Decide ----------
+  function decideView(state, prev) {
+    const qi = st.plans.length, Q = S.QUARTERS[qi], plan = st.draft;
+    const totals = h("div", { class: "sim-meters" });
+    const fc = h("p", { class: "sim-forecast" });
+    const go = h("button", { type: "button", class: "btn btn-lg" });
+    const warn = h("p", { class: "sim-warn", role: "status" });
+    const cards = {};
 
-/* ---------- Commercial chain (unchanged) ---------- */
-const chainMeasures = {
-  shipment: { label: "Shipment", desc: "What the company sold into distributors. This is what shows up on the P&L, and it looks like growth.", vals: { cascade: 14, harbor: 6, summit: 9 } },
-  inventory: { label: "Distributor inventory", desc: "What is sitting in distributor warehouses. Rising inventory with flat depletion is borrowed growth.", vals: { cascade: 19, harbor: 4, summit: 12 } },
-  depletion: { label: "Depletion", desc: "What accounts ordered from the distributor. Depletion is the distributor's warehouse emptying into stores and bars.", vals: { cascade: 1, harbor: 5, summit: 2 } },
-  sellthrough: { label: "Sell-through", desc: "What shoppers and guests actually bought from the account. Consumer demand, and the only number that can't be gamed for long.", vals: { cascade: 2, harbor: 4, summit: 2 } },
-};
-function commercialChain() {
-  let measure = "shipment";
-  const chainBars = h("div", { class: "bars" });
-  const chainSays = says("");
-  const chainViz = h("div", { class: "tree", style: { marginBottom: "20px" } });
-  const steps = ["Company", "Distributor", "Account", "Consumer"], stepFor = { shipment: 0, inventory: 1, depletion: 2, sellthrough: 3 };
-  const render = () => {
-    const m = chainMeasures[measure];
-    chainBars.replaceChildren(...distributors.map(d => bar(d.name, Math.max(0, m.vals[d.id]), 20, { tone: measure === "inventory" && m.vals[d.id] > 10 ? "warn" : measure === "depletion" && m.vals[d.id] < 3 ? "bad" : "", format: v => pct(v, 0) })));
-    const gap = chainMeasures.shipment.vals.cascade - chainMeasures.depletion.vals.cascade;
-    chainSays.set(measure === "depletion" ? `${m.desc} Cascade took +14% in shipments but accounts only ordered +1% more: a ${gap}-point gap that will unwind.` : m.desc, measure === "inventory" || measure === "depletion" ? "warn" : "");
-    chainViz.replaceChildren(...steps.flatMap((c, i) => [h("div", { class: `node ${stepFor[measure] === i ? "" : "dim"}`, style: { minWidth: "160px" } }, h("span", { class: "n" }, c), h("span", { class: "v", style: { fontSize: "var(--fs-micro)", fontWeight: 500, color: "var(--muted)" } }, ["shipments in", "inventory · depletion out", "orders in · sell-through out", "what people buy"][i])), i < 3 ? h("div", { class: "edge" }) : null].filter(Boolean)));
-  };
-  render();
-  return h("div", {}, h("div", { style: { marginBottom: "20px" } }, segmented(Object.entries(chainMeasures).map(([k, v]) => ({ value: k, label: v.label })), measure, v => { measure = v; render(); })),
-    h("div", { class: "grid grid-2", style: { alignItems: "start" } }, chainViz, h("div", { class: "stack" }, chainBars, chainSays)));
-}
+    const refresh = () => {
+      const t = S.planTotals(plan), f = S.forecastQuarter(state, plan);
+      const overT = t.trade - S.BUDGET.trade, overH = t.hours - S.BUDGET.hours;
+      totals.replaceChildren(
+        meter("Trade", `${$k(t.trade)} of ${$k(S.BUDGET.trade)}`, t.trade / S.BUDGET.trade, overT > 0),
+        meter("Selling hours", `${t.hours} of ${S.BUDGET.hours}`, t.hours / S.BUDGET.hours, overH > 0));
+      fc.replaceChildren("Your team's forecast for this plan: revenue ", h("b", {}, $k(f.rev)), ", gross profit after trade ", h("b", {}, $k(f.gp)), ".");
+      warn.textContent = overT > 0 ? `Over the trade budget by ${$k(overT)}. Something has to give.` : overH > 0 ? `Over the time budget by ${overH} hours. Something has to give.` : t.trade < S.BUDGET.trade ? `${$k(S.BUDGET.trade - t.trade)} of trade unspent. Unspent trade stays in the P&L.` : "";
+      warn.className = `sim-warn ${overT > 0 || overH > 0 ? "bad" : ""}`;
+      go.disabled = overT > 0 || overH > 0;
+      go.textContent = `▶ Simulate ${Q.id}`;
+      f.rows.forEach((r) => cards[r.id]?.update(r));
+      st.draft = plan; persist();
+    };
 
-/* ---------- Page ---------- */
-export default function Portfolio({ params }) {
-  setMeta({ title: "Portfolio", description: "Fifteen brands, two budgets: your time and your trade dollars. See where each returns the most." });
-  const focus = brandById[params.get("brand")] || brandById.D;
+    const brandCard = (b) => {
+      const bel = state.beliefs[b.id], conf = S.confidence(bel.w);
+      const last = prev?.rows.find((r) => r.id === b.id);
+      const investigated = state.investigated[b.id] !== undefined;
+      const tradeOut = h("output", { class: "num" }), hoursOut = h("output", { class: "num" });
+      const tradeHint = h("span", { class: "hint" }), hoursHint = h("span", { class: "hint" });
+      const probeLabel = () => investigated ? `Looked into in ${S.QUARTERS[state.investigated[b.id]].id}` : plan.investigate.includes(b.id) ? `Looking into it · ${S.INVESTIGATE_HOURS} hrs ✓` : `Look into it · ${S.INVESTIGATE_HOURS} hrs`;
+      const probe = h("button", { type: "button", class: "sim-probe", "aria-pressed": String(plan.investigate.includes(b.id)), disabled: investigated,
+        onClick: () => { const i = plan.investigate.indexOf(b.id); if (i >= 0) plan.investigate.splice(i, 1); else plan.investigate.push(b.id); probe.setAttribute("aria-pressed", String(i < 0)); probe.textContent = probeLabel(); refresh(); } });
+      probe.textContent = probeLabel();
+      const step = (key, d) => () => { plan[key][b.id] = Math.max(0, (plan[key][b.id] || 0) + d); refresh(); };
+      const stepper = (key, out, hint, unit) => h("div", { class: "sim-stepper" },
+        h("span", { class: "lab" }, key === "trade" ? "Trade" : "Hours"),
+        h("div", { class: "ctl" },
+          h("button", { type: "button", "aria-label": `Less ${unit} for ${b.name}`, onClick: step(key, -S.STEP[key]) }, "−"), out,
+          h("button", { type: "button", "aria-label": `More ${unit} for ${b.name}`, onClick: step(key, S.STEP[key]) }, "+")),
+        hint);
+      const card = h("div", { class: "sim-brand" },
+        h("div", { class: "sim-brand-head" }, h("h3", {}, b.name), h("span", { class: "chip" }, b.role)),
+        h("p", { class: "sim-note" }, b.note),
+        h("dl", { class: "sim-facts" },
+          h("div", {}, h("dt", {}, "Revenue"), h("dd", {}, money(b.revenue))),
+          h("div", {}, h("dt", {}, last ? `Growth in ${S.QUARTERS[qi - 1].id}` : "Growth"), h("dd", { class: tone(last ? last.growth : b.growth) }, pts(last ? last.growth : b.growth))),
+          h("div", {}, h("dt", {}, "Margin"), h("dd", {}, `${b.gm}%`)),
+          h("div", {}, h("dt", {}, "Return, first $"), h("dd", {}, `${per$(bel.b)} per $1 `, h("span", { class: `conf conf-${conf.toLowerCase()}` }, conf)))),
+        last && last.x ? h("p", { class: "sim-last" }, `Last quarter: ${per$(last.perDollar)} back per $1 on ${$k(last.x)}.`) : null,
+        h("div", { class: "sim-controls" }, stepper("trade", tradeOut, tradeHint, "trade"), stepper("hours", hoursOut, hoursHint, "selling time")),
+        probe);
+      card.update = (r) => {
+        tradeOut.textContent = $k(plan.trade[b.id] || 0);
+        hoursOut.textContent = `${plan.hours[b.id] || 0} h`;
+        tradeHint.textContent = `next $10K ≈ ${per$(r.next)} back`;
+        tradeHint.className = `hint ${r.next >= 1.05 ? "good" : r.next < 0.95 ? "bad" : ""}`;
+        hoursHint.textContent = `next 2 hrs ≈ ${$k(r.nextHour * 2)}`;
+      };
+      cards[b.id] = card;
+      return card;
+    };
+
+    const setPlan = (p) => { st.draft = S.clonePlan(p); stage.replaceChildren(decideView(state, prev)); };
+    const starts = h("div", { class: "sim-starts" }, h("span", { class: "muted" }, "Start from:"),
+      qi ? h("button", { type: "button", class: "link", onClick: () => setPlan({ ...st.plans[qi - 1], investigate: [] }) }, `your ${S.QUARTERS[qi - 1].id} plan`) : null,
+      h("button", { type: "button", class: "link", onClick: () => setPlan(S.lastYearPlan()) }, "last year's plan"),
+      h("button", { type: "button", class: "link", onClick: () => setPlan(S.emptyPlan()) }, "nothing"));
+
+    go.addEventListener("click", () => runQuarter());
+    const view = h("div", { class: "sim-flow" },
+      h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, Q.ask), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
+      h("div", { class: "sim-bar" }, totals, starts),
+      h("div", { class: "sim-brands" }, S.simBrands.map(brandCard)),
+      h("div", { class: "sim-go" }, fc, warn, go));
+    refresh();
+    return view;
+  }
+
+  function meter(label, text, frac, over) {
+    return h("div", { class: `sim-meter ${over ? "over" : ""}` }, h("div", { class: "top" }, h("span", {}, label), h("b", { class: "num" }, text)),
+      h("div", { class: "track" }, h("div", { class: "fill", style: { width: `${Math.min(100, frac * 100)}%` } })));
+  }
+
+  // ---------- Simulate ----------
+  function runQuarter() {
+    const plan = S.clonePlan(st.draft);
+    const qi = st.plans.length, Q = S.QUARTERS[qi];
+    const q = S.replay([...st.plans, plan]).quarters[qi];
+    let done = false;
+    const finish = () => { if (done) return; done = true; st.plans.push(plan); st.phase = "results"; st.draft = null; persist(); render({ scroll: true }); };
+    if (reduced()) return finish();
+
+    const DUR = 6000;
+    const fill = h("div", { class: "fill" });
+    const feed = h("ol", { class: "sim-feed", "aria-live": "polite" });
+    const revOut = h("b", { class: "num v" }), gpOut = h("b", { class: "num v" });
+    stage.replaceChildren(h("div", { class: "sim-flow" },
+      h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, `Running ${Q.id}…`)),
+      h("div", { class: "sim-clock" },
+        h("div", { class: "months" }, Q.months.map((m) => h("span", {}, m))),
+        h("div", { class: "track" }, fill),
+        h("div", { class: "lanes" }, h("span", {}, "Trade events"), h("span", {}, "Account meetings"), h("span", {}, "Consumer response"))),
+      h("div", { class: "ev-tiles" }, h("div", { class: "ev-tile" }, h("span", { class: "k" }, "Revenue so far"), revOut), h("div", { class: "ev-tile" }, h("span", { class: "k" }, "Gross profit after trade so far"), gpOut)),
+      feed,
+      h("button", { type: "button", class: "link", style: { justifySelf: "start" }, onClick: finish }, "Skip to results")));
+    stage.scrollIntoView({ behavior: "smooth", block: "start" });
+    const t0 = performance.now(); let shown = 0;
+    const tick = (t) => {
+      if (done) return;
+      const k = Math.min(1, (t - t0) / DUR), week = Math.max(1, Math.ceil(k * 13));
+      fill.style.width = `${k * 100}%`;
+      revOut.textContent = $k(q.rev * k); gpOut.textContent = $k(q.gp * k);
+      while (shown < q.events.length && q.events[shown].week <= week) { const e = q.events[shown++]; feed.append(h("li", {}, h("span", { class: "wk" }, `Week ${e.week}`), e.text)); }
+      if (k < 1) requestAnimationFrame(tick); else setTimeout(finish, 800);
+    };
+    requestAnimationFrame(tick);
+    setTimeout(finish, DUR + 2500); // background tabs pause animation frames; the quarter still closes
+  }
+
+  // ---------- Results ----------
+  function resultsView(q) {
+    const Q = S.QUARTERS[q.qi], nextQ = S.QUARTERS[q.qi + 1];
+    const d = (a, f) => ((a - f) / Math.abs(f)) * 100;
+    const learned = q.rows.filter((r) => Math.abs(r.after.b - r.before.b) >= 0.15 || S.confidence(r.after.w) !== S.confidence(r.before.w));
+    const findings = q.rows.filter((r) => r.finding);
+    const chainIds = chainPicks(q);
+    const next = h("button", { type: "button", class: "btn btn-lg", onClick: () => {
+      if (nextQ) { st.phase = "decide"; st.draft = { ...S.clonePlan(q.plan), investigate: [] }; } else st.phase = "review";
+      persist(); render({ scroll: true });
+    } }, nextQ ? `Plan ${nextQ.id} ` : "See your year ", arrow());
+    const blocks = [
+      h("div", {}, eyebrow(`${Q.id} results`), h("h2", { style: { marginTop: "10px" } }, "What actually happened?")),
+      h("div", { class: "ev-tiles sim-tiles" },
+        tile("Revenue", $k(q.rev), `forecast ${$k(q.revF)} · ${pct(d(q.rev, q.revF), 1)}`, tone(d(q.rev, q.revF))),
+        tile("Gross profit after trade", $k(q.gp), `forecast ${$k(q.gpF)} · ${pct(d(q.gp, q.gpF), 1)}`, tone(d(q.gp, q.gpF))),
+        tile("Trade spent", $k(q.trade), `of ${$k(S.BUDGET.trade)}`),
+        tile("Selling hours", String(q.hours), `of ${S.BUDGET.hours}`)),
+      says(q.insight, "warn"),
+      h("div", {}, h("div", { class: "table-wrap" }, h("table", { class: "table sim-table" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", { class: "num" }, "Your plan"), h("th", { class: "num" }, "Forecast"), h("th", { class: "num" }, "Actual"), h("th", { class: "num" }, "Δ"))),
+        h("tbody", {}, q.rows.map((r) => h("tr", {},
+          h("td", {}, h("b", { style: { fontWeight: 500 } }, `Brand ${r.id}`)),
+          h("td", { class: "num muted" }, `${$k(r.x)} · ${r.h}h${q.plan.investigate.includes(r.id) ? " · looked into" : ""}`),
+          h("td", { class: "num" }, pts(r.growthF)), h("td", { class: `num ${tone(r.growth)}` }, pts(r.growth)),
+          h("td", { class: `num ${tone(r.growth - r.growthF)}`, style: { fontWeight: 600 } }, delta(r.growth - r.growthF))))))),
+        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth is this quarter against the same quarter last year. Δ is points above or below the forecast.")),
+    ];
+    if (chainIds.length) blocks.push(h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, chainIds.map((id) => chainView(q.rows.find((r) => r.id === id))))));
+    if (findings.length) blocks.push(h("div", {}, eyebrow("What you found"), ...findings.map((r) => h("div", { class: "layer layer-2", style: { marginTop: "10px" } }, h("b", {}, `Brand ${r.id}. `), r.finding))));
+    if (learned.length) blocks.push(h("div", {}, eyebrow("What the evidence changed"), h("ul", { class: "sim-learned" }, learned.map((r) => {
+      const up = r.after.b > r.before.b + 0.05, down = r.after.b < r.before.b - 0.05;
+      return h("li", {}, h("b", {}, `Brand ${r.id}`), h("span", {}, `Expected return ${per$(r.before.b)} → ${per$(r.after.b)} per $1`), h("span", { class: "muted" }, `Confidence ${S.confidence(r.before.w)} → ${S.confidence(r.after.w)}`),
+        h("span", { class: r.finding ? "good" : up ? "good" : down ? "bad" : "muted" }, r.finding ? "You looked into it. Now we know." : up ? `We underestimated ${r.id}.` : down ? `We overestimated ${r.id}.` : "About as expected. Now we're surer."));
+    }))));
+    blocks.push(h("div", { class: "sim-go" }, next));
+    return h("div", { class: "sim-flow" }, ...blocks);
+  }
+
+  // The two chains most worth seeing: the biggest bet, and any brand whose chain is broken.
+  function chainPicks(q) {
+    const big = [...q.rows].sort((a, b) => (b.x + b.h * 5) - (a.x + a.h * 5))[0];
+    const broken = q.rows.find((r) => r.chain.kind === "break" && r.x + r.h > 0);
+    return [...new Set([big && big.x + big.h > 0 ? big.id : null, broken?.id].filter(Boolean))];
+  }
+  function chainView(r) {
+    const c = r.chain;
+    const steps = [["Your decision", `${$k(r.x)} trade${r.h ? ` + ${r.h} hrs` : ""}`, ""]];
+    if (c.kind === "break") steps.push(["Shipments", pts(c.shipments), "good"], ["Distributor inventory", pts(c.inventory), "bad"], ["Depletion", pts(c.depletion), tone(c.depletion)], ["Sell-through", pts(c.sellThrough), tone(c.sellThrough)]);
+    else steps.push(["Distribution", `+${c.distribution.toFixed(1)} pts`, c.distribution > 0 ? "good" : ""], ["Depletion", pts(c.depletion), tone(c.depletion)], ["Sell-through", pts(c.sellThrough), tone(c.sellThrough)]);
+    steps.push(["Gross profit after trade", signed$(c.gp), c.gp >= 0 ? "good" : "bad"]);
+    return h("div", { class: `sim-chain ${c.kind === "break" ? "is-break" : ""}` },
+      h("p", { class: "ttl" }, `Brand ${r.id} `, c.kind === "break" ? h("span", { class: "chip chip-warn" }, "the chain breaks here") : null),
+      h("ol", {}, steps.map(([k, v, t]) => h("li", {}, h("span", { class: "k" }, k), h("span", { class: `v ${t}` }, v)))));
+  }
+
+  // ---------- Year-end review ----------
+  function reviewView() {
+    const R = S.review(st.plans);
+    // Bars show the gain over running last year's plan all year, from zero, so a 5% difference looks like one.
+    const gYou = R.you.gp - R.habit.gp, gBest = R.best.gp - R.habit.gp, scale = Math.max(Math.abs(gYou), Math.abs(gBest), 1);
+    const cmp = (label, g, cls) => h("div", { class: "sim-cmp-row" }, h("span", { class: "lbl" }, label), h("div", { class: "track" }, h("div", { class: `fill ${g < 0 ? "bad" : cls}`, style: { width: `${(Math.abs(g) / scale) * 100}%` } })), h("b", { class: "num" }, signed$(g)));
+    const gapLine = R.gap > 20 ? `That's ${$k(R.gap)} of unrealized opportunity. Here's where it went.` : "You matched a strategy that reassessed every quarter. Here's how you got there.";
+    const brandMax = Math.max(...R.quarters.flatMap((q) => Object.values(q.plan.trade)), 1);
+    const noteBox = h("textarea", { class: "sim-note-input", rows: "3", placeholder: "One thing you'd do differently next year…", "aria-label": "What did you learn?" });
+    noteBox.value = st.note || "";
+    noteBox.addEventListener("input", () => { st.note = noteBox.value; persist(); });
+    const mark = { yes: ["✓", "Used", "good"], partly: ["△", "Partly", "warn"], no: ["—", "Missed", "bad"] };
+    return h("div", { class: "sim-flow" },
+      h("div", {}, eyebrow("Year-end review"), h("h2", { style: { marginTop: "10px" } }, "Your year")),
+      h("div", {}, h("div", { class: "ev-tiles sim-tiles" },
+        tile("Revenue", $k(R.you.rev)), tile("Gross profit after trade", $k(R.you.gp)),
+        tile("Trade spent", $k(R.you.trade), `of ${$k(S.BUDGET.trade * 4)}`), tile("Selling hours", String(R.you.hours), `of ${S.BUDGET.hours * 4}`)),
+        R.you.carry > 5 ? h("p", { class: "muted", style: { marginTop: "10px" } }, `Plus about ${$k(R.you.carry)} of gross profit already building for next year from Q4's selling time.`) : null),
+      h("div", {}, eyebrow("Against the alternatives"),
+        h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, `Gross profit after trade, against running last year's plan all year (${$k(R.habit.gp)}).`),
+        h("div", { class: "sim-cmp" }, cmp("You", gYou, "accent"), cmp("Reassess every quarter", gBest, "good")),
+        h("p", { class: "lede", style: { marginTop: "14px" } }, `A strategy that reassessed the next dollar every quarter, and looked into the unknowns early, made ${$k(R.best.gp)}. You made ${$k(R.you.gp)}. ${gapLine}`)),
+      h("div", {}, eyebrow("How you tend to decide"), h("ul", { class: "sim-tend" }, R.tendencies.map((t) => h("li", {}, h("b", {}, t.label), h("span", {}, t.text))))),
+      h("div", {}, eyebrow("Where your trade went"), h("div", { class: "sim-migrate" },
+        h("div", { class: "hdr" }, h("span", {}), ...S.QUARTERS.map((q) => h("span", {}, q.id))),
+        ...S.simBrands.map((b) => h("div", { class: "row" }, h("span", { class: "nm" }, b.id), ...R.quarters.map((q) => h("div", { class: "cell", title: $k(q.plan.trade[b.id] || 0) }, q.plan.trade[b.id] ? h("i", { style: { width: `${(q.plan.trade[b.id] / brandMax) * 75}%` } }) : null, h("span", { class: "amt" }, q.plan.trade[b.id] ? $k(q.plan.trade[b.id]) : "—"))))))),
+      h("div", {}, eyebrow("What your decisions reflected"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "Every one of these was available to you all year. Here's which ones your decisions used."),
+        h("div", { class: "sim-algos" }, R.algorithms.map((a) => h("div", { class: "sim-algo" },
+          h("span", { class: `mk ${mark[a.status][2]}`, "aria-hidden": "true" }, mark[a.status][0]),
+          h("div", {}, h("p", { class: "idea" }, a.idea, h("span", { class: `st ${mark[a.status][2]}` }, mark[a.status][1])), h("p", { class: "means" }, a.means), h("p", { class: "why" }, a.why),
+            lessonBySlug[a.slug] ? link(`/learn/${a.slug}`, h("span", { class: "link", style: { fontSize: "var(--fs-small)" } }, `Learn: ${lessonBySlug[a.slug].title} `, arrow())) : null))))),
+      h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } },
+        h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, letterSpacing: "-0.01em" } }, "You don't need to calculate any of these. You just need to make decisions that account for them.")),
+      h("div", {}, eyebrow("What did you learn?"), h("div", { style: { marginTop: "10px" } }, noteBox), h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Saved on this device only.")),
+      h("div", { class: "sim-go", style: { justifyContent: "flex-start" } },
+        h("button", { type: "button", class: "btn", onClick: () => { st = fresh(); persist(); render({ scroll: true }); } }, "Play the year again"),
+        link("/accounts", h("span", { class: "btn btn-ghost" }, "Go to accounts ", arrow()))));
+  }
+
+  render();
   return h("div", {},
-    h("section", { class: "reveal" }, eyebrow("Portfolio"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Two budgets. Fifteen brands."),
-      h("p", { class: "hero-sub" }, "Your time and your trade dollars are the only two things you invest. This page shows where each one returns the most, and why that's rarely the biggest brand."),
-      h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Illustrative portfolio. Brand figures, returns, and hours are generated for practice."),
-      h("nav", { "aria-label": "On this page", class: "pill-list", style: { marginTop: "22px" } },
-        jump("#map", "Brand map"), jump("#share", "Fair share"), jump("#dollars", "Next dollar"), jump("#attention", "Next hour"), jump("#chain", "Commercial chain"), jump("#fingerprint", "Economic fingerprint"), jump("#brands", "All brands"))),
-
-    h("section", { class: "section", id: "map" },
-      sectionHead("Brand map", "Which brands deserve more, and which have had enough?", "Across: is the brand growing? Up: what does the next trade dollar return in gross profit? Above the line, it pays back. Bubble size is revenue."),
-      h("div", { class: "reveal" }, brandMap(focus.id))),
-
-    h("section", { class: "section", id: "share" },
-      sectionHead("Fair share", "Does your effort follow the return?", "For each brand, the share of your effort it gets against the share of gross profit it earns. Big gaps are where habit, not return, is deciding."),
-      h("div", { class: "card reveal" }, fairShare())),
-
-    h("section", { class: "section", id: "dollars" },
-      sectionHead("The next dollar", "Where should the next trade dollar go?", "Each brand's returns shrink as it gets more money. The model gives each $10K to the brand whose next $10K returns the most, and stops when nothing returns more than it costs."),
-      h("div", { class: "card reveal" }, nextDollarPlanner(),
-        h("div", { style: { marginTop: "20px" } }, disclose("How the model decides", h("div", { class: "stack" },
-          h("p", {}, "This is marginal analysis done one step at a time. Every brand has a curve: the first dollars of extra support return a lot, later dollars return less. Giving each $10K to whichever brand's next $10K returns the most keeps the returns across brands roughly equal at the end, which is where a budget is working hardest. When no brand's next dollar returns more than a dollar, spending more loses money, so the model stops."),
-          h("p", { class: "muted" }, "Average return tells you what past spending achieved. Next-dollar return tells you what the next decision will achieve. Brand A has paid back well on average, and its next dollar doesn't."),
-          link("/learn/optimization", h("span", { class: "link" }, "Learn: optimization and marginal analysis ", arrow()))))))),
-
-    h("section", { class: "section", id: "attention" },
-      sectionHead("The next hour", "Where should your next 10 hours go?", "Time works like trade dollars, with one difference: for brands you know little about, some time is worth spending just to find out."),
-      h("div", { class: "card reveal" }, nextHour())),
-
-    h("section", { class: "section", id: "chain" },
-      sectionHead("The commercial chain", "Where does the growth actually come from?", "Company → Distributor → Account → Consumer. Shipments fill the distributor, depletion fills the account, sell-through is what people actually buy. Start at shipments, then follow the growth down the chain and see where it stops."),
-      h("div", { class: "card reveal" }, commercialChain())),
-
-    h("section", { class: "section", id: "fingerprint" },
-      sectionHead("Economic fingerprint", "What actually drove the result?", "One account's last quarter: sales splits into volume and price. Margin and trade spend tell you whether the growth was earned or bought."),
-      h("div", { class: "card reveal" }, fingerprintWidget({ volume: 3, price: 8, tradeSpend: 21 }))),
-
-    h("section", { class: "section", id: "brands" },
-      sectionHead("All brands", "Growth, margin, and the return on your time and money.", "Select a brand to see its economics, the question leadership should ask, and the decision algorithms that fit."),
-      h("div", { class: "table-wrap reveal" }, h("table", { class: "table" },
-        h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Where it sits"), h("th", { class: "num" }, "Revenue"), h("th", { class: "num" }, "Sales growth"), h("th", { class: "num" }, "Gross margin"), h("th", { class: "num" }, "Trade % of sales"), h("th", { class: "num" }, "Past return / $1"), h("th", { class: "num" }, "Next $1 returns"), h("th", { class: "num" }, "Gross profit / hour"))),
-        h("tbody", {}, brands.map(b => h("tr", { class: "brand-row", role: "button", tabindex: "0", "aria-haspopup": "dialog", "aria-label": `${b.name}: open economics and algorithms`, onClick: () => openBrand(b), onKeydown: ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openBrand(b); } }, style: b.id === params.get("brand") ? { background: "var(--accent-soft)" } : null },
-          h("td", {}, h("b", { style: { fontWeight: 500 } }, b.name), h("span", { class: "muted", "aria-hidden": "true", style: { marginLeft: "6px" } }, "›")), h("td", { class: "muted" }, QUAD[quadrant(b)].name), h("td", { class: "num" }, money(b.revenue)),
-          h("td", { class: `num ${b.growth > 0 ? "good" : b.growth < 0 ? "bad" : ""}` }, pct(b.growth, 0)),
-          h("td", { class: "num" }, `${b.gm}%`, h("span", { class: `muted ${b.margin > 0 ? "good" : b.margin < 0 ? "bad" : ""}`, style: { marginLeft: "6px", fontSize: "var(--fs-micro)" } }, `${b.margin > 0 ? "+" : b.margin < 0 ? "−" : ""}${Math.abs(b.margin).toFixed(1)}`)),
-          h("td", { class: `num ${b.tradeK * 1000 / b.revenue > 0.15 ? "bad" : ""}` }, `${Math.round(b.tradeK * 1000 / b.revenue * 100)}%`),
-          h("td", { class: "num" }, perDollar(b.avgRoi)), h("td", { class: `num ${b.r0 > 1 ? "good" : "bad"}` }, perDollar(b.r0)),
-          h("td", { class: "num" }, perHour(b), b.n < 20 ? h("span", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, " ±") : null))))))),
-
-    h("section", { class: "section reveal" },
-      h("div", { class: "card", style: { padding: "clamp(28px,5vw,48px)", display: "grid", gridTemplateColumns: "1fr auto", gap: "24px", alignItems: "center" } },
-        h("div", {}, eyebrow("Next"), h("h2", { style: { marginTop: "10px" } }, "Brands compete for your time. Accounts are where you spend it."),
-          h("p", { class: "muted", style: { marginTop: "10px", maxWidth: "48ch" } }, "See the 84 accounts ranked by expected value, not by size, and which ones deserve a visit this week.")),
-        link("/accounts", h("span", { class: "btn btn-lg" }, "Go to accounts ", arrow())))),
-  );
+    h("section", { class: "reveal" }, eyebrow("Portfolio"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Run the business for a year."),
+      h("p", { class: "hero-sub" }, `Eight brands. ${$k(S.BUDGET.trade)} of trade and ${S.BUDGET.hours} selling hours a quarter. You can't do everything: every decision means something else doesn't get done.`),
+      h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Illustrative business. Forecasts come from what your team believes, and some of it is wrong. Your progress is saved on this device.")),
+    h("section", { class: "section reveal", style: { marginTop: "40px" } }, track),
+    h("section", { style: { marginTop: "28px" } }, stage));
 }

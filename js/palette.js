@@ -1,5 +1,5 @@
 import { h } from "./ui.js";
-import { brands, accounts, decisions } from "./data.js";
+import { accounts, decisions } from "./data.js";
 import { rankByEV } from "./models.js";
 import { scenarios } from "./scenarios.js";
 const roi20 = rankByEV(accounts).filter(a => (a.ev / a.value) * 100 >= 20).length;
@@ -7,14 +7,11 @@ import { navigate } from "./app.js";
 import { closeModal } from "./modal.js";
 
 const canned = [
-  { t: "Why is Brand A underperforming?", s: "Brand A is growing +12% but margin is −1.2 pts on +21% trade spend.", k: "answer", href: "/portfolio#chain" },
   { t: "Where are we overspending?", s: "Brand B holds 32% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
-  { t: "Which brands deserve more trade?", s: "Growth against what the next trade dollar returns.", k: "portfolio", href: "/portfolio#map" },
-  { t: "Where should the next trade dollar go?", s: "Fund the highest return first, and stop at $1.", k: "portfolio", href: "/portfolio#dollars" },
+  { t: "Run the portfolio for a year", s: "Eight brands, four quarters, $500K and 100 hours a quarter.", k: "portfolio", href: "/portfolio" },
   { t: "Is the distributor's growth real?", s: "Shipments are up 14%. Check depletions first.", k: "decision", href: "/decisions/investigate-cascade" },
   { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
   { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
-  { t: "Where should I spend my next 10 hours?", s: "Attention allocation across 15 brands.", k: "portfolio", href: "/portfolio#attention" },
   { t: "Try a 5-minute challenge", s: "Five cases, immediate feedback.", k: "practice", href: "/practice/kroger-decline?set=challenge&i=0" },
   { t: "Practice a customer meeting", s: "A buyer pushes back. What do you say?", k: "practice", href: "/practice/facings-cut?set=meeting&i=0" },
   { t: "Practice on-premise", s: "Bars, restaurants and hotels: menus, back bars and staff.", k: "practice", href: "/practice/tavern-pour-decline?set=onpremise&i=0" },
@@ -35,7 +32,6 @@ export function initPalette() {
     ...canned,
     ...decisions.map(d => ({ t: `${d.verb} — ${d.headline}`, s: d.question, k: "decision", href: `/decisions/${d.id}` })),
     ...scenarios.map(s => ({ t: `${s.customer}: ${s.question}`, s: `${s.level} · ${s.category}`, k: "practice", href: `/practice/${s.id}` })),
-    ...brands.map(b => ({ t: b.name, s: `${b.role} · ${b.growth > 0 ? "+" : ""}${b.growth}% growth`, k: "brand", href: `/portfolio?brand=${b.id}` })),
     ...accounts.map(a => ({ t: a.name, s: `${a.channel === "on" ? "On-premise" : "Off-premise"} · velocity ${a.velocity > 0 ? "+" : ""}${a.velocity}%`, k: "account", href: `/accounts/${a.id}` })),
     { t: "Algorithm library", s: "How machines make decisions under uncertainty.", k: "learn", href: "/learn" },
   ];

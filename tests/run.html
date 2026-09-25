@@ -4,6 +4,7 @@
 <h1>Model tests</h1><ul id="out"></ul>
 <script type="module">
   import "./models.test.mjs";
+  import "./sim.test.mjs";
   const out = document.getElementById("out");
   document.addEventListener("test", () => { out.replaceChildren(...window.__results.map(r => Object.assign(document.createElement("li"), { className: r.ok ? "ok" : "fail", textContent: r.name + (r.err ? " — " + r.err : "") }))); });
   document.dispatchEvent(new CustomEvent("test"));

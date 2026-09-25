@@ -54,7 +54,7 @@ export default async function Decision({ id }) {
     whySection,
     h("nav", { class: "section", "aria-label": "Next decision", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },
       link("/decisions", h("span", { class: "btn btn-ghost" }, "All decisions")),
-      isLast ? link("/portfolio#attention", h("span", { class: "btn" }, "You've seen all four. Where do your next 10 hours go? ", arrow()))
+      isLast ? link("/portfolio", h("span", { class: "btn" }, "You've seen all four. Now run the portfolio for a year ", arrow()))
              : link(`/decisions/${next.id}`, h("span", { class: "btn" }, `Next: ${next.verb} `, arrow()))),
   );
 }

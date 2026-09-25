@@ -20,7 +20,7 @@ python3 scripts/dev.py 4173
 
 Dev server with SPA fallback, no-store caching. Preview at http://localhost:4173/.
 
-Model tests run in the browser at http://localhost:4173/tests/run.html (an import map shims `node:test`). `npm test` also works anywhere Node exists. Add a test when you change a formula in `js/models.js` or `js/brandInsights.js`.
+Model tests run in the browser at http://localhost:4173/tests/run.html (an import map shims `node:test`). `npm test` also works anywhere Node exists. Add a test when you change a formula in `js/sim.js` or `js/models.js`.
 
 After changing anything visible, check it in the browser at desktop and 375px, and check the console for errors. ES modules can be cached in the preview tab; reload before trusting what you see.
 
@@ -39,7 +39,7 @@ Push to `main`. Railway runs `scripts/serve-site.sh`, which copies only the publ
 | `js/ui.js` | DOM helpers: `h`, `s` (SVG), `bar`, `slider`, `segmented`, `says`, `disclose`, `metric`, `evidence`, `byKey`. Text is always inserted as text nodes. There is deliberately no innerHTML path |
 | `js/models.js` | Pure decision models: marginal analysis, utility ranking, UCB hour allocation, Bayes, expected value, decision tree, value of information, fingerprint, trade-budget allocation (`tradeGain`, `allocateBudget`, `quadrant`), `money`/`pct` formatting |
 | `js/data.js` | Territory data: 15 brands (with ROI fields), 3 distributors, 84 accounts, 4 territory decisions, blindspots |
-| `js/brandInsights.js` | Pure logic for the Portfolio brand popup: `brandEconomics`, `brandInsights`, leadership questions. Every number in the popup comes from here |
+| `js/sim.js` | Portfolio simulation engine: brands A–H with hidden truths and team beliefs, `forecastQuarter`, `simulateQuarter`, `replay`, the reference strategies (`habitPlans`, `evidencePlans`) and the year-end `review`. Pure and deterministic |
 | `js/scenarios.js` | 42 practice scenarios, tracks, 5-minute challenge ids, skills, levels |
 | `js/lessons/` | Nine algorithm lessons (`index.js`) and their interactive widgets (`widgets.js`) |
 | `js/pages/` | One module per route: home, practice, scenario (+ summary), decisions, decision, portfolio, accounts, account, learn, lesson, about (Learning Principles), notfound |
@@ -54,7 +54,9 @@ Push to `main`. Railway runs `scripts/serve-site.sh`, which copies only the publ
 - **Lookup maps** (`brandById`, `scenarioById`, etc.) use `byKey()`, which builds prototype-free objects so route ids like `__proto__` 404 instead of crashing. Use `byKey`, not `Object.fromEntries`, for any id lookup.
 - **Scenario data shape:** `evidence` rows are `[label, value, tone?]`. A value containing ` · ` renders as chips or a comparison card, so keep the part order consistent across compared options. Each scenario has exactly four options with one `quality: "best"`. Best-answer positions are rebalanced automatically at the bottom of `scenarios.js`. Every scenario must belong to exactly one track.
 - **Brand ROI fields:** `gm` is gross margin %, `tradeK` is annual trade $K, `avgRoi` is past incremental gross profit per $1 of trade, `r0` is the return on the next $1 and `r0Lo`/`r0Hi` its plausible range (wider for brands with less history), `k` is how fast returns diminish (in $K; it scales with the brand's spend, roughly 60% of it, so big brands flatten over hundreds of thousands, not tens), and `hoursNow` is selling hours per month (of 40). `margin` is the margin trend in pts and `trade` is trade growth %. Returns are measured before the trade cost, so $1 is breakeven.
-- **Brand popup rules** use a materiality threshold (`MATERIAL_K`) and a breakeven band. Don't recommend moves worth less than the threshold, and don't let amounts round to "$0K".
+- **Portfolio is a four-quarter simulation**, not a set of analytical views. Loop: decide → simulate → results → reallocate → year-end review. The learner allocates $500K of trade and 100 selling hours a quarter across brands A–H (their revenue, growth and margin come from `data.js`; their hidden response curves and the team's beliefs live in `sim.js`). Algorithms are never named during play, only in the year-end review.
+- **The simulation is replayed from the saved plans** (`localStorage` key `decision-os:sim:v1`), so there is no hidden state to drift. Noise is seeded, so the same decisions always give the same year. Forecasts use the team's beliefs; results use the hidden truth; beliefs update only from what was funded or looked into.
+- **Designed lessons live in the truths:** A is over-supported, B has poor incremental return, C's chain is broken (promotions load the distributor; looking into it fixes it, and ignoring it triggers an inventory unwind in Q3), D is strong but saturates, H is far better than the team believes, and part of the effect of selling hours lands next quarter. If you change the numbers, keep `tests/sim.test.mjs` passing: the reassess-every-quarter strategy must beat last year's plan, and the C unwind must be avoidable.
 - **Open Graph images** are rendered with macOS Quick Look (`qlmanage`) from an SVG on a square canvas, then cropped with `sips` to 1200×630. Give a new image a new filename so iMessage doesn't show a cached preview.
 - **Canonical, sitemap, and robots** use the Railway domain. Update all three if the domain changes.
 - **Commits** end with a `Co-Authored-By` line. Push only when asked, or when finishing a change the user requested.

@@ -2,7 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as M from "../js/models.js";
 import { brands, accounts, situation } from "../js/data.js";
-import * as BI from "../js/brandInsights.js";
 
 test("marginal contribution declines with spend and crosses zero at the optimum", () => {
   const p = { vmax: 1200, k: 60, unitMargin: 0.11 };
@@ -74,36 +73,6 @@ test("trade allocation: model never funds a dollar that returns less than a doll
   assert.ok(model.steps.every(s => s.ret > 1));
   assert.ok(model.net > habit.net);
   assert.ok(model.spent <= 250);
-});
-test("brand insights: numbers match the budget model and each rule fires only where the economics support it", () => {
-  const byId = Object.fromEntries(brands.map(b => [b.id, b]));
-  const D = BI.brandEconomics(byId.D);
-  assert.ok(Math.abs(D.room - 212.9) < 0.5, `D room ${D.room}`);
-  assert.ok(Math.abs(D.roomNet - 111.1) < 0.5, `D net ${D.roomNet}`);
-  // Greedy allocation with an unlimited budget should fund D to within one $10K step of its $1 point
-  const big = M.allocateBudget(brands, 2000);
-  assert.ok(Math.abs(big.x.D - D.room) <= 10, `greedy ${big.x.D} vs room ${D.room}`);
-  for (const b of brands) {
-    const slugs = BI.brandInsights(b).map(i => i.slug);
-    assert.ok(slugs.includes("optimization"));
-    assert.equal(slugs.includes("value-of-information"), b.growth < 0);
-    assert.equal(slugs.includes("utility-and-trade-offs"), b.growth > 0 && b.margin < 0);
-    assert.equal(slugs.includes("prediction-vs-decision"), b.avgRoi >= 1 && b.r0 < 1);
-    if (b.r0 <= 1) assert.equal(BI.brandEconomics(b).room, 0);
-    const titles = BI.brandInsights(b).map(i => i.title);
-    // Never recommend a move worth less than the materiality threshold
-    const ec = BI.brandEconomics(b);
-    if (titles.some(t => t.includes("fund it to the $1 point"))) assert.ok(ec.roomNet >= BI.MATERIAL_K);
-    if (titles.some(t => t.includes("trim the weakest"))) assert.ok(ec.trimNet >= BI.MATERIAL_K);
-    // Every number rendered as $K must not round to "$0K"
-    for (const i of BI.brandInsights(b)) assert.ok(!/\$0K/.test(i.why), `${b.id}: ${i.why}`);
-  }
-  // Trimming to the $1 point: k·ln(1/r0) less spend, net k·ln(1/r0) − k(1 − r0)
-  const B = BI.brandEconomics(byId.B);
-  assert.ok(Math.abs(B.trim - 766.2) < 0.5 && Math.abs(B.trimNet - 166.2) < 0.5, `B trim ${B.trim} / ${B.trimNet}`);
-  assert.ok(BI.brandEconomics(byId.B).overFunded && BI.brandEconomics(byId.K).overFunded && !BI.brandEconomics(byId.D).overFunded);
-  assert.equal(BI.$k(0.28), "$280");
-  assert.equal(BI.$k(2500), "$2.5M");
 });
 
 test("accounts roll up to the territory margin trend shown on the home page", () => {
