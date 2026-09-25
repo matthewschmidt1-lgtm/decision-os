@@ -231,7 +231,7 @@ export const scenarios = [
       { label: "Ask the rep to pitch it for you", quality: "weak", feedback: "You'd be handing your best opportunity to the person who just told you it's dead, with 59 other brands competing for his attention." },
     ],
     reasoning: "Prior belief, then evidence, then updated belief. Each piece of evidence should move you in proportion to how surprising it would be if you were wrong. A buyer who asks for data is rarely 'not interested.' A rep with 60 brands saying 'don't bother' is barely evidence at all.",
-    principle: "Weight evidence by its reliability, not by who said it last or how confident they sounded.",
+    principle: "Weigh evidence by its reliability, not by who said it last or how confident they sounded.",
     nextMove: "Send the buyer the data she asked for: your SKU-one velocity in her stores and the second SKU's performance at the two nearby competitors. Ask for a 12-store test.",
   },
   {

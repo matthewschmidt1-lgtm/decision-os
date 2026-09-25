@@ -11,7 +11,7 @@ export const lessons = [
     concept: "Start with a base rate. Each new piece of evidence multiplies the odds by how much more likely it is under one hypothesis than the other. Strong evidence moves you a lot; weak evidence, a little. Nothing moves you to certainty.",
     formula: "posterior odds = prior odds × likelihood ratio",
     sales: "\"The buyer says they're happy with the current brand.\" That's evidence, but weak evidence: buyers say it whether or not they'll switch. New distribution nearby is stronger. Bayesian updating tells you how much to move, instead of overreacting to the last thing you heard.",
-    apply: ["Before a call, write your prior. After it, write what changed and by how much.", "Weight evidence by how surprising it would be if you were wrong.", "Treat distributor opinions as one signal among several, not the verdict."] },
+    apply: ["Before a call, write your prior. After it, write what changed and by how much.", "Weigh evidence by how surprising it would be if you were wrong.", "Treat distributor opinions as one signal among several, not the verdict."] },
   { slug: "decision-trees", title: "Decision Trees", tagline: "Map the branches before you pick one.", widget: "tree",
     concept: "Lay out what could happen, how likely each branch is, and what each end is worth. Then roll the value back from the leaves to the root. The tree tells you the value of the opportunity today and which uncertainty matters most.",
     formula: "value(node) = Σ P(branch) × value(child)",
