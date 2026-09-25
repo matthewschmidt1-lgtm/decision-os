@@ -7,19 +7,19 @@ const principles = [
     title: "Turn Better Decisions Into Greater Value",
     lede: "The purpose of an algorithm isn't better analysis. It's learning to make better decisions that lead to better results.",
     body: [
-      "When you learn algorithms effectively, you become more than someone who just manages accounts. You become a decision maker who can identify opportunities, evaluate trade-offs, act on evidence, and create greater value for both your customers and your company.",
+      "When you learn algorithms, you become more than someone who just manages accounts. You become a decision maker who can identify opportunities, evaluate tradeoffs, act on evidence, and create more value for both your customers and your company.",
     ],
     tagline: "Better decisions. Greater impact. More value.",
   },
   {
     n: "02",
     title: "Think in Decisions, Not Data",
-    lede: "Great salespeople don't need more data. They need better decisions.",
+    lede: "Great salespeople don't need more data. They need to know what to do with it.",
     body: [
-      "Algorithms help turn mountains of customer, product, pricing, promotion, and market data into a clearer way to evaluate choices and identify actions that matter the most.",
-      "Learn to start with the decision, not the data. Define what you're trying to accomplish, identify the key factors, and use the right information to determine what to do next.",
+      "Algorithms give you a way to turn mountains of customer, product, pricing, promotion, and market data into a clearer path forward.",
+      "Start with the decision, not the data. Define what you're trying to accomplish. Identify what matters and use the right evidence to decide what to do next.",
     ],
-    tagline: "Go beyond analysis. Learn to turn data and insight into decisions that create value.",
+    tagline: "Go beyond analysis. Turn data into decisions that create value.",
   },
 ];
 
