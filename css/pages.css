@@ -25,7 +25,6 @@
 @media (max-width:600px){.sc-step{margin-top:32px}}
 
 /* Learning Principles: the Learning Loop as rising steps (a stacked list with a growing meter on phones) */
-.loop-return{display:flex;align-items:flex-start;gap:8px;margin-top:18px;color:var(--accent);font-size:var(--fs-small)}
 .loop-steps{list-style:none;margin:24px 0 0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end}
 .loop-step{background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
 .loop-step.top{border-color:var(--accent)}
@@ -41,4 +40,3 @@
   .loop-step[data-i="0"]::after{width:16.7%}.loop-step[data-i="1"]::after{width:33.3%}.loop-step[data-i="2"]::after{width:50%}
   .loop-step[data-i="3"]::after{width:66.7%}.loop-step[data-i="4"]::after{width:83.3%}.loop-step[data-i="5"]::after{width:100%}
 }
-.loop-return svg{flex-shrink:0;margin-top:2px}

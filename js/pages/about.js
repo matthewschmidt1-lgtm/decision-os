@@ -1,4 +1,4 @@
-import { h, s, eyebrow, link, arrow } from "../ui.js";
+import { h, eyebrow, link, arrow } from "../ui.js";
 import { setMeta } from "../app.js";
 
 const principles = [
@@ -32,15 +32,12 @@ const goals = [
   ["Defend", "Make the case to a buyer"],
   ["Lead", "Change how the team works"],
 ];
-const loopIcon = () => s("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "none", stroke: "currentColor", "stroke-width": "1.75", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" },
-  s("path", { d: "M9 14l-4-4 4-4" }), s("path", { d: "M5 10h11a4 4 0 1 1 0 8h-1" }));
 
 function learningLoop() {
   return h("section", { class: "section reveal", "aria-labelledby": "loop-title" },
     eyebrow("The Learning Loop"),
     h("h2", { id: "loop-title", style: { marginTop: "10px" } }, "Six goals. One loop."),
-    h("p", { class: "lede", style: { marginTop: "10px", maxWidth: "var(--measure)" } }, "Make the call, see the evidence, keep the principle. Each goal asks more than the last."),
-    h("p", { class: "loop-return" }, loopIcon(), "Reach Lead, and the loop starts again at Recognize, one level up."),
+    h("p", { class: "lede", style: { marginTop: "10px", maxWidth: "var(--measure)" } }, "Make the call, see the evidence, learn the principle."),
     h("ol", { class: "loop-steps" }, goals.map(([name, goal], i) =>
       h("li", { class: `loop-step${i === goals.length - 1 ? " top" : ""}`, dataset: { i: String(i) } },
         h("span", { class: "n" }, String(i + 1).padStart(2, "0")), h("b", {}, name), h("p", {}, goal)))));
