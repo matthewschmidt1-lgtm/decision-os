@@ -138,12 +138,12 @@ export function evWidget({ p = 0.84, value = 21000, cost = 1500 } = {}) {
     line.set(ev > evB ? `This small, likely opportunity (${M.money(ev)}) is worth more than the ${M.money(compare.value)} account at ${Math.round(compare.p * 100)}% odds (${M.money(evB)}). Size is not value.` : `Now the big account wins (${M.money(evB)} vs ${M.money(ev)}). Notice how far the odds had to fall.`, ev > evB ? "good" : "warn");
   };
   const sliders = [
-    slider({ label: "Probability of success", min: 5, max: 95, step: 1, value: st.p * 100, format: v => `${v}%`, onInput: v => { st.p = v / 100; render(); } }),
+    slider({ label: "Probability of success", min: 5, max: 95, step: 1, value: Math.round(st.p * 100), format: v => `${Math.round(v)}%`, onInput: v => { st.p = v / 100; render(); } }),
     slider({ label: "Economic value if won", min: 5000, max: 100000, step: 1000, value: st.value, format: M.money, onInput: v => { st.value = v; render(); } }),
     slider({ label: "Cost of pursuing", min: 0, max: 15000, step: 500, value: st.cost, format: M.money, onInput: v => { st.cost = v; render(); } }),
   ];
   render();
-  const reset = h("button", { type: "button", class: "link", style: { fontSize: "var(--fs-small)" }, onClick: () => { Object.assign(st, { p, value, cost }); sliders[0].set(p * 100); sliders[1].set(value); sliders[2].set(cost); render(); } }, "Reset to the real numbers");
+  const reset = h("button", { type: "button", class: "link", style: { fontSize: "var(--fs-small)" }, onClick: () => { Object.assign(st, { p, value, cost }); sliders[0].set(Math.round(p * 100)); sliders[1].set(value); sliders[2].set(cost); render(); } }, "Reset to the real numbers");
   return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack", style: { "--gap": "14px" } }, ...sliders, reset), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Expected value"), big, formula, line));
 }
 
