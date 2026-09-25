@@ -269,7 +269,7 @@ export default function Portfolio({ params }) {
       h("div", { class: "card reveal" }, commercialChain())),
 
     h("section", { class: "section", id: "fingerprint" },
-      sectionHead("Economic fingerprint", "What actually drove the result?", "Northwest Market's last quarter: sales splits into volume and price. Margin and trade spend tell you whether the growth was earned or bought."),
+      sectionHead("Economic fingerprint", "What actually drove the result?", "One account's last quarter: sales splits into volume and price. Margin and trade spend tell you whether the growth was earned or bought."),
       h("div", { class: "card reveal" }, fingerprintWidget({ volume: 3, price: 8, tradeSpend: 21 }))),
 
     h("section", { class: "section", id: "brands" },
