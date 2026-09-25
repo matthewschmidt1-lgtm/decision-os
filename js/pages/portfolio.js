@@ -153,16 +153,35 @@ export default function Portfolio() {
     };
 
     const request = dil ? (() => {
-      const t = S.planTotals({ ...plan, answer: null }, qi, vi);
+      // Every option is clickable. If a choice costs money you haven't freed up, it's funded for you (first from the brand the
+      // request is about, then from the brands whose next $10K returns least) and the card says what moved.
+      const fund = (o) => {
+        let need = o.cost - (S.BUDGET.trade - S.planTotals({ ...plan, answer: null }, qi, vi).trade);
+        const moved = {};
+        const f = S.forecastQuarter(state, plan, qi).rows;
+        const order = [o.extra?.id, ...[...f].sort((x, y) => x.next - y.next).map((r) => r.id)].filter(Boolean);
+        for (const id of order) { while (need > 0 && plan.trade[id] >= S.STEP.trade) { plan.trade[id] -= S.STEP.trade; need -= S.STEP.trade; moved[id] = (moved[id] || 0) + S.STEP.trade; } if (need <= 0) break; }
+        const list = Object.entries(moved).map(([id, x]) => `${$k(x)} from Brand ${id}`);
+        st.fundNote = list.length ? `To fund it, ${list.join(" and ")} moved into the request.` : null;
+      };
+      const pick = (o) => {
+        st.fundNote = null;
+        if (plan.answer === o.id) plan.answer = null;
+        else {
+          if (o.cost) fund(o);
+          if (o.scout) { const free = state.scoutsLeft - plan.scout.length; if (free <= 0 && plan.scout.length) { const dropped = plan.scout.pop(); st.fundNote = `Your scout on Brand ${dropped} goes here instead.`; } }
+          plan.answer = o.id;
+        }
+        stage.replaceChildren(decideView(state, prev));
+      };
       const box = h("div", { class: "sim-request", role: "group", "aria-label": `Request from ${dil.who}` },
         h("p", { class: "who" }, `A request from ${dil.who}`), h("p", { class: "ask" }, dil.ask),
         h("div", { class: "opts" }, ...dil.options.map((o) => {
-          const tooMuch = o.cost && S.BUDGET.trade - t.trade < o.cost;
-          const noScout = o.scout && (state.scoutsLeft - plan.scout.filter((x) => x !== o.scout).length <= 0 || state.scouted[o.scout] !== undefined);
-          return h("button", { type: "button", class: "opt", "aria-pressed": String(plan.answer === o.id), disabled: (tooMuch && plan.answer !== o.id) || noScout,
-            onClick: () => { plan.answer = plan.answer === o.id ? null : o.id; stage.replaceChildren(decideView(state, prev)); } },
-            o.label, tooMuch && plan.answer !== o.id ? h("span", { class: "why" }, `Free up ${$k(o.cost)} first`) : noScout ? h("span", { class: "why" }, "No scouts left") : null);
-        })));
+          const used = o.scout && state.scouted[o.scout] !== undefined, none = o.scout && state.scoutsLeft <= 0;
+          return h("button", { type: "button", class: "opt", "aria-pressed": String(plan.answer === o.id), disabled: used || none, onClick: () => pick(o) },
+            o.label, ...(used ? [h("span", { class: "why" }, "Already scouted")] : none ? [h("span", { class: "why" }, "You've used both scouts this year")] : []));
+        })),
+        ...(st.fundNote && plan.answer ? [h("p", { class: "note" }, st.fundNote)] : []));
       return box;
     })() : null;
 

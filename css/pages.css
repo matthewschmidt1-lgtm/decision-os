@@ -212,3 +212,4 @@
   .sim-migrate .amt{display:none}
 }
 .sim-next .gauge i.even{background:var(--muted)}
+.sim-request .note{font-size:var(--fs-small);color:var(--ink-2)}
