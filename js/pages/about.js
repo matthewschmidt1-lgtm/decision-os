@@ -28,7 +28,7 @@ const goals = [
   ["Recognize", "Spot the pattern"],
   ["Diagnose", "Find what's really happening"],
   ["Prioritize", "Decide what comes first"],
-  ["Decide", "Choose with incomplete information"],
+  ["Act", "Choose with incomplete information"],
   ["Defend", "Make the case to a buyer"],
   ["Lead", "Change how the team works"],
 ];

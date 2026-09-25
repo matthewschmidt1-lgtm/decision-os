@@ -7,7 +7,7 @@ export const skills = {
   strategy: { name: "Customer strategy", blurb: "Make the case a buyer will accept." },
   economics: { name: "Trade economics", blurb: "Know what volume costs." },
 };
-export const levels = ["Recognize", "Diagnose", "Prioritize", "Decide", "Defend", "Lead"];
+export const levels = ["Recognize", "Diagnose", "Prioritize", "Act", "Defend", "Lead"];
 
 const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => ids.includes(s.id) });
 export const tracks = [
@@ -70,7 +70,7 @@ export const scenarios = [
     nextMove: "Show the buyer the four-week view. Then propose fixing availability before the next feature: a bigger display build with a replenishment plan agreed with the stores, built earlier in the week, is worth more than a deeper price.",
   },
   {
-    id: "promo-request", customer: "Publix", channel: "off", category: "Refrigerated juice", level: "Decide", skill: "economics", algorithm: "optimization", tags: ["promo"],
+    id: "promo-request", customer: "Publix", channel: "off", category: "Refrigerated juice", level: "Act", skill: "economics", algorithm: "optimization", tags: ["promo"],
     situation: "The Publix buyer asks for an extra 2-for-$6 event next month to 'hit his number.' You have the history for the last six events.",
     evidence: [["Regular price", "$3.99"], ["Average lift on 2-for-$6", "1.4×"], ["Estimated incremental share of lift", "~35%"], ["Your margin during events", "−11 pts"], ["Baseline trend, 26 wk", "−4%", "bad"], ["Buyer's category target", "2% behind", "warn"], ["Display support last 3 events", "1 of 3", "warn"]],
     question: "What do you propose?",
@@ -160,7 +160,7 @@ export const scenarios = [
     nextMove: "Ask for four weeks at current facings with an availability fix: adjusted order points or a case-pack change. Agree on the velocity target that would justify the cut, so the next decision is made on evidence you both accepted.",
   },
   {
-    id: "on-premise-placement", customer: "Two accounts", channel: "on", category: "Premium tequila", level: "Decide", skill: "strategy", algorithm: "expected-value", tags: ["opportunity", "placement"],
+    id: "on-premise-placement", customer: "Two accounts", channel: "on", category: "Premium tequila", level: "Act", skill: "strategy", algorithm: "expected-value", tags: ["opportunity", "placement"],
     situation: "You can pitch one new cocktail placement this week. A high-profile hotel bar, or a busy neighbourhood restaurant that already carries two of your brands.",
     evidence: [["Hotel bar", "$40K a year · ~20% chance · new menu in 6 months · influential"], ["Neighbourhood restaurant", "$14K a year · ~75% chance · menu reprint in 3 weeks · already carries two of your brands", "good"], ["Distributor rep view", "'the hotel would be a trophy'"], ["Your time", "each pitch takes a full prep day"]],
     question: "Which pitch do you make?",
@@ -175,7 +175,7 @@ export const scenarios = [
     nextMove: "Pitch the restaurant this week with a specific cocktail and a menu-reprint deadline. Put the hotel in your calendar for four months out, and bring the restaurant's pour data when you go.",
   },
   {
-    id: "shelf-move", customer: "Meijer", channel: "off", category: "Cereal", level: "Decide", skill: "strategy", algorithm: "decision-trees", tags: ["shelf"],
+    id: "shelf-move", customer: "Meijer", channel: "off", category: "Cereal", level: "Act", skill: "strategy", algorithm: "decision-trees", tags: ["shelf"],
     situation: "After the spring reset, your lead item moved from eye level to the bottom shelf. Velocity has fallen 14% in eight weeks.",
     evidence: [["Velocity since reset", "−14%"], ["Distribution", "unchanged"], ["Price", "unchanged"], ["Competitor now at eye level", "velocity +11%", "warn"], ["Category", "flat"], ["Next reset", "in 5 months"], ["Buyer's stated goal", "grow category, not swap share"]],
     question: "What do you recommend to the buyer?",
@@ -281,7 +281,7 @@ export const scenarios = [
     nextMove: "Schedule the staff training at Waterfront through your distributor. Track Old Fashioneds sold for four weeks, then bring those numbers to the group beverage director.",
   },
   {
-    id: "happy-hour-ask", customer: "Tap & Barrel (bar)", channel: "on", category: "Tequila", level: "Decide", skill: "strategy", algorithm: "utility-and-trade-offs", tags: ["on-premise", "compliance"],
+    id: "happy-hour-ask", customer: "Tap & Barrel (bar)", channel: "on", category: "Tequila", level: "Act", skill: "strategy", algorithm: "utility-and-trade-offs", tags: ["on-premise", "compliance"],
     situation: "The owner of Tap & Barrel says he'll feature your tequila on the new happy hour menu if you 'help cover the discount.' He's a good account and a friend.",
     evidence: [["Your depletions there", "+6%", "good"], ["Happy hour share of his tequila sales", "about 40%"], ["State rules", "suppliers can't pay retailers for placements or discounts", "warn"], ["What you're allowed to offer", "staff training · a consumer tasting · permitted menu materials"], ["Competitor", "rumoured to be 'helping' another bar", "warn"]],
     question: "What do you do?",
@@ -357,7 +357,7 @@ export const scenarios = [
     nextMove: "Pitch the five rooftops with Skyline's year-over-year gain and its summer rate of sale (about 90 a week), not the 60%. Ask Skyline to keep the staff pour going into autumn so you can see whether the training holds up when the season fades.",
   },
   {
-    id: "mezcal-price-velocity", customer: "La Brasa (restaurant)", channel: "on", category: "Mezcal", level: "Decide", skill: "economics", algorithm: "utility-and-trade-offs", tags: ["on-premise", "velocity", "pricing"],
+    id: "mezcal-price-velocity", customer: "La Brasa (restaurant)", channel: "on", category: "Mezcal", level: "Act", skill: "economics", algorithm: "utility-and-trade-offs", tags: ["on-premise", "velocity", "pricing"],
     situation: "La Brasa raised its mezcal margarita from $14 to $17. Sales of the drink fell from 30 to 24 a week, and your depletions there are down 20%. The owner asks whether he should go back to $14.",
     evidence: [["Margaritas a week", "30 → 24"], ["Price", "$14 → $17"], ["His cost per drink", "about $3.50"], ["His weekly profit on the drink", "$315 → $324"], ["Your depletions", "−20%"], ["His menu", "no lower-priced mezcal drink"]],
     question: "What do you recommend?",
@@ -509,7 +509,7 @@ export const scenarios = [
     nextMove: "Rank the eight accounts by the cost of running out. Fill the delisting account and the penalty accounts first, then the velocity leaders. Call every buyer this week with the plan and a date for full supply.",
   },
   {
-    id: "walk-away", customer: "Corner Fresh (independent)", channel: "off", category: "Snacks", level: "Decide", skill: "economics", algorithm: "expected-value", tags: ["decline"],
+    id: "walk-away", customer: "Corner Fresh (independent)", channel: "off", category: "Snacks", level: "Act", skill: "economics", algorithm: "expected-value", tags: ["decline"],
     situation: "Corner Fresh, a three-store independent, is down 30% this year. The owner wants free product and a new display every quarter to 'stay interested,' and each visit takes half a day every two weeks.",
     evidence: [["Annual sales", "$14K"], ["Trend", "−30%"], ["This year's asks", "$3K free product · $2K displays", "warn"], ["Your time", "about 12 days a year"], ["Distributor", "already delivers there", "good"], ["Prospects", "4 within 10 miles"]],
     question: "What do you do?",
@@ -572,7 +572,7 @@ export const scenarios = [
   },
   // Act: decide with incomplete information
   {
-    id: "value-swap-request", customer: "Ember & Oak (steakhouse)", channel: "on", category: "Bourbon", level: "Decide", skill: "strategy", algorithm: "value-of-information", tags: ["pricing", "value", "on-premise"],
+    id: "value-swap-request", customer: "Ember & Oak (steakhouse)", channel: "on", category: "Bourbon", level: "Act", skill: "strategy", algorithm: "value-of-information", tags: ["pricing", "value", "on-premise"],
     situation: "Food costs are up 9%. The owner wants to cut drink costs by swapping your bourbon out of the house Old Fashioned for a cheaper well bourbon. The menu names your brand.",
     evidence: [["Old Fashioneds a week", "60 at $16, his best seller"], ["Swap to the well bourbon", "$1.20 a pour · not named on the menu · saves about $54 a week"], ["Keep yours, drink goes to $18", "$2.10 a pour · named on the menu · adds about $120 a week, if sales hold"], ["What the swap is worth a year", "about $2,800"], ["His food costs", "about $9,000 a week, up about $750"], ["Unknown", "whether guests will pay $18 for the named drink", "warn"]],
     question: "What do you recommend?",
@@ -587,7 +587,7 @@ export const scenarios = [
     nextMove: "Before the test, ask the bartenders how often guests order it by name. Show the owner both paths side by side, agree the 56-a-week line up front, and support the launch with a staff tasting through your distributor. You can advise on menu and price, but the price is his call. Never pay or give anything of value for the placement or the menu mention: state tied-house laws broadly prohibit it, and federal law does when it pushes out competitors. Any price support has to be a distributor price that follows your state's rules, which in many states means posted and the same for every licensee.",
   },
   {
-    id: "value-delist-review", customer: "Raley's", channel: "off", category: "Granola", level: "Decide", skill: "strategy", algorithm: "exploration-vs-exploitation", tags: ["pricing", "value", "distribution"],
+    id: "value-delist-review", customer: "Raley's", channel: "off", category: "Granola", level: "Act", skill: "strategy", algorithm: "exploration-vs-exploitation", tags: ["pricing", "value", "distribution"],
     situation: "Your premium granola is on the delist list for the next reset. The buyer says it's slow and priced $2 above the category, and offers to keep it if you fund a deeper promotion every other month.",
     evidence: [["Velocity", "15% below the category average"], ["Where it sits", "40% of stores, bottom shelf"], ["Its shoppers who buy no other granola here", "46%"], ["Your granola's shoppers", "58% aged 25–40 · $62 basket"], ["Average store shopper", "31% aged 25–40 · $41 basket"], ["The chain's goal this year", "attract younger households"], ["Unknown", "how it sells at eye level", "warn"]],
     question: "What do you propose?",
@@ -602,7 +602,7 @@ export const scenarios = [
     nextMove: "Open with the 46% and the shopper profile, framed against the chain's goal. Propose the trade: one chain-wide promotion during an 8-week eye-level test in 20 stores, measured against 20 control stores, with the pass mark agreed before it starts.",
   },
   {
-    id: "value-margin-target", customer: "Kroger", channel: "off", category: "Premium tortilla chips", level: "Decide", skill: "economics", algorithm: "utility-and-trade-offs", tags: ["pricing", "value", "meeting"],
+    id: "value-margin-target", customer: "Kroger", channel: "off", category: "Premium tortilla chips", level: "Act", skill: "economics", algorithm: "utility-and-trade-offs", tags: ["pricing", "value", "meeting"],
     situation: "The Kroger buyer has a new rule: every item in the category must earn 38% margin by the next reset. Your chips sell fast but earn him 31%. He asks you to lower your price to him.",
     evidence: [["Your chips", "$5.49 on shelf · 31% margin · 14 a week per store"], ["Category average", "$4.29 on shelf · 38% margin · 9 a week per store"], ["His margin dollars per store", "about $24 a week, against $15 for the average item"], ["Your price to him", "about $3.79 a bag"], ["You can offer", "a bag about 11% smaller, at the same price per ounce to Kroger"]],
     question: "What do you propose?",
