@@ -7,7 +7,7 @@ const principles = [
     title: "Turn Better Decisions Into Greater Value",
     lede: "The purpose of an algorithm isn't better analysis. It's learning to make better decisions that lead to better results.",
     body: [
-      "When you learn algorithms effectively, you become more than someone who just manages accounts. You become a decision-maker who can identify opportunities, evaluate trade-offs, act on evidence, and create greater value for both your customers and your company.",
+      "When you learn algorithms effectively, you become more than someone who just manages accounts. You become a decision maker who can identify opportunities, evaluate trade-offs, act on evidence, and create greater value for both your customers and your company.",
     ],
     tagline: "Better decisions. Greater impact. More value.",
   },
