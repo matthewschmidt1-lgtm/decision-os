@@ -8,7 +8,7 @@ export default function Decisions() {
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Decisions"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Four decisions. Real world scenarios. Your reasoning."),
       h("p", { class: "hero-sub" }, "Work through four simulated decisions built from situations CPG leaders face every day. Each one starts by naming the objective, because there’s no “best” answer until you know what you’re optimizing for."),
-      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "You make the call. The model shows the reasoning behind it. Then the objective changes, your VP wants margin, your CEO wants distribution, a customer wants something else, and you have to decide again.")),
+      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "You make the call. The model shows the reasoning behind it. Then something changes: a VP moves the goal, a CEO pushes for the quarter, a customer makes an offer, and you have to decide again.")),
 
     h("section", { class: "grid grid-2 reveal", style: { marginTop: "48px" } },
       decisions.map(d => link(`/decisions/${d.id}`, h("span", { class: "card clickable", style: { display: "block", height: "100%" } },
