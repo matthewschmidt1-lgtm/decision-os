@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as M from "../js/models.js";
-import { brands, accounts, situation } from "../js/data.js";
+import { brands, accounts, situation, decisions } from "../js/data.js";
 
 test("marginal contribution declines with spend and crosses zero at the optimum", () => {
   const p = { vmax: 1200, k: 60, unitMargin: 0.11 };
@@ -90,3 +90,17 @@ test("the Brand B shift range in the decision copy pays back on the model's own 
   assert.ok(net(400) > net(100) && net(400) > net(800), "the gain should peak inside the range");
 });
 
+
+test("decisions: each stated objective picks the preferred option, and every objective change lands on the answer its lesson names", () => {
+  const KEYS = ["volume", "margin", "revenue", "distribution"];
+  for (const d of decisions) {
+    assert.equal(M.utilityRank(d.options, d.objective.w)[0].name, d.preferred, `${d.id}: plan objective`);
+    for (const s of d.shifts) {
+      const opts = d.options.map((o) => (s.prize?.hits.includes(o.name) ? { ...o, ...Object.fromEntries(KEYS.map((k) => [k, o[k] + (s.prize.bonus[k] || 0)])) } : o));
+      const top = M.utilityRank(opts, s.w)[0].name;
+      assert.equal(top, s.best, `${d.id}: ${s.who}`);
+      assert.ok(s.lesson.includes(top.split(" ")[0]), `${d.id}: ${s.who}'s lesson names ${top}`);
+      assert.equal(KEYS.reduce((a, k) => a + s.w[k], 0), 100, `${d.id}: ${s.who}'s weights add to 100`);
+    }
+  }
+});

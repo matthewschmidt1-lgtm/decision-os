@@ -244,3 +244,30 @@
 .sim-achnews li.got .ic{color:#b8962e}
 .sim-achnews b{font-weight:600}
 @media (max-width:720px){.sim-achlist{grid-template-columns:1fr}}
+
+/* Decision: the objective, and "Change the objective" rounds */
+.obj-card{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:center;border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.option .fit{margin-top:10px;font-size:var(--fs-micro);color:var(--muted);font-variant-numeric:tabular-nums}.option .fit:empty{display:none}
+.option.preferred .fit{color:var(--ink-2);font-weight:500}
+.obj-rounds{display:grid;gap:18px}
+.obj-round{display:grid;gap:16px}
+.obj-quote{margin:0;font-size:1.375rem;line-height:1.35;letter-spacing:-.01em;max-width:40ch}
+.obj-prize{font-size:var(--fs-small);padding:12px 14px;border-radius:var(--r-md);background:var(--accent-soft);border:1px solid var(--accent);color:var(--ink-2)}
+.obj-prize b{color:var(--ink);font-weight:600}
+.obj-ask{font-weight:500}
+.obj-work{align-items:start;gap:28px}
+.obj-commit{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:var(--fs-small)}
+.obj-commit button{padding:9px 16px;border-radius:var(--r-pill);border:1px solid var(--line-strong);background:var(--bg-elev);font-size:var(--fs-small)}
+.obj-commit button:hover:not(:disabled){border-color:var(--ink)}
+.obj-commit button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.obj-commit button:disabled:not([aria-pressed="true"]){opacity:.45}
+.obj-result{display:grid;gap:14px;border-top:1px solid var(--line);padding-top:16px}
+.obj-compare{gap:24px}
+.obj-gap{font-size:var(--fs-small)}
+.obj-lesson{font-size:1.0625rem;line-height:1.5;max-width:var(--measure)}
+.obj-result .btn{justify-self:start}
+.obj-summary{margin-top:28px;padding:22px 24px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--bg-sunk)}
+.obj-trail{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;counter-reset:t}
+.obj-trail li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:10px 14px;border-radius:var(--r-md);background:var(--bg-elev);border:1px solid var(--line);font-size:var(--fs-small)}
+.obj-trail li span{color:var(--muted)}.obj-trail li b{font-weight:600}
+@media (max-width:720px){.obj-card{grid-template-columns:1fr;gap:18px}.obj-quote{font-size:1.1875rem}}

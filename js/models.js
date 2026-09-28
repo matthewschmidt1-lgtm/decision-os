@@ -39,7 +39,7 @@ export function promoScenario(pctChange, base = { spend: 40, vmax: 1200, k: 60, 
 /* ---------- 02 Utility / multi-objective ---------- */
 // options: [{name, volume, revenue, margin}] as percentage changes. weights: {volume, revenue, margin} summing to ~1.
 export function utilityRank(options, weights) {
-  const keys = ["volume", "revenue", "margin"];
+  const keys = Object.keys(weights); // whichever objectives are weighted: volume, revenue, margin, distribution
   const total = keys.reduce((a, k) => a + (weights[k] || 0), 0) || 1;
   // normalise each objective to 0..1 across options so weights compare like with like
   const ranges = Object.fromEntries(keys.map(k => {
