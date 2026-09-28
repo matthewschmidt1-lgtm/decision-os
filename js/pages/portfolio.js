@@ -1,4 +1,4 @@
-import { h, eyebrow, link, arrow, says } from "../ui.js";
+import { h, s as svg, eyebrow, link, arrow, says } from "../ui.js";
 import { setMeta } from "../app.js";
 import { money, pct } from "../models.js";
 import { lessonBySlug } from "../lessons/index.js";
@@ -246,37 +246,68 @@ export default function Portfolio() {
       .sort((a, b) => Math.max(Math.abs(b.dOn), Math.abs(b.dOff)) - Math.max(Math.abs(a.dOn), Math.abs(a.dOff))).slice(0, 3);
     let view = "all";
     const NOISE = 2; // points of forecast error the sim's own noise can produce
-    const board = h("div", { class: "sim-dots" }), boardNote = h("p", { class: "sim-dots-sum" });
+    const board = h("div", { class: "sim-plots" }), boardNote = h("p", { class: "sim-dots-sum" });
     const drawTable = () => {
       const rows = q.rows.map((r) => {
         const share = S.simBrands(vi).find((b) => b.id === r.id).share;
         const f = view === "all" ? r.growthF : view === "on" ? (r.revOnF / (r.q * share) - 1) * 100 : (r.revOffF / (r.q * (1 - share)) - 1) * 100;
         const a = view === "all" ? r.growth : view === "on" ? (r.revOn / (r.q * share) - 1) * 100 : (r.revOff / (r.q * (1 - share)) - 1) * 100;
         const spend = view === "all" ? r.x : view === "on" ? r.xOn : r.xOff;
-        return { r, f, a, dd: Math.round(a) - Math.round(f), spend }; // compare what the player sees
-      }).sort((x, y) => Math.abs(y.dd) - Math.abs(x.dd));
-      const vals = rows.flatMap((x) => [x.f, x.a]);
-      const lo = Math.min(0, ...vals) - 2, hi = Math.max(0, ...vals) + 2, at = (v) => `${((v - lo) / (hi - lo)) * 100}%`;
-      const signal = rows.filter((x) => Math.abs(x.dd) >= NOISE);
-      const line = (x) => {
-        const noise = Math.abs(x.dd) < NOISE, t = noise ? "even" : x.dd > 0 ? "good" : "bad";
-        const tag = [view === "all" && x.r.focus !== "both" ? (x.r.focus === "on" ? "on" : "off") : null, q.scouts.includes(x.r.id) ? "scouted" : null].filter(Boolean);
-        return h("div", { class: `sim-dot${noise ? " is-noise" : ""}`, title: `Forecast ${pts(x.f)} · Actual ${pts(x.a)}` },
-          h("div", { class: "who" }, h("b", {}, `Brand ${x.r.id}`), h("span", {}, [$k(x.spend), ...tag].join(" · "))),
-          h("div", { class: "track", "aria-hidden": "true" },
-            h("span", { class: "zero", style: { left: at(0) } }),
-            h("span", { class: `gap ${t}`, style: { left: at(Math.min(x.f, x.a)), width: `${(Math.abs(x.a - x.f) / (hi - lo)) * 100}%` } }),
-            h("span", { class: "fc", style: { left: at(x.f) } }),
-            h("span", { class: `ac ${t}`, style: { left: at(x.a) } })),
-          h("div", { class: "val" }, h("b", {}, pts(x.a)), h("span", {}, `fcst ${pts(x.f)}`)),
-          h("div", { class: `dd ${t}` }, noise ? "on plan" : `${delta(x.dd)} pts`));
-      };
-      const out = signal.map(line);
-      if (signal.length && signal.length < rows.length) out.push(h("div", { class: "sim-dots-split" }, "Within the noise"));
-      out.push(...rows.filter((x) => Math.abs(x.dd) < NOISE).map(line));
-      board.replaceChildren(...out);
-      boardNote.textContent = !signal.length ? `Every brand landed within a point of forecast. No signal here this quarter.`
-        : `${signal.length === 1 ? "One brand" : `${signal.length} brands`} missed or beat forecast by ${NOISE} points or more. ${signal.length === 1 ? "That's" : "Those are"} the signal; start there.`;
+        const dd = Math.round(a) - Math.round(f); // compare what the player sees
+        return { id: r.id, f, a, dd, spend, t: Math.abs(dd) < NOISE ? "even" : dd > 0 ? "good" : "bad" };
+      }).sort((x, y) => x.id.localeCompare(y.id));
+      const signal = rows.filter((x) => x.t !== "even");
+      const tip = (x) => svg("title", {}, `Brand ${x.id}: forecast ${pts(x.f)}, actual ${pts(x.a)} (${x.t === "even" ? "on plan" : `${delta(x.dd)} pts`}) · ${$k(x.spend)} trade`);
+      board.replaceChildren(scatter(rows, tip), columns(rows, tip));
+      const beat = signal.filter((x) => x.dd > 0).length, missed = signal.length - beat;
+      const who = (n) => (n === 1 ? "1 brand" : `${n} brands`);
+      boardNote.textContent = !signal.length ? "Every brand landed within a point of forecast. No signal here this quarter."
+        : signal.length === 1 ? `Brand ${signal[0].id} ${beat ? "beat" : "missed"} forecast by ${Math.abs(signal[0].dd)} points. That's the signal; start there.`
+        : `${[beat && `${who(beat)} beat forecast`, missed && `${beat ? missed : who(missed)} missed`].filter(Boolean).join(" and ")} by ${NOISE} points or more. Those are the signal; start there.`;
+    };
+    const ticks = (lo, hi) => { const step = hi - lo > 24 ? 10 : 5, out = []; for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) out.push(v); return out; };
+    const scatter = (rows, tip) => {
+      const W = 360, H = 300, L = 56, R = 12, T = 14, B = 46;
+      const vals = rows.flatMap((x) => [x.f, x.a]), step = Math.max(...vals) - Math.min(...vals) > 24 ? 10 : 5;
+      const lo = Math.floor((Math.min(0, ...vals) - 1) / step) * step, hi = Math.ceil((Math.max(0, ...vals) + 1) / step) * step;
+      const X = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R), Y = (v) => H - B - ((v - lo) / (hi - lo)) * (H - T - B), band = NOISE - 0.5;
+      const g = svg("svg", { viewBox: `0 0 ${W} ${H}`, class: "sim-plot", role: "img", "aria-label": "Forecast versus actual growth by brand" });
+      g.append(svg("polygon", { class: "band", points: [[lo, lo + band], [hi - band, hi], [hi, hi], [hi, hi - band], [lo + band, lo], [lo, lo]].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ") }));
+      for (const v of ticks(lo, hi)) g.append(
+        svg("line", { class: v === 0 ? "axis" : "grid", x1: L, x2: W - R, y1: Y(v), y2: Y(v) }), svg("line", { class: v === 0 ? "axis" : "grid", y1: T, y2: H - B, x1: X(v), x2: X(v) }),
+        svg("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, pts(v)), svg("text", { x: X(v), y: H - B + 16, "text-anchor": "middle" }, pts(v)));
+      g.append(svg("line", { class: "diag", x1: X(lo), y1: Y(lo), x2: X(hi), y2: Y(hi) }),
+        svg("text", { class: "zone good", x: L + 8, y: T + 14 }, "Beat forecast"), svg("text", { class: "zone bad", x: W - R - 8, y: H - B - 8, "text-anchor": "end" }, "Missed forecast"),
+        svg("text", { class: "ttl", x: (L + W - R) / 2, y: H - 8, "text-anchor": "middle" }, "Forecast growth →"),
+        svg("text", { class: "ttl", x: 12, y: (T + H - B) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(T + H - B) / 2})` }, "Actual growth →"));
+      // Letters go right of the dot unless another label already sits there.
+      const placed = rows.map((x) => [X(x.f), Y(x.a)]), spots = [[8, 4, "start"], [-8, 4, "end"], [0, -9, "middle"], [0, 16, "middle"], [11, -7, "start"], [-11, -7, "end"]];
+      const dots = [...rows].sort((a, b) => Math.abs(b.dd) - Math.abs(a.dd)).map((x) => {
+        const cx = X(x.f), cy = Y(x.a);
+        const [dx, dy, anchor] = spots.find(([dx, dy]) => placed.every((p) => (p[0] === cx && p[1] === cy) || Math.abs(p[0] - (cx + dx)) > 10 || Math.abs(p[1] - (cy + dy)) > 10)) || spots[0];
+        placed.push([cx + dx, cy + dy]);
+        return svg("g", { class: `pt ${x.t}` }, tip(x), svg("circle", { cx, cy, r: x.t === "even" ? 5 : 6 }), svg("text", { x: cx + dx, y: cy + dy, "text-anchor": anchor }, x.id));
+      });
+      g.append(...dots.reverse());
+      return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Forecast vs actual"), h("span", {}, "Above the line beat the forecast. Below it missed.")), g);
+    };
+    const columns = (rows, tip) => {
+      const W = 360, H = 260, L = 56, R = 12, T = 22, B = 46;
+      const top_ = Math.ceil((Math.max(3, ...rows.map((x) => x.dd)) + 2) / 2) * 2, bot = Math.floor((Math.min(-3, ...rows.map((x) => x.dd)) - 2) / 2) * 2;
+      const Y = (v) => T + ((top_ - v) / (top_ - bot)) * (H - T - B), bw = (W - L - R) / rows.length, band = NOISE - 0.5;
+      const g = svg("svg", { viewBox: `0 0 ${W} ${H}`, class: "sim-plot", role: "img", "aria-label": "Points above or below forecast by brand" });
+      g.append(svg("rect", { class: "band", x: L, width: W - L - R, y: Y(band), height: Y(-band) - Y(band) }));
+      const stp = top_ - bot > 16 ? 4 : 2;
+      for (let v = Math.ceil(bot / stp) * stp; v <= top_; v += stp) g.append(svg("line", { class: v === 0 ? "axis" : "grid", x1: L, x2: W - R, y1: Y(v), y2: Y(v) }), svg("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, delta(v)));
+      rows.forEach((x, i) => {
+        const cx = L + bw * (i + 0.5), w = Math.min(26, bw * 0.56), top = Math.min(Y(x.dd), Y(0)), ht = Math.max(2, Math.abs(Y(x.dd) - Y(0)));
+        g.append(svg("g", { class: `col ${x.t}` }, tip(x), svg("rect", { x: cx - w / 2, width: w, y: top, height: ht, rx: 3 }),
+          svg("text", { class: "v", x: cx, y: x.dd >= 0 ? top - 5 : top + ht + 13, "text-anchor": "middle" }, x.dd ? delta(x.dd) : "0"),
+          svg("text", { class: "id", x: cx, y: H - B + 18, "text-anchor": "middle" }, x.id)));
+      });
+      g.append(svg("text", { class: "ttl", x: (L + W - R) / 2, y: H - 8, "text-anchor": "middle" }, "Brand"),
+        svg("text", { class: "ttl", x: 12, y: (T + H - B) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(T + H - B) / 2})` }, "Points vs forecast"));
+      return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Miss or beat"), h("span", {}, "Points above or below forecast. The grey band is normal noise.")), g);
     };
     drawTable();
     const viewBtns = [["all", "All"], ["on", "On-premise"], ["off", "Off-premise"]].map(([k, l]) => h("button", { type: "button", "aria-pressed": String(k === view), onClick: () => { view = k; viewBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k))); drawTable(); }, dataset: { k } }, l));
@@ -300,8 +331,8 @@ export default function Portfolio() {
       says(q.insight, "warn"),
       requestLine,
       h("div", {}, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
-        boardNote, h("div", { class: "sim-dots-key", "aria-hidden": "true" }, h("span", { class: "k-fc" }, "Forecast"), h("span", { class: "k-ac" }, "Actual"), h("span", { class: "k-z" }, "Zero growth")), board,
-        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year, sorted by the biggest miss or beat. Misses of a point or less are normal noise.")),
+        boardNote, board,
+        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point. Hover or tap a brand for its numbers.")),
       h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
     ];
     if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding)))));

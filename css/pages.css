@@ -146,32 +146,24 @@
 .sim-outcome{font-size:var(--fs-small);color:var(--ink-2)}
 .sim-tablehead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .sim-dots-sum{font-size:var(--fs-small);color:var(--ink-2);margin:0 0 10px;max-width:var(--measure)}
-.sim-dots-key{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:6px}
-.sim-dots-key span{display:inline-flex;align-items:center;gap:6px}
-.sim-dots-key span::before{content:"";display:inline-block}
-.sim-dots-key .k-fc::before{width:8px;height:8px;border-radius:50%;border:2px solid var(--ink-2);background:var(--bg-elev)}
-.sim-dots-key .k-ac::before{width:10px;height:10px;border-radius:50%;background:var(--ink)}
-.sim-dots-key .k-z::before{width:1px;height:12px;background:var(--line-strong)}
-.sim-dots{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-elev);padding:4px 14px}
-.sim-dot{display:grid;grid-template-columns:92px minmax(0,1fr) 64px 64px;align-items:center;gap:12px;padding:6px 0;border-top:1px solid var(--line)}
-.sim-dot:first-child{border-top:0}
-.sim-dot .who{display:grid;line-height:1.25}.sim-dot .who b{font-weight:600;font-size:var(--fs-small)}
-.sim-dot .who span,.sim-dot .val span{font-size:11px;color:var(--muted);white-space:nowrap}
-.sim-dot .track{position:relative;height:22px}
-.sim-dot .track::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
-.sim-dot .zero{position:absolute;top:0;bottom:0;width:1px;background:var(--line-strong)}
-.sim-dot .gap{position:absolute;top:50%;height:4px;margin-top:-2px;border-radius:2px;opacity:.45}
-.sim-dot .fc,.sim-dot .ac{position:absolute;top:50%;border-radius:50%;transform:translate(-50%,-50%)}
-.sim-dot .fc{width:10px;height:10px;border:2px solid var(--ink-2);background:var(--bg-elev);box-sizing:border-box}
-.sim-dot .ac{width:12px;height:12px;background:var(--ink);z-index:1}
-.sim-dot .gap.good,.sim-dot .ac.good{background:var(--good)}.sim-dot .gap.bad,.sim-dot .ac.bad{background:var(--bad)}.sim-dot .ac.even{background:var(--ink-2)}
-.sim-dot .val{display:grid;text-align:right;line-height:1.25;font-variant-numeric:tabular-nums}.sim-dot .val b{font-weight:600;font-size:var(--fs-small)}
-.sim-dot .dd{justify-self:end;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.sim-dot .dd.good{background:var(--good-soft);color:var(--good)}.sim-dot .dd.bad{background:var(--bad-soft);color:var(--bad)}.sim-dot .dd.even{color:var(--muted);font-weight:500}
-.sim-dot.is-noise{opacity:.55}
-.sim-dots-split{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-top:1px dashed var(--line-strong);padding:10px 0 2px}
-.sim-dots-split+.sim-dot{border-top:0}
-@media (max-width:560px){.sim-dots{padding:2px 12px}.sim-dot{grid-template-columns:62px minmax(0,1fr) 50px 52px;gap:8px}.sim-dot .who span{font-size:10px}.sim-dot .dd{padding:2px 6px}}
+.sim-plots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sim-fig{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-elev);padding:14px 16px 8px;display:grid;gap:6px;align-content:start}
+.sim-fig figcaption{display:grid;gap:2px}.sim-fig figcaption b{font-weight:600;font-size:var(--fs-small)}.sim-fig figcaption span{font-size:var(--fs-micro);color:var(--muted)}
+.sim-plot{width:100%;max-width:460px;height:auto;justify-self:center;overflow:visible}
+.sim-plot text{font-size:11px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.sim-plot text.ttl{font-size:11px;fill:var(--ink-2)}
+.sim-plot text.zone{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.sim-plot text.zone.good{fill:var(--good)}.sim-plot text.zone.bad{fill:var(--bad)}
+.sim-plot .grid{stroke:var(--line);stroke-width:1}.sim-plot .axis{stroke:var(--line-strong);stroke-width:1}
+.sim-plot .diag{stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:4 4}
+.sim-plot .band{fill:var(--muted);opacity:.14}
+.sim-plot .pt circle{stroke:var(--bg-elev);stroke-width:2}
+.sim-plot .pt text{font-size:12px;font-weight:600;fill:var(--ink)}
+.sim-plot .pt.even text,.sim-plot .col.even text{fill:var(--muted);font-weight:500}
+.sim-plot .good circle,.sim-plot .col.good rect{fill:var(--good)}.sim-plot .bad circle,.sim-plot .col.bad rect{fill:var(--bad)}.sim-plot .even circle,.sim-plot .col.even rect{fill:var(--muted)}
+.sim-plot .col text.id{font-size:12px;font-weight:600;fill:var(--ink)}.sim-plot .col text.v{font-weight:600;fill:var(--ink)}
+.sim-plot .pt,.sim-plot .col{cursor:default}
+@media (max-width:720px){.sim-plots{grid-template-columns:1fr}.sim-fig{padding:12px 10px 6px}}
 .sim-chains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
 .sim-chain{border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;background:var(--bg-elev);display:grid;gap:12px;align-content:start}
 .sim-chain.is-break{border-color:var(--warn)}
