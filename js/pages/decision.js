@@ -14,6 +14,7 @@ const pts = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)}`;
 // An offer changes the options themselves: the ones that qualify gain its bonus.
 const withPrize = (options, prize) => options.map((o) => (prize?.hits.includes(o.name) ? { ...o, ...Object.fromEntries(KEYS.map((k) => [k, Math.round((o[k] + (prize.bonus[k] || 0)) * 10) / 10])) } : o));
 const rank = (options, w) => utilityRank(options, w);
+const shares = (w) => { const t = KEYS.reduce((a, k) => a + w[k], 0); return Object.fromEntries(KEYS.map((k) => [k, t ? Math.round((w[k] / t) * 100) : 0])); };
 const weightBars = (w, tone = "accent") => h("div", { class: "bars" }, KEYS.map((k) => bar(LABEL[k], w[k], 100, { tone: w[k] ? tone : "muted", format: (v) => `${Math.round(v)}%` })));
 
 // "Change the objective": three people change what the decision is for. Each round the learner sets the weights, commits
@@ -22,34 +23,41 @@ function objectiveRounds(d, onDone) {
   const host = h("div", { class: "obj-rounds" }), picks = [];
   const startRound = (n, from) => {
     const s = d.shifts[n], opts = withPrize(d.options, s.prize), w = { ...(s.prize ? d.objective.w : from) };
-    const ranking = h("div", { class: "bars" }), sliders = {};
-    const draw = () => ranking.replaceChildren(...rank(opts, w).map((o, i) => bar(o.name, o.utility, 100, { tone: i === 0 ? "accent" : "muted", format: (v) => v.toFixed(0) })));
-    const set = (k, v) => {
-      const others = KEYS.filter((x) => x !== k), rest = others.reduce((a, x) => a + w[x], 0), left = 100 - v;
-      others.forEach((x) => { w[x] = rest > 0 ? Math.round(((w[x] / rest) * left) / 5) * 5 : Math.round(left / others.length / 5) * 5; });
-      w[k] = v; const drift = 100 - KEYS.reduce((a, x) => a + w[x], 0); if (drift) { const fix = others.find((x) => w[x] + drift >= 0); if (fix) w[fix] += drift; }
-      others.forEach((x) => sliders[x].set(w[x])); draw();
+    const ranking = h("div", { class: "bars" }), sliders = {}, empty = h("p", { class: "muted obj-empty", hidden: true }, "Give at least one objective some importance before you commit.");
+    // Each slider is how much that objective matters, on its own. Shares of 100% are worked out for you, so the learner
+    // can reach any mix in any order and nothing moves by itself.
+    const draw = () => {
+      const on = KEYS.some((k) => w[k] > 0);
+      KEYS.forEach((k) => sliders[k].set(w[k]));
+      ranking.replaceChildren(...rank(opts, w).map((o, i) => bar(o.name, o.utility, 100, { tone: i === 0 && on ? "accent" : "muted", format: (v) => v.toFixed(0) })));
+      empty.hidden = on; commitBtns?.forEach((btn) => { if (!result.hidden) return; btn.disabled = !on; });
     };
-    KEYS.forEach((k) => { sliders[k] = slider({ label: LABEL[k], min: 0, max: 100, step: 5, value: w[k], format: (v) => `${v}%`, onInput: (v) => set(k, v) }); });
-    draw();
+    KEYS.forEach((k) => { sliders[k] = slider({ label: LABEL[k], min: 0, max: 100, step: 5, value: w[k], format: () => `${shares(w)[k]}%`, onInput: (v) => { w[k] = v; draw(); } }); });
     const result = h("div", { class: "obj-result", hidden: true });
-    const commitBtns = opts.map((o) => h("button", { type: "button", class: "chip-btn", onClick: () => commit(o) }, o.name));
+    const commitBtns = opts.map((o) => h("button", { type: "button", onClick: () => commit(o) }, o.name));
+    draw();
     const commit = (o) => {
       commitBtns.forEach((b) => { b.disabled = true; b.setAttribute("aria-pressed", String(b.textContent === o.name)); });
       Object.values(sliders).forEach((sl) => sl.querySelector("input").disabled = true);
-      const theirs = rank(opts, s.w), best = theirs[0], yours = rank(opts, w)[0];
-      const gap = KEYS.map((k) => [k, w[k] - s.w[k]]).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
-      const right = o.name === best.name, under = s.prize ? "with the offer counted and your plan's objective" : `under what ${s.who.replace(/^Your /, "your ")} said`;
+      const theirs = rank(opts, s.w), best = theirs[0], mine = theirs.find((x) => x.name === o.name), yours = rank(opts, w)[0], sw = shares(w);
+      const gap = KEYS.map((k) => [k, sw[k] - s.w[k]]).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
+      const right = o.name === best.name, close = !right && best.utility - mine.utility <= 5;
+      const under = s.prize ? "with the offer counted and your plan's objective" : `under what ${s.who.replace(/^Your /, "your ")} said`, Under = under[0].toUpperCase() + under.slice(1);
+      // What puts the winner ahead: the objective where it beats the learner's pick by the most, weighted.
+      const span = (k) => { const v = opts.map((x) => x[k]); return Math.max(...v) - Math.min(...v) || 1; };
+      const edge = KEYS.map((k) => [k, s.w[k] * ((best[k] - mine[k]) / span(k))]).sort((a, b) => b[1] - a[1])[0][0];
       picks.push({ who: s.who, name: best.name });
       const nextBtn = n + 1 < d.shifts.length
         ? h("button", { type: "button", class: "btn", onClick: () => { nextBtn.remove(); startRound(n + 1, { ...w }); } }, `Next: ${d.shifts[n + 1].who} `, arrow())
         : h("button", { type: "button", class: "btn", onClick: () => { nextBtn.remove(); onDone(picks); } }, "See what changed ", arrow());
       result.replaceChildren(
-        says(right ? `${o.name}: the same call the model makes ${under}.` : `${under[0].toUpperCase() + under.slice(1)}, ${best.name} scores highest (${best.utility.toFixed(0)} of 100). You chose ${o.name}${yours.name === o.name ? `, the top option under your own weights, so the gap is in ${s.prize ? "how you weighed the offer" : "how you read the objective"}` : ""}.`, right ? "good" : "warn"),
+        right ? says(`${o.name}: the same call the model makes ${under}.`, "good")
+          : close ? says(`Close call. ${Under}, ${best.name} scores ${best.utility.toFixed(0)} and ${o.name} scores ${mine.utility.toFixed(0)}, so both are defensible. ${best.name} edges ahead on ${edge}.`, "")
+          : says(`${Under}, ${best.name} scores highest (${best.utility.toFixed(0)} of 100); ${o.name} scores ${mine.utility.toFixed(0)}.${yours.name === o.name ? ` ${o.name} was the top option under your own weights, so the gap is in ${s.prize ? "how you weighed the offer" : "how you read the objective"}.` : ""}`, "warn"),
         h("div", { class: "grid grid-2 obj-compare" },
-          h("div", {}, eyebrow("Your weights"), weightBars(w, "muted")),
+          h("div", {}, eyebrow("Your weights"), weightBars(sw, "muted")),
           h("div", {}, eyebrow(s.prize ? "Your plan's objective" : "What their words imply"), weightBars(s.w))),
-        ...(Math.abs(gap[1]) >= 20 ? [h("p", { class: "muted obj-gap" }, `Biggest gap: you put ${w[gap[0]]}% on ${gap[0]}; ${s.prize ? "the plan puts" : "their words point to about"} ${s.w[gap[0]]}%.`)] : []),
+        ...(Math.abs(gap[1]) >= 20 ? [h("p", { class: "muted obj-gap" }, `Biggest gap: you put ${sw[gap[0]]}% on ${gap[0]}; ${s.prize ? "the plan puts" : "their words point to about"} ${s.w[gap[0]]}%.`)] : []),
         h("p", { class: "obj-lesson" }, s.lesson), nextBtn);
       result.hidden = false;
     };
@@ -59,7 +67,7 @@ function objectiveRounds(d, onDone) {
       s.prize ? h("div", { class: "obj-prize" }, h("b", {}, "The offer changes the options. "), s.prize.text, h("span", { class: "muted" }, " Your objective is back to the plan's; the options are what's different.")) : null,
       h("p", { class: "obj-ask" }, s.prize ? "What does the offer change? Adjust the weights if you want, then commit." : "What changes? Set the weights to match what they said, then commit to an option."),
       h("div", { class: "grid grid-2 obj-work" },
-        h("div", { class: "stack", style: { "--gap": "12px" } }, ...KEYS.map((k) => sliders[k]), h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Weights always add to 100%.")),
+        h("div", { class: "stack", style: { "--gap": "12px" } }, ...KEYS.map((k) => sliders[k]), h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Each slider sets how much that objective matters. The shares of 100% are worked out for you."), empty),
         h("div", {}, eyebrow("Score under your weights"), h("div", { style: { marginTop: "10px" } }, ranking))),
       h("div", { class: "obj-commit" }, h("span", { class: "muted" }, "Commit to:"), ...commitBtns),
       result);
