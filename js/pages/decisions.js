@@ -4,11 +4,13 @@ import { setMeta } from "../app.js";
 import { tracks } from "../scenarios.js";
 
 export default function Decisions() {
-  setMeta({ title: "Decisions", description: "Four calls from your own territory, reasoned out. Name the objective, see the model's reasoning, then watch the right answer change when the objective does." });
+  setMeta({ title: "Decisions", description: "Four simulated decisions built from situations CPG leaders face every day. Name the objective, make the call, then decide again when the objective changes." });
   return h("div", {},
-    h("section", { class: "reveal" }, eyebrow("Decisions"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Your territory: four calls, reasoned out."),
-      h("p", { class: "hero-sub" }, "These use your own accounts and brands. Each one starts by naming the objective, because there's no best answer until you know what you're optimizing for. You choose, the model shows its full reasoning, and then your VP, your CEO and a customer change the objective on you."),
-      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "Practice is where you get tested on new cases. This is where you see how the thinking works on yours. ", link("/practice", h("span", { class: "link" }, "Go to Practice ", arrow())))),
+    h("section", { class: "reveal" }, eyebrow("Decisions"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Four decisions. Real world scenarios. Your reasoning."),
+      h("p", { class: "hero-sub" }, "Work through four simulated decisions built from the kinds of situations CPG leaders face every day. Each one starts by naming the objective, because there’s no “best” answer until you know what you’re optimizing for."),
+      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "You make the call. The model shows the reasoning behind it. Then the objective changes, your VP wants volume, your CEO wants margin, a customer wants something else, and you have to decide again."),
+      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "Practice puts you into new cases. Decisions puts you through deeper, multi-step scenarios where the objective keeps moving."),
+      h("div", { style: { marginTop: "22px" } }, link("/practice", h("span", { class: "btn btn-ghost" }, "Go to Practice ", arrow())))),
     h("section", { class: "grid grid-2 reveal", style: { marginTop: "48px" } },
       decisions.map(d => link(`/decisions/${d.id}`, h("span", { class: "card clickable", style: { display: "block", height: "100%" } },
         h("span", { class: `tag verb-${d.verb.toLowerCase()}`, style: { display: "block" } }, d.verb),
