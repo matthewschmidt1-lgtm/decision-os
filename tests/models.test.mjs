@@ -91,16 +91,22 @@ test("the Brand B shift range in the decision copy pays back on the model's own 
 });
 
 
-test("decisions: each stated objective picks the preferred option, and every objective change lands on the answer its lesson names", () => {
+test("decisions: each stated objective picks the preferred option, and every change lands on the answer its lesson names", () => {
   const KEYS = ["volume", "margin", "revenue", "distribution"];
+  const worth = (o) => o.lines.reduce((a, l) => a + (l.p ?? 1) * l.value, 0);
   for (const d of decisions) {
     assert.equal(M.utilityRank(d.options, d.objective.w)[0].name, d.preferred, `${d.id}: plan objective`);
-    for (const s of d.shifts) {
-      const opts = d.options.map((o) => (s.prize?.hits.includes(o.name) ? { ...o, ...Object.fromEntries(KEYS.map((k) => [k, o[k] + (s.prize.bonus[k] || 0)])) } : o));
-      const top = M.utilityRank(opts, s.w)[0].name;
+    assert.ok(d.algorithm === "utility" ? d.shifts?.length && !d.twist : d.twist && !d.shifts, `${d.id}: one kind of round, matched to its algorithm`);
+    for (const s of d.shifts || []) {
+      const top = M.utilityRank(d.options, s.w)[0].name;
       assert.equal(top, s.best, `${d.id}: ${s.who}`);
       assert.ok(s.lesson.includes(top.split(" ")[0]), `${d.id}: ${s.who}'s lesson names ${top}`);
       assert.equal(KEYS.reduce((a, k) => a + s.w[k], 0), 100, `${d.id}: ${s.who}'s weights add to 100`);
+    }
+    if (d.twist) {
+      const top = [...d.twist.options].sort((a, b) => worth(b) - worth(a))[0].name;
+      assert.equal(top, d.twist.best, `${d.id}: twist winner`);
+      assert.ok(d.twist.lesson.includes(top.split(" ")[0]), `${d.id}: twist lesson names ${top}`);
     }
   }
 });

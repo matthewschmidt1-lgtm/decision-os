@@ -78,6 +78,37 @@ function objectiveRounds(d, onDone) {
   return host;
 }
 
+// One change per decision that isn't about weights: an offer or a push that changes the payoffs. The learner sees each
+// option's parts (and their odds), commits, then sees what each is worth. The arithmetic is the lesson.
+const twistHow = { marginal: "judge the extra dollars by everything they bring back.", voi: "compare acting now with finding out first.", ev: "multiply each chance by what it's worth, and add it up." };
+const $k = (v) => (v === 0 ? "$0" : `${v < 0 ? "−" : "+"}$${Math.abs(v) % 1 ? Math.abs(v).toFixed(1) : Math.abs(v)}K`);
+export const twistValue = (o) => o.lines.reduce((a, l) => a + (l.p ?? 1) * l.value, 0);
+function twistRound(d, practiceLink) {
+  const t = d.twist, host = h("div", { class: "obj-rounds" });
+  host.start = () => {
+    const worth = t.options.map((o) => ({ o, v: twistValue(o) })), best = worth.reduce((a, b) => (b.v > a.v ? b : a));
+    const cards = t.options.map((o) => h("button", { type: "button", class: "option twist-opt", "aria-pressed": "false", onClick: () => commit(o) },
+      h("h4", {}, o.name),
+      h("ul", { class: "twist-lines" }, o.lines.map((l) => h("li", {}, h("span", {}, l.label), h("b", {}, l.p != null ? `${Math.round(l.p * 100)}% × ${$k(l.value)}` : $k(l.value))))),
+      h("p", { class: "twist-worth" })));
+    const result = h("div", { class: "obj-result", hidden: true });
+    const commit = (o) => {
+      cards.forEach((c, i) => { c.disabled = true; c.setAttribute("aria-pressed", String(t.options[i] === o)); c.classList.toggle("preferred", t.options[i] === best.o);
+        c.querySelector(".twist-worth").textContent = `Worth about ${$k(Math.round(worth[i].v))}`; });
+      const mine = worth.find((x) => x.o === o).v, right = o === best.o, close = !right && best.v - mine <= 5;
+      result.replaceChildren(
+        says(right ? `${o.name}: the model's call too, at about ${$k(Math.round(best.v))}.` : close ? `Close call. ${best.o.name} is worth about ${$k(Math.round(best.v))} and ${o.name} about ${$k(Math.round(mine))}; both are defensible.` : `${best.o.name} is worth about ${$k(Math.round(best.v))}; ${o.name} about ${$k(Math.round(mine))}.`, right ? "good" : close ? "" : "warn"),
+        h("p", { class: "obj-lesson" }, t.lesson), practiceLink());
+      result.hidden = false;
+    };
+    host.append(h("div", { class: "card obj-round" },
+      h("p", { class: "tag" }, t.who), h("blockquote", { class: "obj-quote" }, `“${t.quote}”`),
+      h("p", { class: "obj-ask" }, t.ask),
+      h("div", { class: "options twist-opts" }, ...cards), result));
+  };
+  return host;
+}
+
 export default async function Decision({ id }) {
   const d = decisionById[id];
   if (!d) return (await import("./notfound.js")).default();
@@ -121,19 +152,26 @@ export default async function Decision({ id }) {
 
   const whySection = h("section", { class: "section reveal", hidden: true }, why);
   const track = tracks.find((t) => t.id === d.track), trackFirst = track && scenarios.find(track.filter);
+  const practiceLink = () => track ? link(`/practice/${trackFirst.id}?set=${track.id}&i=0`, h("span", { class: "link", style: { marginTop: "12px", display: "inline-flex" } }, `Now get tested on it: ${track.title} `, arrow())) : null;
   const summary = h("div", { class: "obj-summary", hidden: true });
-  const rounds = objectiveRounds(d, (picks) => {
+  // One round per decision, built on that decision's own algorithm: weighing objectives only where the lesson is weighing
+  // objectives (utility); everywhere else, something changes the payoffs and the learner works the numbers.
+  const weighted = d.algorithm === "utility" && d.shifts?.length;
+  const rounds = weighted ? objectiveRounds(d, (picks) => {
     const all = [{ who: d.objective.who, name: best.name }, ...picks], distinct = new Set(all.map((p) => p.name)).size;
     summary.replaceChildren(
       eyebrow("What changed"), h("h3", { style: { marginTop: "8px" } }, distinct > 1 ? `Same options. ${distinct} different right answers.` : "Same answer every time, for different reasons."),
       h("ol", { class: "obj-trail" }, all.map((p) => h("li", {}, h("span", {}, p.who), h("b", {}, p.name)))),
       h("p", { class: "lede", style: { marginTop: "14px" } }, "The data didn't change. The objective did. Before you choose, say what you're optimizing for, and ask again when someone changes it."),
-      track ? link(`/practice/${trackFirst.id}?set=${track.id}&i=0`, h("span", { class: "link", style: { marginTop: "12px", display: "inline-flex" } }, `Now get tested on it: ${track.title} `, arrow())) : null);
+      practiceLink());
     summary.hidden = false; summary.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
+  }) : twistRound(d, practiceLink);
   const roundsSection = h("section", { class: "section reveal", hidden: true, "aria-labelledby": "change-obj" },
-    eyebrow("Change the objective"), h("h2", { id: "change-obj", style: { marginTop: "10px" } }, "Same decision. Now the objective moves."),
-    h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "Objectives change mid-quarter. Three people are about to change this one. Each time, decide what matters now, set the weights, and commit."),
+    ...(weighted
+      ? [eyebrow("Change the objective"), h("h2", { id: "change-obj", style: { marginTop: "10px" } }, "Same decision. Now the objective moves."),
+        h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "Two people are about to change what this decision is for. Each time, turn what they said into weights, and commit.")]
+      : [eyebrow("Then something changes"), h("h2", { id: "change-obj", style: { marginTop: "10px" } }, "Same decision. New numbers."),
+        h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, `Work it the way the model does: ${twistHow[d.algorithm]}`)]),
     h("div", { style: { marginTop: "20px" } }, rounds), summary);
   // Returning to an answered decision starts fresh, like Practice: no hint of the earlier answer, and the badge and reasoning wait for a new choice.
   return h("article", {},
