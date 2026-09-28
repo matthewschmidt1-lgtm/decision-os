@@ -267,8 +267,9 @@ export default function Portfolio() {
         const f = view === "all" ? r.growthF : view === "on" ? (r.revOnF / (r.q * share) - 1) * 100 : (r.revOffF / (r.q * (1 - share)) - 1) * 100;
         const a = view === "all" ? r.growth : view === "on" ? (r.revOn / (r.q * share) - 1) * 100 : (r.revOff / (r.q * (1 - share)) - 1) * 100;
         const spend = view === "all" ? r.x : view === "on" ? r.xOn : r.xOff;
-        const dd = Math.round(a) - Math.round(f); // compare what the player sees
-        return { id: r.id, f, a, dd, spend, t: Math.abs(dd) < NOISE ? "even" : dd > 0 ? "good" : "bad" };
+        // Both charts use the whole-point figures the labels show, so a dot's distance from the line is exactly its column.
+        const fr = Math.round(f) || 0, ar = Math.round(a) || 0, dd = ar - fr;
+        return { id: r.id, f: fr, a: ar, dd, spend, t: Math.abs(dd) < NOISE ? "even" : dd > 0 ? "good" : "bad" };
       }).sort((x, y) => x.id.localeCompare(y.id));
       const signal = rows.filter((x) => x.t !== "even");
       const tip = (x) => svg("title", {}, `Brand ${x.id}: forecast ${pts(x.f)}, actual ${pts(x.a)} (${x.t === "even" ? "on plan" : `${delta(x.dd)} pts`}) · ${$k(x.spend)} trade`);
