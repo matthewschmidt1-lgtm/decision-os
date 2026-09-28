@@ -245,16 +245,39 @@ export default function Portfolio() {
     const learned = q.rows.map((r) => ({ r, dOn: r.after.on.b - r.before.on.b, dOff: r.after.off.b - r.before.off.b })).filter((x) => !x.r.finding && Math.max(Math.abs(x.dOn), Math.abs(x.dOff)) >= 0.15)
       .sort((a, b) => Math.max(Math.abs(b.dOn), Math.abs(b.dOff)) - Math.max(Math.abs(a.dOn), Math.abs(a.dOff))).slice(0, 3);
     let view = "all";
-    const tbody = h("tbody");
-    const drawTable = () => tbody.replaceChildren(...q.rows.map((r) => {
-      const f = view === "all" ? r.growthF : view === "on" ? ((r.revOnF / (r.q * S.simBrands(vi).find((b) => b.id === r.id).share)) - 1) * 100 : ((r.revOffF / (r.q * (1 - S.simBrands(vi).find((b) => b.id === r.id).share))) - 1) * 100;
-      const share = S.simBrands(vi).find((b) => b.id === r.id).share;
-      const a = view === "all" ? r.growth : view === "on" ? (r.revOn / (r.q * share) - 1) * 100 : (r.revOff / (r.q * (1 - share)) - 1) * 100;
-      const spend = view === "all" ? r.x : view === "on" ? r.xOn : r.xOff;
-      return h("tr", {}, h("td", {}, h("b", { style: { fontWeight: 500 } }, `Brand ${r.id}`)),
-        h("td", { class: "num muted" }, `${$k(spend)}${view === "all" && r.focus !== "both" ? ` · ${r.focus === "on" ? "on" : "off"}` : ""}${q.scouts.includes(r.id) ? " · scouted" : ""}`),
-        h("td", { class: "num" }, pts(f)), h("td", { class: `num ${tone(a)}` }, pts(a)), h("td", { class: `num ${tone(a - f)}`, style: { fontWeight: 600 } }, delta(a - f)));
-    }));
+    const NOISE = 2; // points of forecast error the sim's own noise can produce
+    const board = h("div", { class: "sim-dots" }), boardNote = h("p", { class: "sim-dots-sum" });
+    const drawTable = () => {
+      const rows = q.rows.map((r) => {
+        const share = S.simBrands(vi).find((b) => b.id === r.id).share;
+        const f = view === "all" ? r.growthF : view === "on" ? (r.revOnF / (r.q * share) - 1) * 100 : (r.revOffF / (r.q * (1 - share)) - 1) * 100;
+        const a = view === "all" ? r.growth : view === "on" ? (r.revOn / (r.q * share) - 1) * 100 : (r.revOff / (r.q * (1 - share)) - 1) * 100;
+        const spend = view === "all" ? r.x : view === "on" ? r.xOn : r.xOff;
+        return { r, f, a, dd: Math.round(a) - Math.round(f), spend }; // compare what the player sees
+      }).sort((x, y) => Math.abs(y.dd) - Math.abs(x.dd));
+      const vals = rows.flatMap((x) => [x.f, x.a]);
+      const lo = Math.min(0, ...vals) - 2, hi = Math.max(0, ...vals) + 2, at = (v) => `${((v - lo) / (hi - lo)) * 100}%`;
+      const signal = rows.filter((x) => Math.abs(x.dd) >= NOISE);
+      const line = (x) => {
+        const noise = Math.abs(x.dd) < NOISE, t = noise ? "even" : x.dd > 0 ? "good" : "bad";
+        const tag = [view === "all" && x.r.focus !== "both" ? (x.r.focus === "on" ? "on" : "off") : null, q.scouts.includes(x.r.id) ? "scouted" : null].filter(Boolean);
+        return h("div", { class: `sim-dot${noise ? " is-noise" : ""}`, title: `Forecast ${pts(x.f)} · Actual ${pts(x.a)}` },
+          h("div", { class: "who" }, h("b", {}, `Brand ${x.r.id}`), h("span", {}, [$k(x.spend), ...tag].join(" · "))),
+          h("div", { class: "track", "aria-hidden": "true" },
+            h("span", { class: "zero", style: { left: at(0) } }),
+            h("span", { class: `gap ${t}`, style: { left: at(Math.min(x.f, x.a)), width: `${(Math.abs(x.a - x.f) / (hi - lo)) * 100}%` } }),
+            h("span", { class: "fc", style: { left: at(x.f) } }),
+            h("span", { class: `ac ${t}`, style: { left: at(x.a) } })),
+          h("div", { class: "val" }, h("b", {}, pts(x.a)), h("span", {}, `fcst ${pts(x.f)}`)),
+          h("div", { class: `dd ${t}` }, noise ? "on plan" : `${delta(x.dd)} pts`));
+      };
+      const out = signal.map(line);
+      if (signal.length && signal.length < rows.length) out.push(h("div", { class: "sim-dots-split" }, "Within the noise"));
+      out.push(...rows.filter((x) => Math.abs(x.dd) < NOISE).map(line));
+      board.replaceChildren(...out);
+      boardNote.textContent = !signal.length ? `Every brand landed within a point of forecast. No signal here this quarter.`
+        : `${signal.length === 1 ? "One brand" : `${signal.length} brands`} missed or beat forecast by ${NOISE} points or more. ${signal.length === 1 ? "That's" : "Those are"} the signal; start there.`;
+    };
     drawTable();
     const viewBtns = [["all", "All"], ["on", "On-premise"], ["off", "Off-premise"]].map(([k, l]) => h("button", { type: "button", "aria-pressed": String(k === view), onClick: () => { view = k; viewBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k))); drawTable(); }, dataset: { k } }, l));
     const scoutsLeft = q.nextState.scoutsLeft;
@@ -277,8 +300,8 @@ export default function Portfolio() {
       says(q.insight, "warn"),
       requestLine,
       h("div", {}, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
-        h("div", { class: "table-wrap" }, h("table", { class: "table sim-table" }, h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", { class: "num" }, "Trade"), h("th", { class: "num" }, "Forecast"), h("th", { class: "num" }, "Actual"), h("th", { class: "num" }, "Δ"))), tbody)),
-        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year. Δ is points above or below the forecast.")),
+        boardNote, h("div", { class: "sim-dots-key", "aria-hidden": "true" }, h("span", { class: "k-fc" }, "Forecast"), h("span", { class: "k-ac" }, "Actual"), h("span", { class: "k-z" }, "Zero growth")), board,
+        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year, sorted by the biggest miss or beat. Misses of a point or less are normal noise.")),
       h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
     ];
     if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding)))));
