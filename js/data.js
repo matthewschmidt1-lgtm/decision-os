@@ -174,7 +174,7 @@ export const decisions = [
         lesson: "Pull forward demand wins now. It reaches the target with shoppers buying, not with Cascade's warehouse filling up. The offer turned \"wait and find out\" into \"hit a number without loading the distributor.\"" },
     ],
     algorithm: "voi",
-    plain: "The numbers say growth. The shelf says otherwise. Before acting, find out which one is lying.",
+    plain: "The numbers say growth. The shelf says otherwise. Before acting, find out which one reflects what shoppers are really buying.",
     technical: "Value of information. The model asks which single piece of evidence would most reduce uncertainty about the cause, and whether that evidence is cheaper than acting blind.",
     uncertain: "Depletion is reported monthly with a two-week lag. The apparent flatness may be partly timing.",
     changes: "A depletion report above +8% would reclassify this as genuine growth and clear the shipment plan.",
