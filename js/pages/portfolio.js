@@ -178,9 +178,12 @@ export default function Portfolio() {
         h("p", { class: "who" }, `A request from ${dil.who}`), h("p", { class: "ask" }, dil.ask),
         h("div", { class: "opts" }, ...dil.options.map((o) => {
           const used = o.scout && state.scouted[o.scout] !== undefined, none = o.scout && state.scoutsLeft <= 0;
+          const read = o.menu ? S.onRead(state, o.menu) : null;
+          const readText = read ? `On-premise: ${read.conf === "High" ? per$(read.b) : `${per$(read.lo)}–${per$(read.hi)}`} per $1 · ${read.conf} confidence` : null;
           return h("button", { type: "button", class: "opt", "aria-pressed": String(plan.answer === o.id), disabled: used || none, onClick: () => pick(o) },
-            o.label, ...(used ? [h("span", { class: "why" }, "Already scouted")] : none ? [h("span", { class: "why" }, "You've used both scouts this year")] : []));
+            o.label, ...(used ? [h("span", { class: "why" }, "Already scouted")] : none ? [h("span", { class: "why" }, "You've used both scouts this year")] : readText ? [h("span", { class: "why" }, readText)] : []));
         })),
+        ...(dil.id === "menu" ? [h("p", { class: "note" }, "The team's current read on each brand's on-premise return, updated by everything you've funded and scouted so far. A range means they aren't sure.")] : []),
         ...(st.fundNote && plan.answer ? [h("p", { class: "note" }, st.fundNote)] : []));
       return box;
     })() : null;
@@ -190,6 +193,7 @@ export default function Portfolio() {
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
       request,
       h("div", { class: "sim-bar" }, board), coach,
+      achPanel(),
       h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
         h("li", {}, h("b", {}, "The goal: "), "end the year ahead of what last year's plan would have made. Your score counts gross profit after trade."),
         h("li", {}, h("b", {}, "Trade: "), "press − to take $10K off a brand into your free trade, + to give it to another. You can't overspend, and you don't have to spend it all."),
@@ -203,6 +207,16 @@ export default function Portfolio() {
         h("button", { type: "button", class: "link", onClick: () => setPlan(S.lastYearPlan()) }, "last year's plan")), go2));
     refresh();
     return view;
+  }
+
+  // ---------- Achievements, visible all year ----------
+  function achPanel() {
+    const list = S.achievementStatus(st.plans, st.vi), got = list.filter((a) => a.got).length;
+    const ic = { got: "★", open: "☆", missed: "–" };
+    return h("details", { class: "sim-howto sim-achpanel" }, h("summary", {}, `Achievements · ${got} of ${list.length}`),
+      h("ul", { class: "sim-achlist" }, list.map((a) => h("li", { class: a.status },
+        h("span", { class: "ic", "aria-hidden": "true" }, ic[a.status]),
+        h("div", {}, h("b", {}, a.name), h("span", {}, a.status === "got" ? "Unlocked" : a.status === "missed" ? (a.note || "Missed this year") : a.hint))))));
   }
 
   // ---------- Run the quarter ----------
@@ -317,6 +331,10 @@ export default function Portfolio() {
       persist(); render({ scroll: true });
     } }, nextQ ? `Plan ${nextQ.id} ` : "See your year ", arrow());
     const requestLine = q.answer ? requestOutcome(q) : null;
+    const before = S.achievementStatus(st.plans.slice(0, q.qi), vi), after = S.achievementStatus(st.plans.slice(0, q.qi + 1), vi);
+    const changed = after.filter((a, i) => a.status !== before[i].status && a.status !== "open");
+    const achLine = changed.length ? h("ul", { class: "sim-achnews" }, changed.map((a) => h("li", { class: a.status }, h("span", { class: "ic", "aria-hidden": "true" }, a.got ? "★" : "–"),
+      h("span", {}, h("b", {}, a.got ? `Achievement unlocked: ${a.name}` : `Achievement missed: ${a.name}`), a.got ? "" : `. ${a.note || a.hint}`)))) : null;
     const blocks = [
       h("div", {}, eyebrow(`${Q.id} results`), h("h2", { style: { marginTop: "10px" } }, "What actually happened?")),
       h("div", { class: "sim-scorecard" },
@@ -330,6 +348,7 @@ export default function Portfolio() {
         tile("Off-premise revenue", $k(q.revOff), `forecast ${$k(q.revOffF)} · ${pct(d(q.revOff, q.revOffF), 1)}`, tone(d(q.revOff, q.revOffF)))),
       says(q.insight, "warn"),
       requestLine,
+      achLine,
       h("div", {}, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
         boardNote, board,
         h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point. Hover or tap a brand for its numbers.")),
@@ -395,7 +414,7 @@ export default function Portfolio() {
         tile("Revenue", $k(R.you.rev)), tile("Gross profit after trade", $k(R.you.gp)),
         tile("On-premise share of revenue", `${Math.round(onShare * 100)}%`, `last year's plan ${Math.round(onShareLY * 100)}%`), tile("Trade spent", $k(R.you.trade), `of ${$k(S.BUDGET.trade * 4)}`)),
         h("p", { class: "muted", style: { marginTop: "10px" } }, `Your score counts next year too: ${R.you.carry > 5 ? `${$k(R.you.carry)} of on-premise work is already paying into next year` : "little is building for next year"}${R.you.borrowed ? `, and the load-in took ${$k(R.you.borrowed)} from it` : ""}.`)),
-      h("div", {}, eyebrow("Achievements"), h("ul", { class: "sim-ach" }, R.achievements.map((a) => h("li", { class: a.got ? "got" : "" }, h("span", { class: "ic", "aria-hidden": "true" }, a.got ? "★" : "☆"), h("div", {}, h("b", {}, a.name), h("span", {}, a.got ? "Unlocked" : a.hint)))))),
+      h("div", {}, eyebrow("Achievements"), h("ul", { class: "sim-ach" }, R.achievements.map((a) => h("li", { class: a.got ? "got" : "" }, h("span", { class: "ic", "aria-hidden": "true" }, a.got ? "★" : "☆"), h("div", {}, h("b", {}, a.name), h("span", {}, a.got ? "Unlocked" : a.note || a.hint)))))),
       h("div", {}, eyebrow("Against the alternatives"), h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, "Value created against running last year's plan all year."),
         h("div", { class: "sim-cmp" }, cmp("You", R.score, "accent"), cmp("Reassess every quarter", R.bestScore, "good"))),
       h("div", {}, eyebrow("How you tend to decide"), h("ul", { class: "sim-tend" }, R.tendencies.map((t) => h("li", {}, h("b", {}, t.label), h("span", {}, t.text))))),

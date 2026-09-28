@@ -159,6 +159,11 @@ export function forecastQuarter(state, plan, qi) {
   const load = opt?.load || 0, fee = opt && !opt.extra ? opt.cost || 0 : 0;
   return { rows, rev: sum(rows, "rev") + load, gp: sum(rows, "gp") + load * 0.4 - fee, revOn: sum(rows, "revOn"), revOff: sum(rows, "revOff") + load };
 }
+// The team's read on a brand's on-premise response: first-dollar return, the range it could be, and how sure they are.
+export function onRead(state, id) {
+  const bel = state.beliefs[id].on, conf = confidence(bel.w);
+  return { b: bel.b, lo: Math.max(0, bel.b * (1 - SPREAD[conf])), hi: bel.b * (1 + SPREAD[conf]), conf };
+}
 const marginal = (f, x, step = 10) => (f(x + step) - f(x)) / step;
 const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
 
@@ -243,9 +248,9 @@ export function simulateQuarter(state, plan, qi) {
 function findingFor(id, v, t) {
   if (id === v.broken) return `Found it. Brand ${id}'s off-premise promotions have been loading Cascade's warehouse while shoppers bought less. Pay on depletions, not shipments, and fix the shelf gaps, and ${id} responds again. Its on-premise business is fine.`;
   if (id === v.sleeper) return `Brand ${id} is much stronger than anyone thought, on-premise: bars that add it reorder within 30 days. Off-premise it's ordinary.`;
+  if (t.off.floor >= 40) return `Brand ${id} needs about $${t.off.floor}K a quarter off-premise to hold its shelf space; don't cut below that. Beyond it, promotions mostly buy volume shoppers were buying anyway.${t.on.R >= 1 ? " Extra dollars do a little better on-premise, once the shelf is covered." : " Extra dollars don't pay back on-premise either."}`;
   if (t.on.R > t.off.R * 1.4) return `Brand ${id} works best on-premise. Off-premise, extra money buys little.`;
   if (t.off.R > t.on.R * 1.4) return `Brand ${id} is an off-premise brand. On-premise support barely moves it.`;
-  if (t.off.floor >= 40) return `Brand ${id} needs about $${t.off.floor}K a quarter off-premise to hold its shelf space. Beyond that, promotions mostly buy volume shoppers were buying anyway.`;
   return `Brand ${id} is what it looks like: modest, reliable returns in both channels.`;
 }
 
@@ -366,8 +371,6 @@ export function review(plans, vi = 0) {
   const brAt = you.state.scouted[br];
   const brBlind = qs.filter((q) => !fixedBefore(q.stateBefore, q.qi, br)).reduce((a, q) => a + q.plan.trade[br] + (q.answer?.extra?.id === br ? q.answer.extra.x : 0), 0);
   const slAt = [you.state.scouted[sl], [0, 1, 2, 3].find((i) => { const s = split(qs[i].plan, sl, truth[sl].share); return s.on >= 40 || qs[i].answer?.menu === sl; })].filter((x) => x !== undefined).sort()[0];
-  const onShift = (id) => qs.slice(1).some((q) => q.plan.focus[id] === "on");
-  const channelFit = [sl, "D"].filter(onShift).length + (qs.slice(1).some((q) => ["A", "B", "E"].some((id) => q.plan.focus[id] === "on")) ? -1 : 0);
   const gDays = qs.slice(2).reduce((a, q) => a + (q.plan.days.G || 0), 0);
 
   const flags = [];
@@ -405,20 +408,12 @@ export function review(plans, vi = 0) {
     { idea: "Forecast updating", means: "Change your expectations when the evidence changes.", slug: "bayesian-updating", status: updating === null ? "partly" : mark(updating >= 0.65, updating >= 0.4),
       why: updating === null ? "Your beliefs barely moved, because little of your plan tested them." : `When a brand's expected return moved, your next plan followed it ${Math.round(updating * 100)}% of the time.`, next: "Next time: after each quarter, move money toward the brands that beat their forecast." },
     { idea: "Time horizon", means: "Some moves pay this year; some pay next.", slug: "decision-trees", status: mark(!loadIn && Y.carry > Hb.carry, !loadIn),
-      why: loadIn ? "You took the year-end load-in: it lifted Q4 and left next year starting behind." : Y.carry > Hb.carry ? `You turned down the load-in and left ${$k(Y.carry)} of on-premise work paying into next year.` : "You turned down the load-in, but left little building for next year.", next: "Next time: count what a move does to next year, not just this quarter." },
+      why: (loadIn ? "You took the year-end load-in: it lifted Q4 and left next year starting behind." : Y.carry > Hb.carry ? `You turned down the load-in and left ${$k(Y.carry)} of on-premise work paying into next year.` : "You turned down the load-in, but left little building for next year.") + " In real life, leaders sometimes take one anyway, to hit a board number or get ahead of a price increase. The good ones call it next year's volume, out loud, and plan Q1 around it.", next: "Next time: count what a move does to next year, not just this quarter." },
     { idea: "Portfolio optimization", means: "Balance brands, channels and both budgets at once.", slug: "multi-armed-bandits", status: mark(captured >= 0.8, captured >= 0.45),
       why: `You captured ${pct(Math.max(0, Math.min(1.2, captured)))} of the value a reassess-every-quarter strategy found.`, next: "Next time: reassess every brand every quarter, not just the ones that surprised you." },
   ];
 
-  const achievements = [
-    { name: "Found the leak", got: brAt !== undefined && brAt <= 1, hint: "One brand's chain is broken. Find it before Q3." },
-    { name: "Spotted the sleeper", got: slAt !== undefined && slAt <= 1, hint: "One small brand is far better than the team thinks. Test it early." },
-    { name: "Right brand, right channel", got: channelFit >= 2, hint: "Two brands belong on-premise. Put their support there." },
-    { name: "Stopped feeding the giant", got: qs[3].plan.trade.A + qs[3].plan.trade.B <= 130, hint: "The two biggest brands take more than they return. Cut them to what holds the shelf." },
-    { name: "Knew when to stop", got: flags.length === 0, hint: "Never leave a brand funded past the point its next $10K returns $1." },
-    { name: "Won the menu slot", got: menuPick === sl || menuPick === "D", hint: "Give the one menu spot to the brand that wins on-premise." },
-    { name: "Didn't borrow from next year", got: !loadIn, hint: "A load-in makes this year look better and next year worse." },
-  ];
+  const achievements = achievementStatus(plans, vi);
 
   const tendencies = [
     scale >= 0.35 ? { label: "Favor scale", text: `You put ${pct(scale)} of your trade into the two largest brands. Last year's plan put 46% there.` }
@@ -437,3 +432,47 @@ export function review(plans, vi = 0) {
 }
 const pct = (v) => `${Math.round(v * 100)}%`;
 const $k = (v) => (Math.abs(v) >= 1000 ? `$${(v / 1000).toFixed(1)}M` : `$${Math.round(v)}K`);
+
+// ---------- Achievements ----------
+// Judged on what the player could see when they decided, so they can be earned without hindsight. Works mid-year:
+// each is "got", "open" (still possible) or "missed".
+export const ACHIEVEMENTS = [
+  { name: "Found the leak", hint: "One brand's chain is broken. Find it before Q3." },
+  { name: "Spotted the sleeper", hint: "One small brand is far better than the team thinks. Test it by Q2." },
+  { name: "Right brand, right channel", hint: "Two brands belong on-premise. Put their support there." },
+  { name: "Stopped feeding the giant", hint: "The two biggest brands take more than they return. By Q4, cut them to what holds the shelf." },
+  { name: "Knew when to stop", hint: "Stop adding to a brand once its next $10K is forecast to lose money." },
+  { name: "Won the menu slot", hint: "Give the Q3 menu spot to the brand that wins on-premise." },
+  { name: "Didn't borrow from next year", hint: "A load-in makes this year look better and next year worse." },
+];
+// A brand counts as overfunded when the card, one $10K earlier, already forecast that $10K to lose money.
+function overfunded(qs) {
+  const out = [];
+  for (const q of qs) for (const id of IDS) {
+    if ((q.plan.trade[id] || 0) < STEP.trade) continue;
+    const less = { ...q.plan, trade: { ...q.plan.trade, [id]: q.plan.trade[id] - STEP.trade } };
+    const last = forecastQuarter(q.stateBefore, less, q.qi).rows.find((r) => r.id === id).next;
+    if (last < 0.9) out.push({ q: q.qi, id, last });
+  }
+  return out;
+}
+export function achievementStatus(plans, vi = 0) {
+  const { v } = world(vi), br = v.broken, sl = v.sleeper;
+  const you = replay(plans, vi), qs = you.quarters, n = qs.length, seen = you.state.scouted;
+  const slAt = [seen[sl], qs.findIndex((q) => { const x = split(q.plan, sl, world(vi).truth[sl].share); return x.on >= 40 || q.answer?.menu === sl; })].filter((x) => x !== undefined && x >= 0).sort()[0];
+  const fit = [sl, "D"].filter((id) => qs.slice(1).some((q) => q.plan.focus[id] === "on")).length;
+  const over = overfunded(qs), menu = qs[2]?.answer?.menu, load = qs[3]?.answer?.load;
+  const giant = qs[3] ? qs[3].plan.trade.A + qs[3].plan.trade.B <= 130 : false;
+  const state = (got, missed) => (got ? "got" : missed ? "missed" : "open");
+  const status = [
+    state(seen[br] !== undefined && seen[br] <= 1, n >= 2),
+    state(slAt !== undefined && slAt <= 1, n >= 2),
+    state(fit >= 2, n >= 4),
+    state(giant, n >= 4),
+    state(n >= 4 && !over.length, over.length > 0),
+    state(menu === sl || menu === "D", n >= 3),
+    state(n >= 4 && !load, !!load),
+  ];
+  const why = [null, null, null, null, over[0] ? `In ${QUARTERS[over[0].q].id}, Brand ${over[0].id} kept getting money after its next $10K was forecast to return $${over[0].last.toFixed(2)}.` : null, null, null];
+  return ACHIEVEMENTS.map((a, i) => ({ ...a, status: status[i], got: status[i] === "got", note: status[i] === "missed" ? why[i] : null }));
+}

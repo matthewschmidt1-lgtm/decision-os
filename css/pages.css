@@ -231,3 +231,16 @@
 }
 .sim-next .gauge i.even{background:var(--muted)}
 .sim-request .note{font-size:var(--fs-small);color:var(--ink-2)}
+.sim-achpanel summary{font-weight:500}
+.sim-achlist{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.sim-achlist li{display:grid;grid-template-columns:20px 1fr;gap:8px;color:var(--muted);font-size:var(--fs-micro);line-height:1.4}
+.sim-achlist li b{display:block;font-size:var(--fs-small);font-weight:500;color:var(--ink-2)}
+.sim-achlist .ic{font-size:1rem;line-height:1.3;color:var(--muted)}
+.sim-achlist li.got .ic{color:#b8962e}.sim-achlist li.got b{color:var(--ink)}
+.sim-achlist li.missed b{text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.sim-achnews{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.sim-achnews li{display:flex;gap:10px;align-items:baseline;padding:10px 14px;border-radius:var(--r-md);font-size:var(--fs-small);border:1px solid var(--line);color:var(--ink-2)}
+.sim-achnews li.got{border-color:#d8c27a;background:#fbf6e6;color:var(--ink)}
+.sim-achnews li.got .ic{color:#b8962e}
+.sim-achnews b{font-weight:600}
+@media (max-width:720px){.sim-achlist{grid-template-columns:1fr}}

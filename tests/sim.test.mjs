@@ -65,3 +65,20 @@ test("sim: year-end review is complete and never prints undefined", () => {
   }
   assert.equal(S.review(S.habitPlans(0), 0).score, 0);
 });
+
+test("sim: every achievement can be earned by following the evidence on screen", () => {
+  for (const vi of [0, 1]) {
+    const A = S.achievementStatus(S.evidencePlans(vi), vi);
+    const missing = A.filter((a) => !a.got).map((a) => a.name);
+    assert.ok(!missing.length, `year ${vi}: missing ${missing.join(", ")}`);
+    assert.ok(S.achievementStatus(S.evidencePlans(vi).slice(0, 1), vi).every((a) => a.status !== "missed"), `year ${vi}: nothing is lost in Q1 by playing well`);
+  }
+});
+
+test("sim: scouting a shelf brand never advises pulling its shelf support", () => {
+  for (const id of ["A", "B"]) {
+    const p = S.lastYearPlan(); p.scout = [id];
+    const f = S.simulateQuarter(S.initialState(0), p, 0).rows.find((r) => r.id === id).finding;
+    assert.ok(/shelf/.test(f) && !/works best on-premise/.test(f), f);
+  }
+});
