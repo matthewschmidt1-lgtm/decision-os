@@ -259,11 +259,11 @@ export default function Portfolio() {
       const signal = rows.filter((x) => x.t !== "even");
       const tip = (x) => svg("title", {}, `Brand ${x.id}: forecast ${pts(x.f)}, actual ${pts(x.a)} (${x.t === "even" ? "on plan" : `${delta(x.dd)} pts`}) · ${$k(x.spend)} trade`);
       board.replaceChildren(scatter(rows, tip), columns(rows, tip));
-      const beat = signal.filter((x) => x.dd > 0).length, missed = signal.length - beat;
-      const who = (n) => (n === 1 ? "1 brand" : `${n} brands`);
+      const names = (list) => { const ids = list.map((x) => x.id); return `${ids.length > 1 ? "Brands" : "Brand"} ${ids.length > 1 ? `${ids.slice(0, -1).join(", ")} and ${ids.at(-1)}` : ids[0]}`; };
+      const beat = signal.filter((x) => x.dd > 0), missed = signal.filter((x) => x.dd < 0);
+      const parts = [beat.length && `${names(beat)} beat forecast`, missed.length && `${names(missed)} missed`].filter(Boolean).join("; ");
       boardNote.textContent = !signal.length ? "Every brand landed within a point of forecast. No signal here this quarter."
-        : signal.length === 1 ? `Brand ${signal[0].id} ${beat ? "beat" : "missed"} forecast by ${Math.abs(signal[0].dd)} points. That's the signal; start there.`
-        : `${[beat && `${who(beat)} beat forecast`, missed && `${beat ? missed : who(missed)} missed`].filter(Boolean).join(" and ")} by ${NOISE} points or more. Those are the signal; start there.`;
+        : `${signal.length === 1 ? "1 brand" : `${signal.length} brands`} landed outside the noise: ${parts}. That's the signal; start there.`;
     };
     const ticks = (lo, hi) => { const step = hi - lo > 24 ? 10 : 5, out = []; for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) out.push(v); return out; };
     const scatter = (rows, tip) => {
