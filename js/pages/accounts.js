@@ -2,7 +2,7 @@ import { h, link, arrow, eyebrow, segmented, says, disclose } from "../ui.js";
 import { accounts, channels, distributors } from "../data.js";
 import { rankByEV, money, pct } from "../models.js";
 import { setMeta, navigate } from "../app.js";
-import { accountsViz } from "../accountsViz.js";
+import { visitChallenge } from "../accountsViz.js";
 
 export default function Accounts({ params }) {
   setMeta({ title: "Accounts", description: "Eighty-four accounts, ranked by expected value rather than size." });
@@ -45,9 +45,17 @@ export default function Accounts({ params }) {
   };
   render();
 
+  // The ranking waits until the learner has spent their five visits (or skipped): commit first, then see the reasoning.
+  const rest = h("div", { hidden: true }, ...restSections());
+  const open = (on) => { rest.hidden = !on; sub.hidden = !on; vocab.hidden = !on; if (on) rest.querySelectorAll(".reveal").forEach((e) => e.classList.add("in")); };
+  const challenge = visitChallenge(accounts, { onDone: (done = true) => open(done) });
+  if (rest.hidden) sub.hidden = true;
+
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Accounts"), title, sub, vocab, h("p", { class: "muted", style: { marginTop: "16px", fontSize: "var(--fs-micro)" } }, "Illustrative territory. Accounts, probabilities and values are generated for practice, not pulled from your systems.")),
-    h("section", { class: "section reveal", style: { paddingTop: "36px" } }, accountsViz(accounts)),
+    h("section", { class: "section reveal", style: { paddingTop: "36px" } }, challenge),
+    rest);
+  function restSections() { return [
     h("section", { class: "section reveal", style: { display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center" } },
       segmented([{ value: "all", label: "All" }, { value: "on", label: "On-premise" }, { value: "off", label: "Off-premise" }], channel, v => { channel = v; render(); }),
       h("label", { class: "muted", style: { display: "flex", gap: "10px", alignItems: "center", fontSize: "var(--fs-small)" } }, "Sort by",
@@ -59,5 +67,5 @@ export default function Accounts({ params }) {
       h("div", { class: "layer layer-2" }, eyebrow("Algorithm underneath · Expected value"), h("p", {}, "Expected value = probability of success × economic value − cost of pursuing. Probability comes from menu timing, prior placements, distributor relationship and velocity in comparable accounts. It is an estimate, and the ranking is only as good as it is.")),
       h("div", { class: "layer layer-2" }, eyebrow("What would change it"), h("p", { class: "muted" }, "New information about a buyer moves the probability, and therefore the rank. That is Bayesian updating, and it is why a call can be worth more than a visit.")),
       link("/learn/expected-value", h("span", { class: "link" }, "Learn: expected value ", arrow()))))),
-  );
+  ]; }
 }
