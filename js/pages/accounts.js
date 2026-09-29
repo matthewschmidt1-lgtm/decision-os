@@ -48,8 +48,10 @@ export default function Accounts({ params }) {
   // The ranking waits until the learner has picked a rule (or skipped): commit first, then see the reasoning.
   const rest = h("div", { hidden: true }, ...restSections());
   const open = (on) => { rest.hidden = !on; sub.hidden = !on; vocab.hidden = !on; if (on) rest.querySelectorAll(".reveal").forEach((e) => e.classList.add("in")); };
-  const challenge = ruleChallenge(accounts, { onDone: (done = true) => open(done) });
-  if (params.get("channel") || params.get("sort") || params.get("roi")) open(true); // links to a filtered list go straight to it
+  // Links to a filtered list go straight to it, with the question folded away.
+  const deep = !!(params.get("channel") || params.get("sort") || params.get("roi"));
+  const challenge = ruleChallenge(accounts, { onDone: (done = true) => open(done), skipped: deep });
+  if (deep) open(true);
   if (rest.hidden) sub.hidden = true;
 
   return h("div", {},
