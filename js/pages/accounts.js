@@ -2,7 +2,7 @@ import { h, link, arrow, eyebrow, segmented, says, disclose } from "../ui.js";
 import { accounts, channels, distributors } from "../data.js";
 import { rankByEV, money, pct } from "../models.js";
 import { setMeta, navigate } from "../app.js";
-import { visitChallenge } from "../accountsViz.js";
+import { ruleChallenge } from "../accountsViz.js";
 
 export default function Accounts({ params }) {
   setMeta({ title: "Accounts", description: "Eighty-four accounts, ranked by expected value rather than size." });
@@ -45,10 +45,11 @@ export default function Accounts({ params }) {
   };
   render();
 
-  // The ranking waits until the learner has spent their five visits (or skipped): commit first, then see the reasoning.
+  // The ranking waits until the learner has picked a rule (or skipped): commit first, then see the reasoning.
   const rest = h("div", { hidden: true }, ...restSections());
   const open = (on) => { rest.hidden = !on; sub.hidden = !on; vocab.hidden = !on; if (on) rest.querySelectorAll(".reveal").forEach((e) => e.classList.add("in")); };
-  const challenge = visitChallenge(accounts, { onDone: (done = true) => open(done) });
+  const challenge = ruleChallenge(accounts, { onDone: (done = true) => open(done) });
+  if (params.get("channel") || params.get("sort") || params.get("roi")) open(true); // links to a filtered list go straight to it
   if (rest.hidden) sub.hidden = true;
 
   return h("div", {},

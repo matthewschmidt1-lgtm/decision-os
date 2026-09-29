@@ -1,6 +1,6 @@
-// Accounts intro. First the learner spends five visits on a shortlist, seeing only the raw numbers (commit first). Then
-// 84 scattered dots (the raw data) come together, first as the two inputs of expected value, then as one ranked line
-// with the summary underneath, the learner's five picks ringed throughout.
+// Accounts intro. First the learner picks the rule that should decide where their visits go (commit first). Then 84
+// scattered dots (the raw data) come together, first as the two inputs of expected value, then as one ranked line with
+// the summary underneath, the chosen rule's visits ringed throughout.
 import { h, s } from "./ui.js";
 import { rankByEV, money } from "./models.js";
 import { navigate } from "./app.js";
@@ -91,86 +91,91 @@ export function accountsViz(accounts, { mine = [] } = {}) {
 
   const fig = h("figure", { class: "acct-viz" },
     h("div", { class: "acct-viz-head" }, h("div", { class: "acct-viz-steps", role: "group", "aria-label": "Steps" }, ...stepBtns), replay),
-    caption, svg, ...(mine.length ? [h("p", { class: "acct-viz-key" }, h("span", { class: "ring", "aria-hidden": "true" }), "Your five visits")] : []), tiles);
+    caption, svg, ...(mine.length ? [h("p", { class: "acct-viz-key" }, h("span", { class: "ring", "aria-hidden": "true" }), "Where your rule sends your visits")] : []), tiles);
   fig.play = play; fig.show = (i) => { stop(); show(i); };
   return fig;
 }
 
 function fmt(v, unit = "%") { const r = Math.round(v * 10) / 10; return `${r > 0 ? "+" : r < 0 ? "−" : ""}${Math.abs(r)}${unit}`; }
 
-// ---------- Five visits: commit before the reveal ----------
-// A shortlist of 12 built to test the usual instincts: big accounts you probably won't win, fast movers that don't pay,
-// and small accounts you probably will. Shown the way reps usually see them, biggest first, without expected value.
-export function shortlist(accounts) {
-  const rows = rankByEV(accounts), pick = new Map(), add = (list, k) => list.slice(0, k).forEach((r) => pick.size < 12 && pick.set(r.id, r));
-  add(rows.filter((r) => r.value < 36000), 3);                                                      // small, likely: the algorithm's picks
-  add(rows.slice(0, 6), 2);                                                                         // top of the list
-  add([...rows].filter((r) => r.probability < 0.4).sort((a, b) => b.value - a.value), 3);            // big, unlikely
-  add([...rows].filter((r) => r.ev < 8000).sort((a, b) => b.velocity - a.velocity), 2);              // fast movers that don't pay
-  add([...rows].filter((r) => r.ev < 0).sort((a, b) => b.value - a.value), 1);                       // big and not worth it
-  add(rows.slice(20, 40), 12);                                                                       // fill from the middle
-  return [...pick.values()].sort((a, b) => b.value - a.value);
-}
-export function scoreVisits(list, mineIds) {
-  const best = [...list].sort((a, b) => b.ev - a.ev).slice(0, 5), mine = list.filter((r) => mineIds.includes(r.id));
-  const tot = (xs) => xs.reduce((a, r) => a + r.ev, 0), mean = (xs, k) => xs.reduce((a, r) => a + r[k], 0) / xs.length;
-  return { best, mine, you: tot(mine), them: tot(best), same: mine.filter((r) => best.includes(r)).length,
-    avg: { mineV: mean(mine, "value"), bestV: mean(best, "value"), mineP: mean(mine, "probability"), bestP: mean(best, "probability"), mineVel: mean(mine, "velocity"), bestVel: mean(best, "velocity") },
-    neg: mine.filter((r) => r.ev < 0) };
+// ---------- Pick the rule: commit before the reveal ----------
+// The learner doesn't pick accounts; they pick the rule that decides where 20 visits go. Every rule is scored the same
+// way, by the expected value of the 20 accounts it would send you to, so the lesson is choosing the decision rule.
+export const VISITS = 20;
+export const RULES = [
+  { id: "value", name: "Biggest first", how: "Rank by how much the account is worth.", sort: (a, b) => b.value - a.value,
+    why: "It sends you to big accounts that mostly won't say yes. Size is only half of what a visit is worth." },
+  { id: "chance", name: "Most likely first", how: "Rank by the chance they say yes.", sort: (a, b) => b.probability - a.probability,
+    why: "Likely wins, but many are small. A sure $8K is worth less than a probable $40K." },
+  { id: "velocity", name: "Fastest growing first", how: "Rank by velocity, how fast it's selling now.", sort: (a, b) => b.velocity - a.velocity,
+    why: "Momentum isn't a yes. Velocity says nothing about the odds, the prize or the cost of winning it." },
+  { id: "pv", name: "Chance × value", how: "Multiply the chance by what it's worth.", sort: (a, b) => b.probability * b.value - a.probability * a.value,
+    why: "Close. It weighs odds against size, but ignores what it costs to win the account, so a few expensive pursuits sneak in." },
+  { id: "ev", name: "Chance × value − cost", how: "Multiply, then subtract the cost of trying.", sort: (a, b) => b.ev - a.ev,
+    why: "This is expected value. It's the only rule that weighs all three, so no other set of 20 visits is worth more." },
+];
+export function scoreRules(accounts) {
+  const rows = rankByEV(accounts);
+  return RULES.map((r) => { const top = [...rows].sort(r.sort).slice(0, VISITS); return { ...r, top, ev: top.reduce((a, x) => a + x.ev, 0), neg: top.filter((x) => x.ev < 0).length, ids: top.map((x) => x.id) }; });
 }
 
-const KEY = "decision-os:visits:v1";
-const loadPicks = () => { try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) && v.length === 5 ? v : null; } catch { return null; } };
-const savePicks = (v) => { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch {} };
+const KEY = "decision-os:rule:v1";
+const loadRule = () => { try { const v = localStorage.getItem(KEY); return RULES.some((r) => r.id === v) ? v : null; } catch { return null; } };
+const saveRule = (v) => { try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch {} };
 
-export function visitChallenge(accounts, { onDone } = {}) {
-  const list = shortlist(accounts), host = h("div", { class: "visits" });
-  const pct = (p) => `${Math.round(p * 100)}%`, signed = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(Math.round(v))}%`;
+export function ruleChallenge(accounts, { onDone } = {}) {
+  const scored = scoreRules(accounts), best = scored.find((r) => r.id === "ev"), host = h("div", { class: "visits" });
+  const smooth = () => (matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+
+  // The animation starts when it scrolls into view, so nobody misses it below the fold.
+  const viz = (mine) => {
+    const v = accountsViz(accounts, { mine });
+    const start = () => v.play();
+    if ("IntersectionObserver" in window) { const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); start(); } }, { threshold: 0.35 }); requestAnimationFrame(() => io.observe(v)); setTimeout(() => { if (!v.querySelector("svg").dataset.step) v.show(0); }, 300); }
+    else setTimeout(start, 300);
+    return v;
+  };
 
   const ask = () => {
-    const chosen = new Set();
-    const count = h("span", { class: "visits-count" }), go = h("button", { type: "button", class: "btn", disabled: true, onClick: () => { savePicks([...chosen]); reveal([...chosen], true); } }, "Rank my five ");
-    const sync = () => { count.textContent = `${chosen.size} of 5 visits planned`; go.disabled = chosen.size !== 5; rowEls.forEach((b) => { const on = chosen.has(b.dataset.id); b.setAttribute("aria-pressed", String(on)); b.disabled = !on && chosen.size >= 5; }); };
-    const rowEls = list.map((r) => h("button", { type: "button", class: "visit", dataset: { id: r.id }, onClick: () => { chosen.has(r.id) ? chosen.delete(r.id) : chosen.add(r.id); sync(); } },
-      h("span", { class: "tick", "aria-hidden": "true" }),
-      h("span", { class: "who" }, h("b", {}, r.name), h("span", {}, r.channel === "on" ? "On-premise" : "Off-premise")),
-      h("span", { class: "num" }, money(r.value), h("small", {}, "if won")),
-      h("span", { class: "num" }, pct(r.probability), h("small", {}, "chance")),
-      h("span", { class: "num" }, money(r.cost), h("small", {}, "to pursue")),
-      h("span", { class: `num ${r.velocity > 0 ? "good" : r.velocity < 0 ? "bad" : ""}` }, signed(r.velocity), h("small", {}, "velocity"))));
-    sync();
-    host.replaceChildren(h("div", { class: "card visits-ask" },
+    const opts = ["value", "pv", "chance", "ev", "velocity"].map((k) => RULES.find((r) => r.id === k)).map((r) => h("button", { type: "button", class: "rule", onClick: () => { saveRule(r.id); reveal(r.id, true); } },
+      h("b", {}, r.name), h("span", {}, r.how)));
+    const card = h("div", { class: "card visits-ask" },
       h("p", { class: "eyebrow" }, "Before the answer"),
-      h("h2", { class: "visits-q" }, "You have five visits this week. Which accounts get them?"),
-      h("p", { class: "muted" }, "Twelve accounts on your list, biggest first, the way most reports show them. Pick five. Then see how the algorithm ranks them."),
-      h("div", { class: "visits-list", role: "group", "aria-label": "Accounts to visit" }, ...rowEls),
-      h("div", { class: "visits-go" }, count, go, h("button", { type: "button", class: "link", onClick: () => { onDone?.(); host.replaceChildren(accountsVizWith([])); } }, "Skip to the ranking"))));
+      h("h2", { class: "visits-q", tabindex: "-1" }, `You have ${VISITS} visits this quarter and 84 accounts. Which rule should decide where they go?`),
+      h("p", { class: "muted" }, "Pick the rule you'd trust. We'll run all five on the whole territory and compare what each set of visits is worth."),
+      h("dl", { class: "rule-terms" },
+        h("dt", {}, "Chance"), h("dd", {}, "that the account says yes to a placement this quarter"),
+        h("dt", {}, "Value"), h("dd", {}, "a year of gross profit if they do"),
+        h("dt", {}, "Cost"), h("dd", {}, "the visits and follow-up it takes to win them")),
+      h("div", { class: "rules", role: "group", "aria-label": "Rules" }, ...opts),
+      h("div", { class: "visits-go" }, h("button", { type: "button", class: "link", onClick: () => { onDone?.(true); host.replaceChildren(h("p", { class: "muted" }, h("button", { type: "button", class: "link", onClick: () => { onDone?.(false); ask(); } }, "Or pick a rule and see how it scores")), viz([])); } }, "Skip to the ranking")));
+    host.replaceChildren(card);
+    return card;
   };
 
-  const accountsVizWith = (mine, animate = true) => { const v = accountsViz(accounts, { mine }); requestAnimationFrame(() => (animate ? v.play() : v.show(2))); setTimeout(() => { if (!v.querySelector("svg").dataset.step) animate ? v.play() : v.show(2); }, 300); return v; };
-
-  const reveal = (ids, animate) => {
-    const sc = scoreVisits(list, ids), gap = sc.them - sc.you;
-    const why = [];
-    if (sc.avg.mineV > sc.avg.bestV * 1.1 && sc.avg.mineP < sc.avg.bestP - 0.08) why.push(`You leaned toward size: your picks averaged ${money(sc.avg.mineV)} if won at a ${pct(sc.avg.mineP)} chance. The algorithm's averaged ${money(sc.avg.bestV)} at ${pct(sc.avg.bestP)}.`);
-    if (sc.avg.mineVel > sc.avg.bestVel + 5) why.push(`You followed velocity: your picks averaged ${signed(sc.avg.mineVel)}. Fast-moving accounts aren't always the ones likely to say yes.`);
-    if (sc.neg.length) why.push(`${sc.neg.map((r) => r.name).join(" and ")} ${sc.neg.length === 1 ? "costs" : "cost"} more to pursue than ${sc.neg.length === 1 ? "it's" : "they're"} likely to return.`);
-    if (!why.length && gap > 0) why.push("Close. The difference is in how much the chance of winning should count against the size of the prize.");
-    const col = (title, xs, cls) => h("div", { class: `visits-col ${cls}` }, h("p", { class: "eyebrow" }, title),
-      h("ol", {}, xs.map((r) => h("li", { class: sc.best.includes(r) && sc.mine.includes(r) ? "both" : "" }, h("span", {}, r.name), h("b", { class: r.ev < 0 ? "bad" : "" }, money(r.ev))))),
-      h("p", { class: "visits-total" }, `Expected value ${money(title === "Your five" ? sc.you : sc.them)}`));
+  const reveal = (id, fresh) => {
+    const mine = scored.find((r) => r.id === id), gap = best.ev - mine.ev, overlap = mine.ids.filter((x) => best.ids.includes(x)).length;
+    const max = Math.max(...scored.map((r) => r.ev));
+    const bars = h("div", { class: "rule-bars" }, ...[...scored].sort((a, b) => b.ev - a.ev).map((r) => h("div", { class: `rule-bar${r.id === id ? " mine" : ""}${r.id === "ev" ? " best" : ""}` },
+      h("span", { class: "name" }, r.name, r.id === id ? h("small", {}, "your rule") : null),
+      h("span", { class: "track" }, h("i", { style: { width: `${Math.max(2, (r.ev / max) * 100)}%` } })),
+      h("b", {}, money(r.ev)))));
+    const head = gap <= 0 ? `Right rule. ${money(mine.ev)} of expected value from ${VISITS} visits.` : `${mine.name}: ${money(mine.ev)}. Expected value: ${money(best.ev)}.`;
+    const detail = gap <= 0 ? mine.why : `${mine.why} ${overlap} of its ${VISITS} visits are the same as expected value's; the other ${VISITS - overlap} are worth ${money(gap)} less${mine.neg ? `, and ${mine.neg} of them cost more than they return` : ""}.`;
     const result = h("div", { class: "card visits-result" },
-      h("p", { class: "eyebrow" }, "Your five visits"),
-      h("h2", { class: "visits-q" }, gap <= 0 ? `Your five match the algorithm's: ${money(sc.you)} of expected value.` : `Your five are worth ${money(sc.you)}. The algorithm's five are worth ${money(sc.them)}.`),
-      h("p", { class: "lede" }, gap <= 0 ? "You weighed the chance of winning against the size of the prize, which is exactly what expected value does." : `You picked ${sc.same} of the same accounts. ${why.join(" ")}`),
-      h("div", { class: "grid grid-2 visits-cols" }, col("Your five", sc.mine.sort((a, b) => b.ev - a.ev), "mine"), col("The algorithm's five", sc.best, "best")),
-      h("div", { class: "visits-go" }, h("span", { class: "muted" }, "Below: all 84 accounts, with your five ringed."), h("button", { type: "button", class: "link", onClick: () => { savePicks(null); onDone?.(false); ask(); } }, "Try again")));
-    host.replaceChildren(result, accountsVizWith(ids, animate));
+      h("p", { class: "eyebrow" }, "Your rule"),
+      h("h2", { class: "visits-q", tabindex: "-1" }, head),
+      h("p", { class: "lede" }, detail),
+      bars,
+      h("p", { class: "rule-rule" }, h("b", {}, "Next time you plan visits: "), "for each account, chance × value − cost. Visit from the top down, and stop when it turns negative."),
+      h("div", { class: "visits-go" }, h("span", { class: "muted" }, `Below: all 84 accounts, with your rule's ${VISITS} visits ringed.`),
+        h("button", { type: "button", class: "link", onClick: () => { saveRule(null); onDone?.(false); const c = ask(); c.scrollIntoView({ behavior: smooth(), block: "start" }); c.querySelector(".visits-q").focus({ preventScroll: true }); } }, "Try another rule")));
+    host.replaceChildren(result, viz(mine.ids));
     onDone?.(true);
-    if (animate) result.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (fresh) { result.scrollIntoView({ behavior: smooth(), block: "start" }); result.querySelector(".visits-q").focus({ preventScroll: true }); }
   };
 
-  const saved = loadPicks();
-  saved && saved.every((id) => list.some((r) => r.id === id)) ? reveal(saved, false) : ask();
+  const saved = loadRule();
+  saved ? reveal(saved, false) : ask();
   return host;
 }
