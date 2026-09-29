@@ -2,6 +2,7 @@ import { h, link, arrow, eyebrow, segmented, says, disclose } from "../ui.js";
 import { accounts, channels, distributors } from "../data.js";
 import { rankByEV, money, pct } from "../models.js";
 import { setMeta, navigate } from "../app.js";
+import { accountsViz } from "../accountsViz.js";
 
 export default function Accounts({ params }) {
   setMeta({ title: "Accounts", description: "Eighty-four accounts, ranked by expected value rather than size." });
@@ -46,6 +47,7 @@ export default function Accounts({ params }) {
 
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Accounts"), title, sub, vocab, h("p", { class: "muted", style: { marginTop: "16px", fontSize: "var(--fs-micro)" } }, "Illustrative territory. Accounts, probabilities and values are generated for practice, not pulled from your systems.")),
+    h("section", { class: "section reveal", style: { paddingTop: "36px" } }, accountsViz(accounts)),
     h("section", { class: "section reveal", style: { display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center" } },
       segmented([{ value: "all", label: "All" }, { value: "on", label: "On-premise" }, { value: "off", label: "Off-premise" }], channel, v => { channel = v; render(); }),
       h("label", { class: "muted", style: { display: "flex", gap: "10px", alignItems: "center", fontSize: "var(--fs-small)" } }, "Sort by",
