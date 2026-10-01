@@ -1,4 +1,5 @@
-import { h, link, arrow, eyebrow, bar, disclose } from "../ui.js";
+import { h, link, arrow, eyebrow, bar } from "../ui.js";
+import { gatedDisclose } from "../gate.js";
 import { scenarios, skills, tracks, challengeIds, qualityScore, levels } from "../scenarios.js";
 import { allResults } from "../store.js";
 import { setMeta, navigate } from "../app.js";
@@ -61,7 +62,7 @@ export default function Practice() {
         p.done ? setCard("5-minute challenge", "One case from each skill. The fastest way to see where you stand.", challengeList, `/practice/${challengeIds[0]}?set=challenge&i=0`) : null,
         ...tracks.map(t => { const list = scenarios.filter(t.filter); const first = nextUnplayed(list) || list[0]; return setCard(t.title, t.blurb, list, `/practice/${first.id}?set=${t.id}&i=${list.indexOf(first)}`); }))),
 
-    h("section", { class: "section reveal" }, disclose(`All ${p.total} scenarios`, h("div", { class: "table-wrap" }, h("table", { class: "table" }, h("thead", {}, h("tr", {}, h("th", {}, "Customer"), h("th", {}, "Situation"), h("th", {}, "Level"), h("th", {}, "Skill"), h("th", { class: "num" }, "Result"))),
+    h("section", { class: "section reveal" }, gatedDisclose(`All ${p.total} scenarios`, () => h("div", { class: "table-wrap" }, h("table", { class: "table" }, h("thead", {}, h("tr", {}, h("th", {}, "Customer"), h("th", {}, "Situation"), h("th", {}, "Level"), h("th", {}, "Skill"), h("th", { class: "num" }, "Result"))),
         h("tbody", {}, [...scenarios].sort((a, b) => levels.indexOf(a.level) - levels.indexOf(b.level)).map(s => { const r = p.results[s.id]; return h("tr", { class: "clickable", tabindex: "0", onClick: () => navigate(`/practice/${s.id}`), onKeydown: e => { if (e.key === "Enter") navigate(`/practice/${s.id}`); } },
           h("td", {}, h("b", { style: { fontWeight: 500 } }, s.customer)), h("td", { class: "muted" }, s.situation.split(". ")[0] + "."), h("td", {}, h("span", { class: "chip" }, s.level)), h("td", { class: "muted" }, skills[s.skill].name),
           h("td", { class: "num" }, r ? h("span", { class: `chip ${r.quality === "best" ? "chip-good" : r.quality === "good" ? "" : "chip-warn"}` }, r.quality === "best" ? "Strong" : r.quality === "good" ? "Reasonable" : "Revisit") : h("span", { class: "muted" }, "—"))); })))))),

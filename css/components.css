@@ -272,3 +272,15 @@ tr.brand-row:hover td{background:var(--bg-elev)}
 tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .chart .dot{transition:cx .4s cubic-bezier(.22,1,.36,1),cy .4s cubic-bezier(.22,1,.36,1)}
 
+
+/* Password gate (native <dialog>) */
+.gate{width:min(380px,calc(100% - 2 * var(--gutter)));padding:clamp(24px,5vw,32px);border:0;border-radius:var(--r-lg);background:var(--bg-elev);color:var(--ink);box-shadow:var(--shadow-2);animation:pop .28s var(--ease) both}
+.gate::backdrop{background:rgba(23,23,23,.32);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.gate-form{display:grid;gap:14px}
+.gate-label{font-size:var(--fs-h3);font-weight:600;letter-spacing:-0.01em;line-height:1.3}
+.gate-input{width:100%;padding:14px 16px;border:1px solid var(--line-strong);border-radius:var(--r-md);background:var(--bg);font-size:var(--fs-body);letter-spacing:.2em}
+.gate-input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate-error{min-height:1.4em;margin:0;font-size:var(--fs-small);color:var(--bad)}
+.gate-actions{display:flex;gap:10px;justify-content:flex-end}
+.gate-actions .btn{padding:12px 20px;justify-content:center}
+@media (max-width:420px){.gate-actions .btn{flex:1}}

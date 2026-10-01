@@ -1,6 +1,7 @@
 import { observeReveals } from "./ui.js";
 import { initPalette } from "./palette.js";
 import { closeModal } from "./modal.js";
+import { isGated, requestAccess } from "./gate.js";
 
 const routes = [
   { path: /^\/$/, load: () => import("./pages/home.js") },
@@ -20,9 +21,11 @@ const routes = [
 const main = document.getElementById("main");
 const topbar = document.getElementById("topbar");
 
-export function navigate(href, { replace = false } = {}) {
+export async function navigate(href, { replace = false, opener } = {}) {
   const url = new URL(href, location.origin);
   if (url.origin !== location.origin) { location.href = href; return; }
+  // Ask before leaving the current page; cancelling leaves the visitor where they were.
+  if (isGated(url.pathname) && !(await requestAccess(opener))) return;
   history[replace ? "replaceState" : "pushState"]({}, "", url.pathname + url.search + url.hash);
   render();
 }
@@ -46,6 +49,8 @@ let firstRender = true;
 async function render() {
   closeModal();
   const { pathname, hash } = location;
+  // Direct URLs and back/forward land here without going through navigate(); cancelling sends them Home.
+  if (isGated(pathname) && !(await requestAccess())) { history.replaceState({}, "", "/"); return render(); }
   const params = new URLSearchParams(location.search);
   const route = routes.find(r => r.path.test(pathname));
   const match = route ? pathname.match(route.path) : null;
@@ -77,7 +82,7 @@ document.addEventListener("click", (e) => {
   const href = a.getAttribute("href");
   if (!href || href.startsWith("http") || href.startsWith("mailto")) return;
   e.preventDefault();
-  navigate(href);
+  navigate(href, { opener: a });
 });
 addEventListener("popstate", render);
 addEventListener("scroll", () => topbar.classList.toggle("scrolled", scrollY > 8), { passive: true });
