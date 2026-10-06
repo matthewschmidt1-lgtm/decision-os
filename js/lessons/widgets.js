@@ -221,16 +221,12 @@ export function voiWidget() {
     line.set(`You're leaning toward "${leaning}", worth about ${k(r.base.ev)} if you act now${r.now.id !== leaning ? ` (the model's best move without checking is "${r.now.id}" at ${k(r.now.ev)})` : ""}. A check is only worth something if a result would move you off it.${stuck.length ? ` ${stuck.length === 1 ? `"${stuck[0].name}" couldn't` : `${stuck.length} of the ${r.diagnostics.length} checks couldn't`} change your move by enough to pay for ${stuck.length === 1 ? "itself" : "themselves"}.` : ""}${useful.length ? ` The most valuable check is "${top.name}" ($${top.net}K net).${switchText}` : " No check is worth its cost: act."}`, stuck.length ? "warn" : "");
   };
   const causeNames = (ids) => ids.map(id => causes.find(c => c.id === id).name.toLowerCase()).join(" or ");
-  const sl = slider({ label: "How likely is distributor inventory the cause?", min: 5, max: 70, step: 5, value: 30, format: v => `${v}%`, onInput: v => {
-    const inv = causes.find(c => c.id === "inventory"); const others = causes.filter(c => c !== inv); const rest = others.reduce((a, c) => a + c.p, 0);
-    inv.p = v / 100; others.forEach(c => c.p = (c.p / rest) * (1 - inv.p)); render();
-  } });
   const lean = h("div", { class: "stack", style: { "--gap": "8px" } },
     h("p", { class: "control-head" }, h("span", {}, "Which way are you leaning?")),
     Object.assign(segmented([{ value: "", label: "Not decided" }, ...Object.keys(actions).map(a => ({ value: a, label: a }))], "", v => { leaning = v || null; render(); }), { className: "seg seg-grid" }),
     h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Commit first, then look. A check that can't change your decision isn't worth running, however interesting the answer."));
   render();
-  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What the model thinks is causing it"), beliefs, sl, lean), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What should you learn before you decide?"), list, line));
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What the model thinks is causing it"), beliefs, lean), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What should you learn before you decide?"), list, line));
 }
 
 /* Economic fingerprint: sales decomposed */
