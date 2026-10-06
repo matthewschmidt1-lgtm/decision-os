@@ -110,3 +110,19 @@ test("decisions: each stated objective picks the preferred option, and every cha
     }
   }
 });
+
+test("valueOfInformation: once you've settled on an action, only checks that could move you off it have value", () => {
+  const causes = [{ id: "inventory", p: 0.3 }, { id: "pricing", p: 0.15 }, { id: "execution", p: 0.2 }, { id: "demand", p: 0.1 }, { id: "distribution", p: 0.15 }, { id: "promotion", p: 0.1 }];
+  const actions = { Keep: { pricing: 2, distribution: 3, demand: 1, execution: 2, promotion: 3, inventory: -12 }, Pause: { inventory: 6 }, Fix: { pricing: -2, distribution: 1, demand: -3, execution: 9, inventory: -6 } };
+  const checks = [{ name: "depletion", resolves: ["inventory"], cost: 0.5 }, { name: "store", resolves: ["pricing", "execution"], cost: 1.5 }, { name: "panel", resolves: ["demand"], cost: 3 }];
+  const open = M.valueOfInformation(causes, actions, checks), pause = M.valueOfInformation(causes, actions, checks, "Pause"), keep = M.valueOfInformation(causes, actions, checks, "Keep");
+  assert.equal(open.base.id, open.now.id, "with no lean, the baseline is the best move now");
+  const panel = pause.diagnostics.find(d => d.name === "panel");
+  assert.ok(panel.value < 0.5 && panel.net < 0, "leaning Pause, the consumer panel is barely worth anything and far from worth its cost");
+  const settled = M.valueOfInformation([{ id: "a", p: 0.5 }, { id: "b", p: 0.5 }], { X: { a: 7, b: 5 }, Y: { a: 6, b: 0 } }, [{ name: "learn a", resolves: ["a"], cost: 0.1 }], "X").diagnostics[0];
+  assert.ok(!settled.changes && settled.value === 0, "a check whose every result leaves you on the same action is worth exactly nothing");
+  const dep = pause.diagnostics.find(d => d.name === "depletion");
+  assert.ok(dep.changes && dep.value > 0 && dep.moves.out === "Keep", "but clearing inventory would release you to ship, so the depletion report still has value");
+  assert.equal(keep.diagnostics[0].name, "depletion", "leaning Keep, the depletion report is the check that could save you");
+  assert.ok(keep.diagnostics[0].value > dep.value, "and it's worth more to someone about to ship than to someone about to pause");
+});

@@ -138,6 +138,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac
 .seg{display:inline-flex;background:var(--bg-sunk);border-radius:var(--r-pill);padding:3px;gap:2px;flex-wrap:wrap}
 .seg button{padding:8px 14px;border-radius:var(--r-pill);font-size:var(--fs-small);color:var(--muted);transition:background var(--dur-fast),color var(--dur-fast)}
 .seg button[aria-pressed="true"]{background:var(--bg-elev);color:var(--ink);box-shadow:var(--shadow-1)}
+.seg.seg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:var(--r-md)}
+.seg.seg-grid button{border-radius:var(--r-md);text-align:left}
 
 /* Callout ("the interface says") */
 .says{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:var(--r-md);background:var(--accent-soft);color:var(--ink);font-size:var(--fs-small);line-height:1.5}

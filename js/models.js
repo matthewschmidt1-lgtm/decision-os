@@ -108,24 +108,30 @@ export function evaluateTree(node, payoffs) {
 // causes: [{id, name, p}] beliefs about why an account underperforms.
 // actions: {actionId: {causeId: payoff}} payoff of each action under each cause.
 // Returns EV of acting now, EV with perfect information, and per-diagnostic value.
-export function valueOfInformation(causes, actions, diagnostics) {
+// `leaning`: the action the decision-maker has already settled on. Then each diagnostic is valued by how much a result
+// could improve on that action; a check whose every result leaves them on the same action is worth nothing.
+export function valueOfInformation(causes, actions, diagnostics, leaning = null) {
   const evAction = (probs) => Object.entries(actions).map(([id, pay]) =>
     ({ id, ev: causes.reduce((a, c) => a + (probs[c.id] ?? c.p) * (pay[c.id] ?? 0), 0) }));
-  const now = evAction({}).sort((a, b) => b.ev - a.ev)[0];
+  const best = (probs) => evAction(probs).sort((a, b) => b.ev - a.ev)[0];
+  const now = best({});
+  const base = leaning && actions[leaning] ? evAction({}).find(a => a.id === leaning) : now;
   // EVPI: learn the true cause, then choose the best action for it
-  const evpi = causes.reduce((a, c) => a + c.p * Math.max(...Object.values(actions).map(pay => pay[c.id] ?? 0)), 0) - now.ev;
+  const evpi = causes.reduce((a, c) => a + c.p * Math.max(...Object.values(actions).map(pay => pay[c.id] ?? 0)), 0) - base.ev;
   // Each diagnostic resolves a subset of causes (tells you if the cause is in the set or not)
   const diag = diagnostics.map(d => {
     const inSet = causes.filter(c => d.resolves.includes(c.id));
     const pIn = inSet.reduce((a, c) => a + c.p, 0);
     const cond = (subset, pSub) => Object.fromEntries(causes.map(c => [c.id, subset.includes(c) ? c.p / pSub : 0]));
-    const evIn = pIn > 0 ? evAction(cond(inSet, pIn)).sort((a, b) => b.ev - a.ev)[0].ev : 0;
+    const bIn = pIn > 0 ? best(cond(inSet, pIn)) : null;
     const out = causes.filter(c => !inSet.includes(c)); const pOut = 1 - pIn;
-    const evOut = pOut > 0 ? evAction(cond(out, pOut)).sort((a, b) => b.ev - a.ev)[0].ev : 0;
-    const value = pIn * evIn + pOut * evOut - now.ev;
-    return { ...d, value: round(Math.max(0, value), 1), net: round(Math.max(0, value) - d.cost, 1) };
+    const bOut = pOut > 0 ? best(cond(out, pOut)) : null;
+    const value = pIn * (bIn?.ev ?? 0) + pOut * (bOut?.ev ?? 0) - base.ev;
+    const moves = { in: bIn?.id ?? null, out: bOut?.id ?? null };
+    const changes = [moves.in, moves.out].some(id => id && id !== base.id);
+    return { ...d, value: round(Math.max(0, value), 1), net: round(Math.max(0, value) - d.cost, 1), moves, changes };
   }).sort((a, b) => b.net - a.net);
-  return { now, evpi: round(evpi, 1), diagnostics: diag };
+  return { now, base, evpi: round(Math.max(0, evpi), 1), diagnostics: diag };
 }
 
 /* ---------- 08 Economic fingerprint ---------- */
