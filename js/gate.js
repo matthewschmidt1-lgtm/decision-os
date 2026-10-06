@@ -1,11 +1,11 @@
 import { h, disclose } from "./ui.js";
-// Password gate for /accounts, /accounts/:id and the Practice "All scenarios" list. This is a soft gate: the site is static, so the check runs in the
+// Password gate for /accounts, /accounts/:id, /learn, /learn/:slug and the Practice "All scenarios" list. This is a soft gate: the site is static, so the check runs in the
 // browser and the password ships with the code. It keeps casual visitors out; it is not real security.
 const PASSWORD = "1530";
 const KEY = "decision-os:unlocked";
 let pending = null;
 
-export const isGated = (pathname) => /^\/accounts(\/|$)/.test(pathname);
+export const isGated = (pathname) => /^\/(accounts|learn)(\/|$)/.test(pathname);
 const unlocked = () => { try { return sessionStorage.getItem(KEY) === "1"; } catch { return false; } };
 const remember = () => { try { sessionStorage.setItem(KEY, "1"); } catch { /* private mode: asked again next click */ } };
 
