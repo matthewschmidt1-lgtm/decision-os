@@ -195,7 +195,7 @@ export function voiWidget() {
     "Reprice": { pricing: 8, distribution: -1, demand: -2, execution: -2, promotion: 1, inventory: -8 },
   };
   const diagnostics = [
-    { name: "Pull account-level depletion report", resolves: ["inventory"], cost: 0.5 },
+    { name: "Pull account-level depletion report", resolves: ["inventory"], cost: 0 },
     { name: "Store visit: shelf and price check", resolves: ["pricing", "execution"], cost: 1.5 },
     { name: "Distributor call on order pattern", resolves: ["inventory", "distribution"], cost: 0.3 },
     { name: "Consumer panel pull", resolves: ["demand"], cost: 3 },
@@ -208,11 +208,11 @@ export function voiWidget() {
   const render = () => {
     const r = M.valueOfInformation(causes, actions, diagnostics, leaning);
     const max = Math.max(1, ...r.diagnostics.map(d => d.net));
-    list.replaceChildren(...r.diagnostics.map((d, i) => bar(d.name, Math.max(0, d.net), max, { tone: i === 0 && d.net > 0 ? "accent" : "muted", format: () => (leaning && !d.changes ? "wouldn't change your move" : leaning && d.net <= 0 ? "not worth its cost" : `${d.net < 0 ? "−" : ""}$${Math.abs(d.net).toFixed(1)}K`) })));
+    list.replaceChildren(...r.diagnostics.map((d, i) => bar(d.name, Math.max(0, d.net), max, { tone: i === 0 && d.net > 0 ? "accent" : "muted", format: () => (!d.changes ? "wouldn't change your move" : d.net <= 0 ? "not worth its cost" : `$${d.net.toFixed(1)}K`) })));
     beliefs.replaceChildren(...causes.map(c => bar(c.name, c.p * 100, 50, { tone: "muted", format: v => `${v.toFixed(0)}%` })));
     const top = r.diagnostics[0];
     if (!leaning) {
-      line.set(`Acting now, the best move is "${r.now.id}" worth about $${r.now.ev.toFixed(1)}K. Knowing everything would add $${r.evpi}K. The single most valuable thing to learn is "${top.name}" (worth $${top.value}K for a cost of $${top.cost}K, so $${top.net}K net). Bars show value net of what each check costs.`);
+      line.set(`Acting now, the best move is "${r.now.id}" worth about $${r.now.ev.toFixed(1)}K. Knowing everything would add $${r.evpi}K. The single most valuable thing to learn is "${top.name}" (worth $${top.value}K${top.cost ? ` for a cost of $${top.cost}K, so $${top.net}K net` : ", and it's free"}). Bars show value net of what each check costs.`);
       return;
     }
     const stuck = r.diagnostics.filter(d => !d.changes || d.net <= 0), useful = r.diagnostics.filter(d => d.changes && d.net > 0);
@@ -222,11 +222,11 @@ export function voiWidget() {
   };
   const causeNames = (ids) => ids.map(id => causes.find(c => c.id === id).name.toLowerCase()).join(" or ");
   const lean = h("div", { class: "stack", style: { "--gap": "8px" } },
-    h("p", { class: "control-head" }, h("span", {}, "Which way are you leaning?")),
+    h("p", { class: "control-head" }, h("span", {}, "Your move if you had to decide now")),
     Object.assign(segmented([{ value: "", label: "Not decided" }, ...Object.keys(actions).map(a => ({ value: a, label: a }))], "", v => { leaning = v || null; render(); }), { className: "seg seg-grid" }),
-    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Commit first, then look. A check that can't change your decision isn't worth running, however interesting the answer."));
+    h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Keep shipping: fill the order. Pause and verify: hold it until you know. Fix execution: send reps to fix shelf and display. Reprice: change the shelf price. Commit first, then look: a check that can't change your decision isn't worth running."));
   render();
-  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What the model thinks is causing it"), beliefs, lean), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "What should you learn before you decide?"), list, line));
+  return h("div", { class: "grid grid-2", style: { alignItems: "start" } }, h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Why shipments outran sales: how likely is each cause?"), beliefs, lean), h("div", { class: "stack" }, h("p", { class: "eyebrow" }, "Which check is worth running first?"), list, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "$K = expected profit gained by learning it, minus what the check costs."), line));
 }
 
 /* Economic fingerprint: sales decomposed */
