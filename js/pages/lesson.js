@@ -18,6 +18,7 @@ export default async function Lesson({ id }) {
 const $k = (v) => (v === 0 ? "$0" : `${v < 0 ? "−" : ""}$${Math.abs(v) % 1 ? Math.abs(v).toFixed(1) : Math.abs(v)}K`);
 function drillPage(l, d, i, next) {
   const D = l.drill, track = tracks.find((t) => t.id === D.practice), first = track && scenarios.find(track.filter);
+  const picks = []; // option ids, round 1 then round 2; the picture marks them
   const round = (r, { onDone, trap, right }) => {
     const best = r.best ? r.options.find((o) => o.id === r.best) : r.options.reduce((a, b) => (b.value > a.value ? b : a));
     const verdict = says(""), after = h("div", { class: "drill-after", hidden: true });
@@ -26,6 +27,7 @@ function drillPage(l, d, i, next) {
     const btns = r.options.map((o) => h("button", { type: "button", class: "option drill-opt", "aria-pressed": "false", onClick: () => pick(o) },
       h("h4", {}, o.label), o.sub ? h("p", { class: "muted drill-sub" }, o.sub) : null, o.math ? h("p", { class: "drill-math" }, o.math) : null, h("p", { class: "drill-val" })));
     const pick = (o) => {
+      picks.push(o.id);
       btns.forEach((b, n) => { const x = r.options[n]; b.disabled = true; b.setAttribute("aria-pressed", String(x === o)); b.classList.toggle("preferred", x === best); b.classList.add("shown");
         b.querySelector(".drill-val").textContent = val(x) ? `= ${val(x)}` : ""; });
       const ok = o === best;
@@ -37,16 +39,21 @@ function drillPage(l, d, i, next) {
     };
     return h("div", { class: "drill-round" }, h("p", { class: "drill-q" }, r.question), h("div", { class: "options drill-opts", dataset: { n: String(r.options.length) } }, ...btns), verdict, after);
   };
-  const pic = pictureFor(l.slug);
+  const picHost = h("div", { class: "drill-pic-host" });
   const close = h("div", { class: "drill-close", hidden: true },
     h("div", { class: "card drill-rule" }, eyebrow("The rule"), h("p", { class: "lede" }, D.rule), h("p", { class: "drill-flip" }, h("b", {}, "Flip point: "), D.flip), h("p", { class: "mono muted drill-formula" }, l.formula)),
-    ...(pic ? [h("figure", { class: "card drill-pic" }, h("figcaption", {}, eyebrow("The rule in one picture")), pic[0], h("p", { class: "muted drill-pic-cap" }, pic[1]))] : []),
+    picHost,
     h("p", { class: "drill-monday" }, h("b", {}, "Monday: "), D.monday),
     h("div", { class: "drill-links" },
       track && first ? link(`/practice/${first.id}?set=${track.id}&i=0`, h("span", { class: "btn" }, `Get tested on it: ${track.title} `, arrow())) : null,
       d ? link(`/decisions/${d.id}`, h("span", { class: "btn btn-ghost" }, "Use it on a full decision ", arrow())) : null));
   const twist = h("div", { class: "drill-twist", hidden: true }, eyebrow("Then something changes"), h("p", { class: "drill-situation" }, D.twist.text),
-    round(D.twist, { trap: D.twist.lesson, right: D.twist.lesson, onDone: () => { close.hidden = false; close.classList.add("in"); requestAnimationFrame(() => close.querySelectorAll(".pick").forEach((g) => g.classList.add("in"))); } }));
+    round(D.twist, { trap: D.twist.lesson, right: D.twist.lesson, onDone: () => {
+      const pic = pictureFor(l.slug, picks);
+      if (pic) picHost.replaceChildren(h("figure", { class: "card drill-pic" }, h("figcaption", {}, eyebrow("The rule in one picture")), h("div", { class: "drill-pic-scroll" }, pic[0]), h("p", { class: "muted drill-pic-cap" }, pic[1])));
+      close.hidden = false; close.classList.add("in");
+      requestAnimationFrame(() => requestAnimationFrame(() => close.querySelectorAll(".pick").forEach((g) => g.classList.add("in"))));
+    } }));
   const first_ = round(D, { trap: D.trap, right: D.right, onDone: () => { twist.hidden = false; twist.classList.add("in"); twist.scrollIntoView({ behavior: "smooth", block: "start" }); } });
   return h("article", { class: "drill" },
     h("header", { class: "reveal" }, eyebrow(`Algorithm ${String(i + 1).padStart(2, "0")}`), h("h1", { class: "hero", style: { marginTop: "16px" } }, l.title), h("p", { class: "hero-sub" }, l.tagline)),
