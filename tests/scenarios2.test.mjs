@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { scenarios2, tracks2, challengeIds2, skills2, stages, patterns } from "../js/scenarios2.js";
+import { scenarios2, tracks2, challengeIds2, skills2, stages, patterns, families, strengths } from "../js/scenarios2.js";
 
 test("every Module 2 scenario has four options with exactly one best", () => {
   scenarios2.forEach(s => {
@@ -23,4 +23,9 @@ test("Module 2 skills and stages are valid and the best answer position is balan
   const pos = [0, 0, 0, 0];
   scenarios2.forEach(s => pos[s.options.findIndex(o => o.quality === "best")]++);
   assert.ok(Math.max(...pos) - Math.min(...pos) <= 2, "best positions " + pos.join("/"));
+});
+test("every habit rolls up to a family (except the compliance note) and every best option names a strength", () => {
+  Object.entries(patterns).forEach(([k, p]) => { if (k !== "comply") assert.ok(families[p.family], k + " family"); });
+  scenarios2.forEach(s => { const b = s.options.find(o => o.quality === "best"); assert.ok(strengths[b.strength], s.id + " strength"); });
+  Object.values(skills2).forEach(sk => { assert.ok(sk.strong && sk.watch, sk.name + " behavior lines"); });
 });

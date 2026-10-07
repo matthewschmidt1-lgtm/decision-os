@@ -13,6 +13,6 @@ export function getResult(scenarioId) { return read().results?.[scenarioId] || n
 export function allResults() { return read().results || {}; }
 
 // Module 2 (Conversation) progress: kept apart from Module 1 so neither module's counts or scores include the other.
-export function recordResult2(scenarioId, { option, quality, skill, pattern }) { const s = read(); s.results2 = { ...(s.results2 || {}), [scenarioId]: { option, quality, skill, pattern: pattern || null, at: Date.now() } }; write(s); }
+export function recordResult2(scenarioId, { option, quality, skill, pattern, strength }) { const s = read(); s.results2 = { ...(s.results2 || {}), [scenarioId]: { option, quality, skill, pattern: pattern || null, strength: strength || null, at: Date.now() } }; write(s); }
 export function getResult2(scenarioId) { return read().results2?.[scenarioId] || null; }
 export function allResults2() { return read().results2 || {}; }

@@ -45,7 +45,7 @@ export default async function Sell() {
 
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Practice · Module 2 · Conversation"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "You know the right call. Now help the customer act on it."),
-      h("p", { class: "hero-sub" }, "Module 1 taught you how to decide. Module 2 teaches you how to move the conversation forward: what do I say, what do I ask, what do I give, and what do I get? Same short cases."),
+      h("p", { class: "hero-sub" }, "Module 1 taught you how to decide. Module 2 teaches you how to move the conversation forward: what do I say, what do I ask, what do I give, and what do I get?"),
       h("div", { class: "mod-steps" },
         link("/practice", h("span", { class: "mod" }, h("b", {}, "Module 1 · Judgment"), "What should I do?")),
         h("span", { class: "arrow", "aria-hidden": "true" }, "→"),
@@ -58,9 +58,9 @@ export default async function Sell() {
           link(primary.href, h("span", { class: "btn btn-lg", style: { justifySelf: "start" } }, `${primary.cta} `, arrow()))),
         h("div", { class: "card card-sunk stack" },
           eyebrow(p.done ? `${p.done} of ${p.total} completed · ${p.practiced} of ${Object.keys(skills2).length} skills practiced` : "Your selling"),
-          ...Object.entries(skills2).map(([k, s]) => { const b = p.bySkill[k]; return bar(s.name, b.score ?? 0, 100, { tone: b.score == null ? "muted" : b.score >= 80 ? "good" : b.score >= 60 ? "" : "warn", format: v => b.score == null ? "—" : v >= 80 ? "Strong" : v >= 60 ? "Solid" : "Watch" }); }),
+          ...Object.entries(skills2).map(([k, s]) => { const b = p.bySkill[k]; return bar(s.name, b.score ?? 0, 100, { tone: b.score == null || b.n < 3 ? "muted" : b.score >= 80 ? "good" : b.score >= 60 ? "" : "warn", format: v => b.score == null ? "—" : b.n < 3 ? "Early" : v >= 80 ? "Strong" : v >= 60 ? "Solid" : "Watch" }); }),
           lines.length ? h("div", { style: { marginTop: "10px", paddingTop: "12px", borderTop: "1px solid var(--line)" } }, eyebrow("How you sell"), ...lines.map(t => h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, t)))
-            : h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Strong, Solid, or Watch: how often you chose the strongest move. After a few conversations, this panel also names the selling habits your choices reveal.")))),
+            : h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Strong, Solid, or Watch, once you've played three in a skill: how often you chose the strongest move. After five conversations, this panel also names the selling habits your choices reveal.")))),
 
     h("section", { class: "section" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "10px" } }, "Where does the conversation go wrong for you?"))),
