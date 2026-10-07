@@ -352,9 +352,13 @@
 
 /* Learn: one call, one twist, one rule */
 .drill-situation{max-width:var(--measure)}
+.drill .section > .eyebrow + .drill-situation{margin-top:14px}
+.drill-round{margin-top:28px}
 .drill-round{display:grid;gap:16px;margin-top:24px}
 .drill-q{font-weight:600;font-size:1.0625rem}
 .drill-opts{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.drill-opts[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:560px){.drill-opts[data-n="4"]{grid-template-columns:1fr}}
 .drill-opt{display:grid;gap:4px;align-content:start}
 .drill-opt:disabled{cursor:default;color:inherit}
 .drill-sub{font-size:var(--fs-micro);margin:0}
