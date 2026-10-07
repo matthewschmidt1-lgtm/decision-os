@@ -58,8 +58,7 @@ export default function Home() {
     h("section", { class: "section reveal" },
       h("div", { class: "card", style: { padding: "clamp(28px,5vw,56px)", textAlign: "center" } },
         h("h2", { style: { fontSize: "var(--fs-h1)", maxWidth: "22ch", marginInline: "auto" } }, "Want to make more money? Get better at the decisions that make money."),
-        h("p", { class: "muted", style: { marginTop: "18px", maxWidth: "48ch", marginInline: "auto" } }, "Practice the calls you make every week. Sharpen your judgment. See the move that matters."),
-        h("p", { style: { marginTop: "12px", maxWidth: "48ch", marginInline: "auto", fontWeight: 500 } }, "Get sharper. Get more valuable. Get paid accordingly."),
+        h("p", { style: { marginTop: "18px", maxWidth: "48ch", marginInline: "auto", fontWeight: 500 } }, "Get sharper, more valuable, & get paid accordingly."),
         h("div", { style: { marginTop: "28px" } }, link(startHref, h("span", { class: "btn btn-lg" }, "Start practicing ", arrow()))))),
   );
 }
