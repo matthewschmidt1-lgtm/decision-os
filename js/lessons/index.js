@@ -52,7 +52,7 @@ export const lessons = [
         ],
         lesson: "A rep who sees 60 brands says that about everyone, so it's weak evidence: it moves you 7 points, not 25. Weigh a clue by how surprising it would be if you were wrong, not by how confidently it's said.",
       },
-      rule: "Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Nothing moves you to certain.",
+      rule: "Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.",
       flip: "It would take a clue three times likelier under 'no' than 'yes' to pull you back under 50%.",
       monday: "Before a call, write your prior. After it, write what changed and by how much.",
       practice: "meeting",
