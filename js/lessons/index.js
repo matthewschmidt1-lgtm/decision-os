@@ -64,7 +64,7 @@ export const lessons = [
     formula: "value(node) = Σ P(branch) × value(child)",
     drill: {
       situation: { lead: "A new account, with two things you don't know yet:", points: ["Velocity: a 55% chance it turns out high.", "If high: you win distribution 60% of the time and expand (worth $40K); otherwise you get a listing ($18K).", "If low: you win distribution 40% of the time and spend a year diagnosing ($8K); otherwise you exit (−$4K)."] },
-      question: "What is this account worth today?",
+      question: "What is the expected value of this account?",
       estimate: true, best: "17",
       options: [
         { id: "8", label: "About $8K" }, { id: "17", label: "About $17K", math: "0.55 × (0.6 × $40K + 0.4 × $18K) + 0.45 × (0.4 × $8K + 0.6 × −$4K) = $17.2K + $0.4K", show: "$17.5K" },
