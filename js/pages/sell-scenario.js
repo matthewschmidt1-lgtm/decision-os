@@ -38,7 +38,7 @@ export default async function SellScenario({ id, params }) {
   const choose = (o, el) => {
     optionEls.forEach(b => { b.disabled = true; b.setAttribute("aria-pressed", String(b === el)); b.classList.toggle("preferred", s.options[optionEls.indexOf(b)] === best); });
     if (!prior) recordResult2(s.id, { option: o.label, quality: o.quality, skill: s.skill, pattern: o.pattern });
-    const head = o.quality === "best" ? "That's the move. Here's why." : o.quality === "good" ? "Reasonable. A strong rep would go one step further." : "A common move. Here's what a strong rep would do instead.";
+    const head = o.quality === "best" ? "That's the move." : o.quality === "good" ? "Close. One more step." : "A common move. Here's a better one.";
     const habit = o.pattern && patterns[o.pattern];
     feedback.replaceChildren(...[h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `You chose: ${o.label}`), h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
       habit ? h("div", { class: "layer layer-1", style: { marginTop: "4px" } }, h("p", { class: "eyebrow" }, "The habit this reveals"), h("p", { style: { marginTop: "8px", fontWeight: 500 } }, habit.name), h("p", { class: "muted", style: { marginTop: "4px", fontSize: "var(--fs-small)" } }, habit.coach)) : null,
@@ -98,7 +98,7 @@ export function habitSummary(results, list = scenarios2) {
   const top = habits(Object.fromEntries(done.map(s => [s.id, results[s.id]])));
   if (top.length && top[0].n >= 2) lines.push(`The habit that shows up most: ${top[0].name.toLowerCase()}, ${top[0].n} times. ${top[0].coach}`);
   else if (top.length) lines.push(`One habit to watch: ${top[0].name.toLowerCase()}. ${top[0].coach}`);
-  if (!top.length && done.length >= 3) lines.push("No recurring habit yet. You're diagnosing before you prescribe and asking for the next step.");
+  if (!top.length && done.length >= 3) lines.push("No habit stands out yet. Keep asking before you answer, and keep asking for the next step.");
   return lines;
 }
 

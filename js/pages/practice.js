@@ -70,7 +70,7 @@ export default function Practice() {
     // Module 2 lives on its own pages and keeps its own scores; this card is the only thing Module 1 knows about it.
     h("section", { class: "section reveal" }, h("div", { class: "card", style: { display: "grid", gap: "12px" } },
       eyebrow("Next · Module 2 · Conversation"), h("h2", { style: { fontSize: "var(--fs-h3)" } }, "You know the right call. Now get the customer to act on it."),
-      h("p", { class: "muted", style: { maxWidth: "var(--measure)" } }, "Thirty conversations where the buyer talks back: discover before you pitch, handle the objection, make the case in their numbers, give to get, leave with a commitment, and make sure it actually happens."),
+      h("p", { class: "muted", style: { maxWidth: "var(--measure)" } }, "Thirty short cases from the selling conversation: discover before you pitch, handle the objection, make the case in their numbers, give to get, leave with a commitment, make sure it actually happens, and plan the business between calls."),
       link("/sell", h("span", { class: "btn", style: { justifySelf: "start" } }, "Start Module 2 ", arrow())))),
   );
 }

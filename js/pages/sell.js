@@ -28,7 +28,7 @@ export default async function Sell() {
   const next = nextUnplayed2();
   const allDone = !next;
   const primary = p.done === 0
-    ? { eyebrow: "Start here", title: "5-minute challenge", body: "Five conversations: a buyer who says you're not moving, one who says you're too expensive, an offer of ten stores for more trade, a 'send me the information', and an authorization that never reached the shelf.", href: `/sell/${challengeIds2[0]}?set=challenge&i=0`, cta: "Start" }
+    ? { eyebrow: "Start here", title: "5-minute challenge", body: "Five short conversations: 'You're not moving,' 'You're too expensive,' an offer of ten stores for more trade, 'Send me the information,' and an approval that never reached the shelf.", href: `/sell/${challengeIds2[0]}?set=challenge&i=0`, cta: "Start" }
     : allDone
       ? { eyebrow: "All done", title: `You've completed all ${p.total} conversations.`, body: "Replay any of them below. Replays don't change your scores, so use them to rehearse before a real meeting.", href: "/sell/summary", cta: "See your results" }
       : { eyebrow: "Continue", title: next.buyer ? `“${next.buyer}”` : next.situation, body: `${next.customer} · ${next.stage} · ${skills2[next.skill].name}`, href: `/sell/${next.id}`, cta: "Continue" };
@@ -44,7 +44,7 @@ export default async function Sell() {
 
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Practice · Module 2 · Conversation"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "You know the right call. Now get the customer to act on it."),
-      h("p", { class: "hero-sub" }, "Module 1 trained the judgment: what should I do? This module trains the conversation: what do I say, what do I ask, what do I give, and what do I get. Same short cases. This time the buyer talks back."),
+      h("p", { class: "hero-sub" }, "Module 1 trained the judgment: what should I do? This module trains the conversation: what do I say, what do I ask, what do I give, and what do I get. Same short cases. This time the question is what you say, and what you ask for."),
       h("p", { style: { marginTop: "14px" } }, link("/practice", h("span", { class: "link" }, "Module 1 · Judgment ", arrow())))),
 
     h("section", { class: "section reveal" },
@@ -61,7 +61,7 @@ export default async function Sell() {
     h("section", { class: "section" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "10px" } }, "Where does the conversation go wrong for you?"))),
       h("div", { class: "grid grid-3" },
-        p.done ? setCard("5-minute challenge", "One conversation from each stage. The fastest way to see where you stand.", challengeList, `/sell/${challengeIds2[0]}?set=challenge&i=0`) : null,
+        p.done ? setCard("5-minute challenge", "Five conversations across the sales process. The fastest way to see where you stand.", challengeList, `/sell/${challengeIds2[0]}?set=challenge&i=0`) : null,
         ...tracks2.map(t => { const list = scenarios2.filter(t.filter); const first = nextUnplayed2(list) || list[0]; return setCard(t.title, t.blurb, list, `/sell/${first.id}?set=${t.id}&i=${list.indexOf(first)}`); }))),
 
     h("section", { class: "section reveal" }, gatedDisclose(`All ${p.total} conversations`, () => h("div", { class: "table-wrap" }, h("table", { class: "table" }, h("thead", {}, h("tr", {}, h("th", {}, "Customer"), h("th", {}, "Situation"), h("th", {}, "Stage"), h("th", {}, "Skill"), h("th", { class: "num" }, "Result"))),
