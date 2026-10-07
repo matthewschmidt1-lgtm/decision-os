@@ -27,7 +27,7 @@ export default function Home() {
       h("h1", { class: "hero", style: { marginTop: "16px" } }, "Real decisions. Real judgment. Better results."),
       h("p", { class: "hero-sub" }, "Sales doesn't happen in spreadsheets. It happens in moments: a key account goes quiet, a customer asks for a discount, a distributor loads up before quarter-end."),
       h("p", { class: "hero-sub", style: { marginTop: "14px", fontWeight: 600, color: "var(--ink)" } }, "Decision OS puts you in those moments."),
-      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "You make the call. Then we unpack the judgment behind it:"),
+      h("p", { class: "hero-sub", style: { marginTop: "22px" } }, "You make the call. Then we unpack the judgment behind it:"),
       h("ul", { class: "hero-sub hero-list" }, ["What matters and what doesn\u2019t matter?", "What evidence should you trust?", "What tradeoffs are you making?", "What would change your decision?"].map((t) => h("li", {}, t))),
       h("p", { class: "hero-sub", style: { marginTop: "26px" } }, "Then we show you the reasoning, evidence, and principles behind it so you can see not just what the right decision was, but ", h("b", { style: { fontWeight: 600, color: "var(--ink)" } }, "why"), "."),
     ),
