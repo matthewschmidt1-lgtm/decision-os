@@ -121,7 +121,7 @@ export const lessons = [
     concept: "Sometimes the best decision is to find something out. The value of information is how much better your decision gets, in expectation, once you know it. If that exceeds the cost of learning it, learn first.",
     formula: "VOI = E[best decision with info] − best decision without info",
     drill: {
-      situation: { lead: "Cascade shipped 14% more to Harbor Foods, but shelf sales are up only 1%. You have time for one check before you decide.", points: ["The likeliest cause is distributor inventory, about 30%.", "It's also the one cause where shipping more hurts you: a −$12K order that comes back.", "Acting without more information, your best move is to pause the order, worth about $1.8K on average."] },
+      situation: { lead: "Cascade shipped 14% more to Harbor Foods, but shelf sales are up only 1%. You have time for one check before you decide.", points: ["The leading explanation is distributor inventory, at about 30%.", "It's also the one cause where shipping more hurts you: a −$12K order that comes back.", "Acting without more information, your best move is to pause the order, worth about $1.8K on average."] },
       question: "Which check do you run first?",
       options: [
         { id: "dep", label: "Pull the depletion report", sub: "Free", math: "Worth $1.5K more than deciding without it, and free", value: 1.5 },
