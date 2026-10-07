@@ -1,7 +1,6 @@
 import { h, link, arrow, eyebrow } from "../ui.js";
-import { decisions, brands, accounts, distributors, situation } from "../data.js";
+import { brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
-import { reviewed } from "../store.js";
 import { scenarios, skills } from "../scenarios.js";
 import { progress, nextUnplayed } from "./practice.js";
 
@@ -28,10 +27,10 @@ export default function Home() {
       h("p", { class: "eyebrow" }, `${greet}.`),
       h("h1", { class: "hero", style: { marginTop: "16px" } }, "Real decisions. Real judgment. Better results."),
       h("p", { class: "hero-sub" }, "Sales doesn't happen in spreadsheets. It happens in moments: a key account goes quiet, a customer asks for a discount, a distributor loads up before quarter-end."),
-      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "Decision OS puts you in those moments."),
+      h("p", { class: "hero-sub", style: { marginTop: "14px", fontWeight: 600, color: "var(--ink)" } }, "Decision OS puts you in those moments."),
       h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "You make the call. Then we unpack the judgment behind it:"),
       h("ul", { class: "hero-sub hero-list" }, ["What matters and what doesn\u2019t matter?", "What evidence should you trust?", "What tradeoffs are you making?", "What would change your decision?"].map((t) => h("li", {}, t))),
-      h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "Then we show you the reasoning, evidence, and principles behind it so you can see not just what the right decision was, but ", h("b", { style: { fontWeight: 600, color: "var(--ink)" } }, "why"), "."),
+      h("p", { class: "hero-sub", style: { marginTop: "26px" } }, "Then we show you the reasoning, evidence, and principles behind it so you can see not just what the right decision was, but ", h("b", { style: { fontWeight: 600, color: "var(--ink)" } }, "why"), "."),
     ),
     h("section", { class: "reveal section", style: { marginTop: "48px" } },
       eyebrow("You've got 5 minutes. Let's practice."),
@@ -43,28 +42,6 @@ export default function Home() {
         link(startHref, h("span", { class: "btn btn-lg" }, allDone ? "Replay this one " : p.done ? "Continue training " : "Start training ", arrow()))),
       h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, p.done ? `${p.done} of ${p.total} scenarios completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : `${p.total} scenarios · on-premise and off-premise · ${Object.keys(skills).length} skills · 6 levels, from recognizing a pattern to leading a change.`),
     ),
-    h("section", { class: "section reveal" },
-      eyebrow("Your territory"),
-      h("h2", { style: { marginTop: "10px" } }, "Four live decisions worth looking at."),
-      h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, "The same reasoning, applied to a sample territory: 15 brands, 3 distributors, 84 accounts."),
-    ),
-    h("section", { class: "reveal", style: { marginTop: "24px" } },
-      decisions.map(d => link(`/decisions/${d.id}`, h("span", { class: "decision-row" },
-        h("span", { class: `verb verb-${d.verb.toLowerCase()}` }, d.verb),
-        h("span", { class: "body" }, d.headline),
-        arrow()))),
-      reviewed().length ? h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, `You've reviewed ${reviewed().length} of ${decisions.length}. Your choices are remembered on this device.`) : null,
-    ),
-    h("section", { class: "reveal", style: { marginTop: "40px", display: "flex", gap: "20px 32px", alignItems: "center", flexWrap: "wrap" } },
-      link("/decisions", h("span", { class: "btn btn-ghost" }, "Review decisions ", arrow())),
-      h("div", { class: "facts" },
-        h("span", {}, h("b", {}, brands.length), "Brands"),
-        h("span", {}, h("b", {}, accounts.length), "Accounts"),
-        h("span", {}, h("b", {}, distributors.length), "Distributors"),
-        link("/accounts?channel=on", h("span", {}, "On-premise")),
-        link("/accounts?channel=off", h("span", {}, "Off-premise"))),
-    ),
-
     h("section", { class: "section reveal", "aria-labelledby": "sit" },
       eyebrow("Your commercial situation"),
       h("h2", { id: "sit", style: { marginTop: "10px" } }, `${brands.length} brands · ${distributors.length} distributors · ${accounts.length} accounts`),
@@ -80,9 +57,9 @@ export default function Home() {
 
     h("section", { class: "section reveal" },
       h("div", { class: "card", style: { padding: "clamp(28px,5vw,56px)", textAlign: "center" } },
-        eyebrow("One question"),
-        h("h2", { style: { marginTop: "12px", fontSize: "var(--fs-h1)" } }, "Where should you allocate your next 10 hours?"),
-        h("p", { class: "muted", style: { marginTop: "14px", maxWidth: "48ch", marginInline: "auto" } }, "Three brands are competing for your next 10 hours. One of them deserves more than its size suggests."),
-        h("div", { style: { marginTop: "28px" } }, link("/decisions", h("span", { class: "btn" }, "Explore decision ", arrow()))))),
+        h("h2", { style: { fontSize: "var(--fs-h1)", maxWidth: "22ch", marginInline: "auto" } }, "Want to make more money? Get better at the decisions that make money."),
+        h("p", { class: "muted", style: { marginTop: "18px", maxWidth: "48ch", marginInline: "auto" } }, "Practice the calls you make every week. Sharpen your judgment. See the move that matters."),
+        h("p", { style: { marginTop: "12px", maxWidth: "48ch", marginInline: "auto", fontWeight: 500 } }, "Get sharper. Get more valuable. Get paid accordingly."),
+        h("div", { style: { marginTop: "28px" } }, link(startHref, h("span", { class: "btn btn-lg" }, "Start practicing ", arrow()))))),
   );
 }
