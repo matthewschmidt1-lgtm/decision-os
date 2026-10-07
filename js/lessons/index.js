@@ -224,7 +224,7 @@ export const lessons = [
       right: "Same forecast, different value. You judged the plan by what it does to margin, not by the headline.",
       twist: {
         text: "Finance reruns Plan 2: the price rise will cost volume, so volume comes in at −2% instead of +2%. Plan 2 now forecasts sales up only 3.9%, margin +2.6 points. Plan 1 is unchanged at +8.2% and −3.3 points.",
-        question: "Now which plan?",
+        question: "Which plan do you approve now?",
         options: [
           { id: "p1", label: "Plan 1 (sales +8.2%)", math: "Margin −3.3 pts", show: "margin −3.3 pts", value: -3.3 },
           { id: "p2", label: "Plan 2 (sales +3.9%)", math: "Margin: 0.6 × 6 − 0.4 × 2 − 0.1 × 2", show: "margin +2.6 pts", value: 2.6 },
