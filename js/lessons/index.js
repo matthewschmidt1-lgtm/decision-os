@@ -20,7 +20,7 @@ export const lessons = [
           { id: "cedar", label: "Cedar Street Kitchen", math: "84% × $21K − $1.5K", value: 16.1 },
           { id: "big", label: "The $95K account", math: "30% × $95K − $6K", value: 22.5 },
         ],
-        lesson: "Same rule, new answer. Nothing about the accounts' size changed; the odds did, and the math picks, not the prize.",
+        lesson: "Same rule, new answer. Nothing about the accounts' size changed; the odds did. A big prize with a low probability can be worth less than a smaller prize with a high probability.",
       },
       rule: "Chance × prize − the cost of chasing it. Rank your visits by that number.",
       flip: "The big account wins once your odds of landing it pass about 23%.",
