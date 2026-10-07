@@ -79,7 +79,7 @@ export const lessons = [
           { id: "go", label: "Pursue it", math: "$17.5K − $10K", value: 7.5 },
           { id: "walk", label: "Walk away", math: "Nothing spent, nothing won", value: 0 },
         ],
-        lesson: "Worth pursuing, by $7.5K. The tree also tells you what to find out first: the high-velocity branch carries almost all the value, so a two-week velocity read is the fact worth paying for.",
+        lesson: "Worth pursuing, by $7.5K. The tree highlights the key uncertainty: velocity. If you could change the decision, it would be the first fact to investigate.",
       },
       rule: "Lay out the branches, weight each ending by its odds, roll the value back to today. Then compare that number with what pursuing costs.",
       flip: "Walk away once the chance of high velocity drops below about 30%, or the cost of pursuing passes about $17K.",
