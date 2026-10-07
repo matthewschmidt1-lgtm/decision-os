@@ -34,9 +34,11 @@ const goals = [
 ];
 
 const LOOP_STEP_MS = 1400;
+const LOOP_STAGGER_MS = 400, LOOP_FADE_MS = 400, LOOP_DRAW_MS = 1300; // keep the first two in step with the card transition in pages.css
 
-// "Six goals, one loop": light the steps 01 → 06, send a pulse back along the arrow, repeat.
-// Runs only while the section is on screen; under reduced motion it stays still with step 06 lit.
+// "Six goals, one loop": the cards fade in 01 → 06 once, the arrow draws, then the steps light up 01 → 06
+// with a pulse back along the arrow, on repeat. The cycle runs only while the section is on screen;
+// under reduced motion everything shows at once and stays still with step 06 lit.
 function playLoop(wrap, ol, steps, arc) {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let at = -1, timer = null, hold = false;
@@ -56,33 +58,46 @@ function playLoop(wrap, ol, steps, arc) {
   requestAnimationFrame(draw);
   if ("ResizeObserver" in window) new ResizeObserver(draw).observe(wrap); else addEventListener("resize", draw);
 
-  if (reduce) { show(steps.length - 1); return; }
+  if (reduce || !("IntersectionObserver" in window)) { show(steps.length - 1); return; }
+  wrap.classList.add("anim", "pre");
   steps.forEach((el, i) => {
     el.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && timer) { hold = true; show(i); } });
     el.addEventListener("pointerleave", () => { if (hold) { hold = false; run(); } });
   });
-  if (!("IntersectionObserver" in window)) return;
+  let phase = "pre", visible = false;
+  const start = () => { if (at < 0) show(0); run(); };
+  // Cards finish fading in, then the arrow draws, then the cycle begins (if the section is still on screen).
+  const drawArrow = () => {
+    draw();
+    wrap.classList.remove("cards"); wrap.dataset.run = "";
+    setTimeout(() => { phase = "run"; if (visible) start(); }, LOOP_DRAW_MS);
+  };
   new IntersectionObserver(([e]) => {
-    if (!e.isIntersecting) return stop();
-    wrap.dataset.run = "";
-    if (at < 0) show(0);
-    run();
+    visible = e.isIntersecting;
+    if (!visible) return stop();
+    if (phase === "pre") {
+      phase = "reveal";
+      wrap.classList.replace("pre", "cards");
+      setTimeout(drawArrow, (steps.length - 1) * LOOP_STAGGER_MS + LOOP_FADE_MS + 50);
+    } else if (phase === "run") start();
   }, { threshold: 0.4 }).observe(wrap);
 }
 
 function learningLoop() {
   const steps = goals.map(([name, goal], i) =>
-    h("li", { class: `loop-step${i === goals.length - 1 ? " top" : ""}`, dataset: { i: String(i) } },
+    h("li", { class: `loop-step${i === goals.length - 1 ? " top" : ""}`, dataset: { i: String(i) }, style: { "--i": String(i) } },
       h("span", { class: "n" }, String(i + 1).padStart(2, "0")), h("b", {}, name), h("p", {}, goal)));
   const ol = h("ol", { class: "loop-steps" }, steps);
   const arc = { line: s("path", { class: "line", pathLength: "1" }), pulse: s("path", { class: "pulse", pathLength: "1" }), head: s("path", { class: "head" }) };
   arc.svg = s("svg", { class: "loop-arrow", "aria-hidden": "true", focusable: "false" }, arc.line, arc.pulse, arc.head);
   const wrap = h("div", { class: "loop-wrap" }, arc.svg, ol);
   playLoop(wrap, ol, steps, arc);
-  return h("section", { class: "section reveal", "aria-labelledby": "loop-title" },
-    eyebrow("The Learning Loop"),
-    h("h2", { id: "loop-title", style: { marginTop: "10px" } }, "Six goals. One loop."),
-    h("p", { class: "lede", style: { marginTop: "10px", maxWidth: "var(--measure)" } }, "Make the call, see the evidence, learn the principle."),
+  // Only the heading block uses the site's scroll-reveal; the cards time themselves.
+  return h("section", { class: "section", "aria-labelledby": "loop-title" },
+    h("div", { class: "reveal" },
+      eyebrow("The Learning Loop"),
+      h("h2", { id: "loop-title", style: { marginTop: "10px" } }, "Six goals. One loop."),
+      h("p", { class: "lede", style: { marginTop: "10px", maxWidth: "var(--measure)" } }, "Make the call, see the evidence, learn the principle.")),
     wrap);
 }
 

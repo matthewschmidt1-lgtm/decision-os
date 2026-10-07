@@ -34,9 +34,11 @@
 .loop-arrow .line{stroke-dasharray:1}
 .loop-arrow .pulse{stroke:var(--accent);stroke-width:2.5;stroke-dasharray:.14 1;stroke-dashoffset:.14}
 .loop-steps{padding-top:40px}
-.loop-step{transition:border-color var(--dur-fast) var(--ease)}
+.loop-step{transition:border-color var(--dur-fast) var(--ease),opacity .4s var(--ease) calc(var(--i)*400ms),transform .4s var(--ease) calc(var(--i)*400ms)}
+.loop-wrap.pre .loop-step{opacity:0;transform:translateY(6px)}
+.loop-wrap.pre .loop-arrow,.loop-wrap.cards .loop-arrow{opacity:0}
 .loop-step .n{transition:color var(--dur-fast) var(--ease)}
-.loop-wrap[data-run] .loop-step.top:not(.on){border-color:var(--line)}
+.loop-wrap.anim .loop-step.top:not(.on){border-color:var(--line)}
 .loop-step.on{border-color:var(--accent)}
 .loop-step.on .n{color:var(--accent)}
 .loop-wrap[data-active="0"] .loop-arrow .line,.loop-wrap[data-active="0"] .loop-arrow .head{stroke:var(--accent)}
