@@ -130,7 +130,7 @@ export const lessons = [
         { id: "panel", label: "Pull a consumer panel", sub: "$3K", math: "Worth $0.1K − $3K", value: -2.9 },
       ],
       trap: "The depletion report is the one check whose answer changes your move: if it's inventory you pause and dodge the −$12K; if it isn't, you ship. The others mostly confirm what you'd do anyway, and you pay for them.",
-      right: "Its result can change the decision, and it gives you the highest net value for the lowest cost.",
+      right: "Its result can change the decision, and after its cost, it has the highest expected value.",
       twist: {
         text: "Marketing offers to run the consumer panel for free. It takes three weeks. Cascade's next order ships Friday.",
         question: "Run it?",
