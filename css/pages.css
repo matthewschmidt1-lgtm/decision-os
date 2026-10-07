@@ -372,6 +372,6 @@
 .drill-rule{display:grid;gap:10px;border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .drill-flip{font-size:var(--fs-small);color:var(--ink-2);margin:0}.drill-flip b{color:var(--ink);font-weight:600}
 .drill-formula{font-size:var(--fs-micro);margin:0}
-.drill-monday{font-size:1.0625rem;margin:0}.drill-monday b{font-weight:600}
+.drill-monday{font-size:1.0625rem;margin:16px 0;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.drill-monday b{font-weight:600}
 .drill-links{display:flex;gap:12px;flex-wrap:wrap}
 .drill [hidden]{display:none}
