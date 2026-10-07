@@ -231,7 +231,7 @@ export const lessons = [
         ],
         lesson: "The 8% was never the decision. If margin is what you're running the business on, the smaller forecast is the better plan. Pick Plan 1 only if you've decided, out loud, that a point of volume is worth more than a point of margin this year.",
       },
-      rule: "A forecast says what will happen. A decision needs what it's worth: break every headline number into the drivers you can act on, and price each one.",
+      rule: "A forecast says what might happen. A decision needs what it's worth: break every headline number into the drivers you can act on, and price each one.",
       flip: "Plan 1 wins only if a point of sales growth is worth more than about 1.4 points of margin to you: it buys 4.3 extra points of growth for 5.9 points of margin, and 5.9 ÷ 4.3 ≈ 1.4.",
       monday: "When someone shares a forecast, ask which decision it changes, and what each driver does to margin.",
       practice: "diagnose",
