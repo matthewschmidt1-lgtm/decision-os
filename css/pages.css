@@ -408,3 +408,6 @@
 .drill-links{display:flex;gap:12px;flex-wrap:wrap}
 .drill [hidden]{display:none}
 .drill .says{white-space:pre-line}
+
+.hero-list{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px}
+.hero-list li::marker{color:var(--muted)}
