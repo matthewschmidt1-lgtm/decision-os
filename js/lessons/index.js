@@ -138,7 +138,7 @@ export const lessons = [
           { id: "run", label: "Run it, it's free", math: "Arrives after Friday's decision: worth $0, minus half a day chasing it", value: -0.2 },
           { id: "skip", label: "Skip it and decide Friday", math: "Nothing spent, and the decision gets made on time", value: 0 },
         ],
-        lesson: "Free isn't the test. Information has value only if it can change the decision in time to matter. Three weeks after Friday, the panel changes nothing.",
+        lesson: "Free isn't the test. Information has value if it can change the decision before the decision has to be made. Three weeks after Friday, the panel changes nothing.",
       },
       rule: "Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.",
       flip: "The store visit is a wash at $1.5K. Get it for $1K and it's worth running, behind the report and the distributor call.",
