@@ -5,7 +5,7 @@ export const lessons = [
     concept: "Multiply what you'd gain by how likely you are to gain it, then subtract what it costs to try. That number, not the size of the prize, is what an opportunity is worth.",
     formula: "EV = P(success) × value − cost of pursuing",
     drill: {
-      situation: { lead: "One visit slot left this week, and two accounts want it.", points: ["Cedar Street Kitchen: 84% likely to take a Brand H placement worth $21K a year. The visit costs about $1.5K of your time.", "A large account: worth $95K a year, but you'd win it about 15% of the time, and chasing it costs $6K."] },
+      situation: { lead: "You can only visit one account. Which one has the highest expected value?", points: ["Cedar Street Kitchen: 84% likely to take a Brand H placement worth $21K a year. The visit costs about $1.5K of your time.", "A large account: worth $95K a year, but you'd win it about 15% of the time, and chasing it costs $6K."] },
       question: "Where does the slot go?",
       options: [
         { id: "cedar", label: "Cedar Street Kitchen", math: "84% × $21K − $1.5K", value: 16.1 },
