@@ -172,7 +172,7 @@ export const lessons = [
         lesson: "Same three options, new winner. Nothing about Brand B changed; the objective did. When two people disagree on the answer, check whether they disagree on the weights.",
       },
       rule: "State what you're optimizing for before you compare options. The best option is the best option for a stated objective.",
-      flip: "Cut overtakes Rebalance once margin carries about 80% of the weight.",
+      flip: "Cut overtakes Rebalance once margin carries about 76% of the weight.",
       monday: "Write the objective at the top of the page before you list the options.",
       practice: "promo",
     },

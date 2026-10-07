@@ -1,5 +1,6 @@
 import { h, link, arrow, eyebrow, says } from "../ui.js";
 import { tracks, scenarios } from "../scenarios.js";
+import { pictureFor } from "../lessons/pictures.js";
 import { lessons, lessonBySlug } from "../lessons/index.js";
 import { decisionById } from "../data.js";
 import { setMeta } from "../app.js";
@@ -36,14 +37,16 @@ function drillPage(l, d, i, next) {
     };
     return h("div", { class: "drill-round" }, h("p", { class: "drill-q" }, r.question), h("div", { class: "options drill-opts", dataset: { n: String(r.options.length) } }, ...btns), verdict, after);
   };
+  const pic = pictureFor(l.slug);
   const close = h("div", { class: "drill-close", hidden: true },
     h("div", { class: "card drill-rule" }, eyebrow("The rule"), h("p", { class: "lede" }, D.rule), h("p", { class: "drill-flip" }, h("b", {}, "Flip point: "), D.flip), h("p", { class: "mono muted drill-formula" }, l.formula)),
+    ...(pic ? [h("figure", { class: "card drill-pic" }, h("figcaption", {}, eyebrow("The rule in one picture")), pic[0], h("p", { class: "muted drill-pic-cap" }, pic[1]))] : []),
     h("p", { class: "drill-monday" }, h("b", {}, "Monday: "), D.monday),
     h("div", { class: "drill-links" },
       track && first ? link(`/practice/${first.id}?set=${track.id}&i=0`, h("span", { class: "btn" }, `Get tested on it: ${track.title} `, arrow())) : null,
       d ? link(`/decisions/${d.id}`, h("span", { class: "btn btn-ghost" }, "Use it on a full decision ", arrow())) : null));
   const twist = h("div", { class: "drill-twist", hidden: true }, eyebrow("Then something changes"), h("p", { class: "drill-situation" }, D.twist.text),
-    round(D.twist, { trap: D.twist.lesson, right: D.twist.lesson, onDone: () => { close.hidden = false; close.classList.add("in"); } }));
+    round(D.twist, { trap: D.twist.lesson, right: D.twist.lesson, onDone: () => { close.hidden = false; close.classList.add("in"); requestAnimationFrame(() => close.querySelectorAll(".pick").forEach((g) => g.classList.add("in"))); } }));
   const first_ = round(D, { trap: D.trap, right: D.right, onDone: () => { twist.hidden = false; twist.classList.add("in"); twist.scrollIntoView({ behavior: "smooth", block: "start" }); } });
   return h("article", { class: "drill" },
     h("header", { class: "reveal" }, eyebrow(`Algorithm ${String(i + 1).padStart(2, "0")}`), h("h1", { class: "hero", style: { marginTop: "16px" } }, l.title), h("p", { class: "hero-sub" }, l.tagline)),

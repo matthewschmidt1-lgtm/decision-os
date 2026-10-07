@@ -411,3 +411,25 @@
 
 .hero-list{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px}
 .hero-list li::marker{color:var(--muted)}
+
+/* Learn: the rule in one picture */
+.drill-pic{display:grid;gap:10px;margin:0}
+.drill-pic figcaption .eyebrow{font-weight:700;color:var(--ink)}
+.drill-pic-cap{font-size:var(--fs-small);margin:0;max-width:var(--measure)}
+.pic{width:100%;height:auto;display:block;overflow:visible}
+.pic text{font-size:12px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.pic text.l{fill:var(--ink);font-weight:600}.pic text.cap{fill:var(--ink-2)}
+.pic text.acc{fill:var(--accent)}.pic text.bad{fill:var(--bad)}.pic text.mid{fill:var(--muted)}
+.pic .grid{stroke:var(--line);stroke-width:1}.pic .ax{stroke:var(--line-strong);stroke-width:1}
+.pic .ln{fill:none;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.pic .ln.acc,.pic .edge.acc,.pic .arrow.acc{stroke:var(--accent)}.pic .ln.bad,.pic .arrow.bad{stroke:var(--bad)}.pic .ln.mid{stroke:var(--muted)}
+.pic .flip{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:4 4}
+.pic .band{fill:var(--accent);opacity:.12}
+.pic .dot{fill:var(--muted)}.pic .dot.acc{fill:var(--accent)}
+.pic .bar.acc{fill:var(--accent)}.pic .bar.mid{fill:var(--line-strong)}.pic .bar.bad{fill:var(--bad)}
+.pic .edge{stroke:var(--line-strong);stroke-width:1.5}.pic .arrow{stroke-width:3;stroke-linecap:round}
+.pic .node{fill:var(--bg-elev);stroke:var(--line-strong)}.pic .node.acc{stroke:var(--accent)}.pic .node.bad{stroke:var(--bad)}
+.pic .pick{opacity:0;transition:opacity .6s ease .4s}.pic .pick.in{opacity:1}
+.pic .pick circle{fill:var(--bg-elev);stroke:var(--ink);stroke-width:2.2}.pic .pick text{fill:var(--ink);font-weight:600;font-size:12px}
+@media (prefers-reduced-motion:reduce){.pic .pick{opacity:1;transition:none}}
+@media (max-width:560px){.drill-pic{overflow-x:auto;-webkit-overflow-scrolling:touch}.drill-pic .pic{min-width:540px}.drill-pic-cap{min-width:0}}
