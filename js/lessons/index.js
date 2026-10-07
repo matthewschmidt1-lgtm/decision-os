@@ -202,7 +202,7 @@ export const lessons = [
         ],
         lesson: "Brand A's last $20K bought $6.8K. Brand D's first $20K buys $10K. Money should move from the flat part of one curve to the steep part of another.",
       },
-      rule: "Spend until the next dollar returns a dollar, then stop. Judge the last increment, not the total.",
+      rule: "Keep spending while the next dollar returns more than a dollar. Stop when the next dollar returns less than a dollar. Judge the last increment, not the total.",
       flip: "Brand A's promotion stops paying for itself at about $47K. Past that, every dollar loses.",
       monday: "Ask what the last $10K bought, not what the whole budget did.",
       practice: "promo",
