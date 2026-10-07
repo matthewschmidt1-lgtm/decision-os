@@ -221,7 +221,7 @@ export const lessons = [
         { id: "p2", label: "Plan 2", math: "Sales +8.1% · margin: 0.6 × 6 − 0.4 × 2 + 0.1 × 2", show: "margin +3.0 pts", value: 3.0 },
       ],
       trap: "The forecasts are identical; the decisions aren't. Plan 1 buys its 8% with trade spend and gives back 3 points of margin. Plan 2 earns it with price and keeps it.",
-      right: "Same forecast, different value. You judged the plan by what it does to margin, not by the headline.",
+      right: "The sales forecasts are almost identical. But the plans have very different economics.\n\nYou don't approve the plan with the biggest headline number. Approve the plan that creates the most value for the objective you're running the business on.",
       twist: {
         text: "Finance reruns Plan 2: the price rise will cost volume, so volume comes in at −2% instead of +2%. Plan 2 now forecasts sales up only 3.9%, margin +2.6 points. Plan 1 is unchanged at +8.2% and −3.3 points.",
         question: "Which plan do you approve now?",
