@@ -121,10 +121,10 @@ export const lessons = [
     concept: "Sometimes the best decision is to find something out. The value of information is how much better your decision gets, in expectation, once you know it. If that exceeds the cost of learning it, learn first.",
     formula: "VOI = E[best decision with info] − best decision without info",
     drill: {
-      situation: "Cascade shipped 14% more to Harbor Foods, but shelf sales are up only 1%. The likeliest cause is distributor inventory, about 30%. It's also the one cause where shipping more hurts you: a −$12K order that comes back. Acting blind, your best move is to pause the order, worth about $1.8K on average. You have time for one check before you decide.",
+      situation: "Cascade shipped 14% more to Harbor Foods, but shelf sales are up only 1%. The likeliest cause is distributor inventory, about 30%. It's also the one cause where shipping more hurts you: a −$12K order that comes back. Acting without more information, your best move is to pause the order, worth about $1.8K on average. You have time for one check before you decide.",
       question: "Which check do you run first?",
       options: [
-        { id: "dep", label: "Pull the depletion report", sub: "Free", math: "Worth $1.5K more than deciding blind, and free", value: 1.5 },
+        { id: "dep", label: "Pull the depletion report", sub: "Free", math: "Worth $1.5K more than deciding without it, and free", value: 1.5 },
         { id: "call", label: "Call the distributor about the order pattern", sub: "$0.3K", math: "Worth $1.2K − $0.3K", value: 0.9 },
         { id: "store", label: "Store visit: shelf and price check", sub: "$1.5K", math: "Worth $1.5K − $1.5K", value: 0 },
         { id: "panel", label: "Pull a consumer panel", sub: "$3K", math: "Worth $0.1K − $3K", value: -2.9 },
@@ -138,7 +138,7 @@ export const lessons = [
           { id: "run", label: "Run it, it's free", math: "Arrives after Friday's decision: worth $0, minus half a day chasing it", value: -0.2 },
           { id: "skip", label: "Skip it and decide Friday", math: "Nothing spent, and the decision gets made on time", value: 0 },
         ],
-        lesson: "Free isn't the test. A check is worth something only if its answer could change your move, and arrives before you have to make it. Three weeks after Friday, the panel changes nothing.",
+        lesson: "Free isn't the test. Information has value only if it can change the decision in time to matter. Three weeks after Friday, the panel changes nothing.",
       },
       rule: "Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.",
       flip: "The store visit is a wash at $1.5K. Get it for $1K and it's worth running, second.",
@@ -148,7 +148,7 @@ export const lessons = [
     sales: "Harbor Foods looked like growth until depletion showed it was Cascade stocking up. Pricing? Distribution? Demand? Execution? Instead of guessing, ask which single check would most change what you'd do. Often it's a free depletion report.",
     apply: ["Before acting on an anomaly, list the causes and how you'd tell them apart.", "Prefer the cheap check that resolves the cause with the biggest swing in action.", "Skip diagnostics that wouldn't change what you do."],
     decision: "investigate-cascade" },
-  { slug: "utility-and-trade-offs", title: "Utility & Trade-offs", tagline: "Volume, revenue, or margin?", widget: "utility",
+  { slug: "utility-and-trade-offs", title: "Utility & Trade-offs", tagline: "What are you optimizing: volume, revenue, or margin?", widget: "utility",
     concept: "There is rarely one best option; there is a best option for a stated set of priorities. A utility function turns several objectives into one score by weighting them. Change the weights and the answer changes. That is not a flaw; it is the point.",
     formula: "U(option) = Σ weight_i × normalized outcome_i",
     drill: {
