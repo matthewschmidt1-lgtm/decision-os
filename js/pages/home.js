@@ -1,5 +1,4 @@
 import { h, link, arrow, eyebrow } from "../ui.js";
-import { brands, accounts, distributors, situation } from "../data.js";
 import { setMeta } from "../app.js";
 import { scenarios, skills } from "../scenarios.js";
 import { progress, nextUnplayed } from "./practice.js";
@@ -42,19 +41,6 @@ export default function Home() {
         link(startHref, h("span", { class: "btn btn-lg" }, allDone ? "Replay this one " : p.done ? "Continue training " : "Start training ", arrow()))),
       h("p", { class: "muted", style: { marginTop: "14px", fontSize: "var(--fs-small)" } }, p.done ? `${p.done} of ${p.total} scenarios completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : `${p.total} scenarios · on-premise and off-premise · ${Object.keys(skills).length} skills · 6 levels, from recognizing a pattern to leading a change.`),
     ),
-    h("section", { class: "section reveal", "aria-labelledby": "sit" },
-      eyebrow("Your commercial situation"),
-      h("h2", { id: "sit", style: { marginTop: "10px" } }, `${brands.length} brands · ${distributors.length} distributors · ${accounts.length} accounts`),
-      h("div", { class: "grid grid-2", style: { marginTop: "28px", alignItems: "start" } },
-        h("div", { class: "card card-sunk" },
-          eyebrow("The system sees"),
-          h("div", { class: "metrics", style: { marginTop: "12px", gridTemplateColumns: "1fr" } },
-            ...[["Growth", situation.growth], ["Volume", situation.volume], ["Margin", situation.margin], ["Trade investment", situation.trade]].map(([k, v]) =>
-              h("div", { class: "metric" }, h("span", { class: "k" }, k), h("span", { class: `v delta ${v > 0 ? "up" : "down"} ${k === "Trade investment" ? (v > 0 ? "bad" : "good") : v > 0 ? "good" : "bad"}` }, `${v > 0 ? "+" : "−"}${Math.abs(v)}%`))))),
-        h("div", { class: "stack", style: { "--gap": "0" } },
-          eyebrow("Three things matter today"),
-          ...situation.matters.map(m => h("div", { class: "step" }, h("span", { class: "n" }, m.n), h("div", {}, h("h3", {}, m.t), h("p", { class: "muted", style: { marginTop: "6px" } }, m.d))))))),
-
     h("section", { class: "section reveal" },
       h("div", { class: "card", style: { padding: "clamp(28px,5vw,56px)", textAlign: "center" } },
         h("h2", { style: { fontSize: "var(--fs-h1)", maxWidth: "22ch", marginInline: "auto" } }, "Want to make more money? Get better at the decisions that make money."),
