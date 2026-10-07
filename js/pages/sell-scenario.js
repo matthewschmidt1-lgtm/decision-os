@@ -94,7 +94,7 @@ export function habitSummary(results, list = scenarios2) {
   done.forEach(s => { const k = s.skill; strongBySkill[k] = strongBySkill[k] || { n: 0, strong: 0 }; strongBySkill[k].n++; if (results[s.id].quality === "best") strongBySkill[k].strong++; });
   const ranked = Object.entries(strongBySkill).filter(([, v]) => v.n >= 2).map(([k, v]) => ({ k, rate: v.strong / v.n })).sort((a, b) => b.rate - a.rate);
   const lines = [];
-  if (ranked.length >= 2 && ranked[0].rate > ranked[ranked.length - 1].rate) lines.push(`You're strongest at ${skills2[ranked[0].k].name.toLowerCase()} and have the most room in ${skills2[ranked[ranked.length - 1].k].name.toLowerCase()}.`);
+  if (ranked.length >= 2 && ranked[0].rate > ranked[ranked.length - 1].rate) { const hi = skills2[ranked[0].k], lo = skills2[ranked[ranked.length - 1].k]; const lc = t => t.charAt(0).toLowerCase() + t.slice(1); lines.push(`Strongest at ${hi.name.toLowerCase()}: ${lc(hi.strong)} Most room in ${lo.name.toLowerCase()}: ${lc(lo.watch)}`); }
   const top = habits(Object.fromEntries(done.map(s => [s.id, results[s.id]])));
   if (top.length && top[0].n >= 2) lines.push(`The habit that shows up most: ${top[0].name.toLowerCase()}, ${top[0].n} times. ${top[0].coach}`);
   else if (top.length) lines.push(`One habit to watch: ${top[0].name.toLowerCase()}. ${top[0].coach}`);

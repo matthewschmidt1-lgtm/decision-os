@@ -435,3 +435,12 @@
 .pic .pick.you circle{fill:var(--ink);stroke:var(--bg-elev);stroke-width:2}.pic .pick.you text{font-weight:500;font-size:11px;fill:var(--ink-2)}
 @media (prefers-reduced-motion:reduce){.pic .pick{opacity:1;transition:none}}
 @media (max-width:620px){.drill-pic-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.drill-pic-scroll .pic{min-width:560px}}
+
+/* Module 2 hub: the two-module strip under the hero */
+.mod-steps{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px;font-size:var(--fs-small);color:var(--ink-2)}
+.mod-steps .mod{display:inline-block;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg-elev);line-height:1.35}
+.mod-steps .mod b{display:block;font-weight:500;color:var(--ink)}
+.mod-steps .mod.current{border-color:var(--ink)}
+.mod-steps a{text-decoration:none;color:inherit}
+.mod-steps a:hover .mod{border-color:var(--line-strong)}
+.mod-steps>.arrow{color:var(--muted)}

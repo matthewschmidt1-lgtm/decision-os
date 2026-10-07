@@ -33,9 +33,10 @@ export default async function Sell() {
       ? { eyebrow: "All done", title: `You've completed all ${p.total} conversations.`, body: "Replay any of them below. Replays don't change your scores, so use them to rehearse before a real meeting.", href: "/sell/summary", cta: "See your results" }
       : { eyebrow: "Continue", title: next.buyer ? `“${next.buyer}”` : next.situation, body: `${next.customer} · ${next.stage} · ${skills2[next.skill].name}`, href: `/sell/${next.id}`, cta: "Continue" };
 
-  const setCard = (title, blurb, list, href) => {
+  const setCard = (title, blurb, list, href, n) => {
     const done = list.filter(s => p.results[s.id]).length; const complete = done === list.length;
     return link(href, h("span", { class: "card clickable reveal", style: { display: "flex", flexDirection: "column", height: "100%" } },
+      n ? h("span", { class: "eyebrow", style: { marginBottom: "8px" } }, String(n).padStart(2, "0")) : null,
       h("h3", {}, title), h("p", { class: "muted", style: { marginTop: "6px", flex: 1 } }, blurb),
       h("p", { class: "tag", style: { marginTop: "16px" } }, complete ? `Complete · ${list.length} of ${list.length}` : `${done} of ${list.length} completed`)));
   };
@@ -43,9 +44,12 @@ export default async function Sell() {
   const lines = habitSummary(p.results);
 
   return h("div", {},
-    h("section", { class: "reveal" }, eyebrow("Practice · Module 2 · Conversation"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "You know the right call. Now get the customer to act on it."),
+    h("section", { class: "reveal" }, eyebrow("Practice · Module 2 · Conversation"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "You know the right call. Now help the customer act on it."),
       h("p", { class: "hero-sub" }, "Module 1 trained the judgment: what should I do? This module trains the conversation: what do I say, what do I ask, what do I give, and what do I get. Same short cases. This time the question is what you say, and what you ask for."),
-      h("p", { style: { marginTop: "14px" } }, link("/practice", h("span", { class: "link" }, "Module 1 · Judgment ", arrow())))),
+      h("div", { class: "mod-steps" },
+        link("/practice", h("span", { class: "mod" }, h("b", {}, "Module 1 · Judgment"), "What should I do?")),
+        h("span", { class: "arrow", "aria-hidden": "true" }, "→"),
+        h("span", { class: "mod current", "aria-current": "page" }, h("b", {}, "Module 2 · Conversation"), "How do I move the conversation forward?"))),
 
     h("section", { class: "section reveal" },
       h("div", { class: "grid grid-2", style: { alignItems: "stretch" } },
@@ -54,15 +58,15 @@ export default async function Sell() {
           link(primary.href, h("span", { class: "btn btn-lg", style: { justifySelf: "start" } }, `${primary.cta} `, arrow()))),
         h("div", { class: "card card-sunk stack" },
           eyebrow(p.done ? `${p.done} of ${p.total} completed · ${p.practiced} of ${Object.keys(skills2).length} skills practiced` : "Your selling"),
-          ...Object.entries(skills2).map(([k, s]) => { const b = p.bySkill[k]; return bar(s.name, b.score ?? 0, 100, { tone: b.score == null ? "muted" : b.score >= 80 ? "good" : b.score >= 60 ? "" : "warn", format: v => b.score == null ? "—" : `${v}%` }); }),
+          ...Object.entries(skills2).map(([k, s]) => { const b = p.bySkill[k]; return bar(s.name, b.score ?? 0, 100, { tone: b.score == null ? "muted" : b.score >= 80 ? "good" : b.score >= 60 ? "" : "warn", format: v => b.score == null ? "—" : v >= 80 ? "Strong" : v >= 60 ? "Solid" : "Watch" }); }),
           lines.length ? h("div", { style: { marginTop: "10px", paddingTop: "12px", borderTop: "1px solid var(--line)" } }, eyebrow("How you sell"), ...lines.map(t => h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, t)))
-            : h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Scores show how often you chose the strongest move. After a few conversations, this panel also names the selling habits your choices reveal.")))),
+            : h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Strong, Solid, or Watch: how often you chose the strongest move. After a few conversations, this panel also names the selling habits your choices reveal.")))),
 
     h("section", { class: "section" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "10px" } }, "Where does the conversation go wrong for you?"))),
       h("div", { class: "grid grid-3" },
         p.done ? setCard("5-minute challenge", "Five conversations across the sales process. The fastest way to see where you stand.", challengeList, `/sell/${challengeIds2[0]}?set=challenge&i=0`) : null,
-        ...tracks2.map(t => { const list = scenarios2.filter(t.filter); const first = nextUnplayed2(list) || list[0]; return setCard(t.title, t.blurb, list, `/sell/${first.id}?set=${t.id}&i=${list.indexOf(first)}`); }))),
+        ...tracks2.map((t, k) => { const list = scenarios2.filter(t.filter); const first = nextUnplayed2(list) || list[0]; return setCard(t.title, t.blurb, list, `/sell/${first.id}?set=${t.id}&i=${list.indexOf(first)}`, k + 1); }))),
 
     h("section", { class: "section reveal" }, gatedDisclose(`All ${p.total} conversations`, () => h("div", { class: "table-wrap" }, h("table", { class: "table" }, h("thead", {}, h("tr", {}, h("th", {}, "Customer"), h("th", {}, "Situation"), h("th", {}, "Stage"), h("th", {}, "Skill"), h("th", { class: "num" }, "Result"))),
         h("tbody", {}, [...scenarios2].sort((a, b) => stages.indexOf(a.stage) - stages.indexOf(b.stage)).map(s => { const r = p.results[s.id]; return h("tr", { class: "clickable", tabindex: "0", onClick: () => navigate(`/sell/${s.id}`), onKeydown: e => { if (e.key === "Enter") navigate(`/sell/${s.id}`); } },

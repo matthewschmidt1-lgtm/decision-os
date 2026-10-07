@@ -3,14 +3,15 @@ import { byKey } from "./ui.js";
 // Same shape as Module 1 scenarios, with two additions: `buyer` (what the buyer says, when the case opens in a meeting)
 // and `pattern` on an option (the selling habit that pick reveals). Patterns are tallied on the summary page.
 export const skills2 = {
-  discovery: { name: "Discovery", blurb: "Find out what's going on before you pitch." },
-  objections: { name: "Objections", blurb: "Learn what the objection means before you answer it." },
-  value: { name: "Value selling", blurb: "Turn your numbers into the buyer's business case." },
-  negotiation: { name: "Negotiation", blurb: "Never give without getting." },
-  closing: { name: "Closing", blurb: "Interest is not commitment." },
-  execution: { name: "Execution", blurb: "A yes from the buyer is not a product on the shelf." },
-  planning: { name: "Planning", blurb: "Forecast on evidence. Spend hours where they decide the year." },
-  leading: { name: "Selling inside", blurb: "Get finance, your manager, and your team to act." },
+  // `strong` and `watch` are the behavior a high or low score reflects; the hub and summary quote them instead of a bare percentage.
+  discovery: { name: "Discovery", blurb: "Find out what's going on before you pitch.", strong: "You usually ask before you answer.", watch: "You tend to answer before you've asked." },
+  objections: { name: "Objections", blurb: "Learn what the objection means before you answer it.", strong: "You find out what an objection means before you respond.", watch: "You tend to answer objections before you know what they mean." },
+  value: { name: "Value selling", blurb: "Turn your numbers into the buyer's business case.", strong: "You put the numbers in the buyer's terms.", watch: "You tend to show numbers without saying what they mean for the buyer." },
+  negotiation: { name: "Negotiation", blurb: "Never give without getting.", strong: "You ask what you're getting before you give.", watch: "You tend to give before you've asked what you get." },
+  closing: { name: "Closing", blurb: "Interest is not commitment.", strong: "You leave with a decision, or a date for one.", watch: "You tend to leave on interest rather than a commitment." },
+  execution: { name: "Execution", blurb: "A yes from the buyer is not a product on the shelf.", strong: "You follow a yes all the way to the shelf.", watch: "You tend to treat a yes as done." },
+  planning: { name: "Planning", blurb: "Forecast on evidence. Spend hours where they decide the year.", strong: "You forecast on evidence and plan to the hours you have.", watch: "You tend to forecast on how the buyer sounded." },
+  leading: { name: "Selling inside", blurb: "Get finance, your manager, and your team to act.", strong: "You make the case to your own company in its own measure.", watch: "You tend to escalate, or go it alone, before making the case." },
 };
 export const stages = ["Open", "Discover", "Position", "Handle", "Negotiate", "Close", "Execute", "Plan", "Lead"];
 export const patterns = {
@@ -36,14 +37,14 @@ export const patterns = {
 
 const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => ids.includes(s.id) });
 export const tracks2 = [
-  track("discover", "Discover before you pitch", "The buyer tells you what's wrong. Your first job is to find out whether that's true.", ["not-moving-ask", "more-margin-ask", "no-room-means", "open-the-meeting", "buyer-gave-answer"]),
+  track("discover", "Discover before you pitch", "The buyer tells you what's wrong. Your first job is to find out what's really going on.", ["not-moving-ask", "more-margin-ask", "no-room-means", "open-the-meeting", "buyer-gave-answer"]),
   track("objections", "Handle the objection", "An objection is information. Find out what it means before you answer it.", ["too-expensive-meaning", "private-label-shift", "competitor-margin", "send-me-something", "next-reset", "angry-buyer-recovery"]),
   track("case", "Make the business case", "Same numbers, different sentence. Say what they mean for the buyer.", ["velocity-into-story", "category-language", "recommend-not-dump"]),
   track("negotiate", "Give to get", "Every concession should buy something you can name.", ["ten-stores-for-trade", "free-product-ask", "exclusive-ask", "more-promo-weeks"]),
   track("close", "Get the commitment", "Interest is not commitment. Leave with a decision, or a date for one.", ["send-me-the-info", "ask-for-the-test", "false-commitment", "define-success"]),
-  track("execute", "Make it happen", "The buyer said yes. Now find out where it broke.", ["authorized-not-set", "display-no-pos", "menu-no-bartenders", "distributor-not-selling"]),
-  track("manage", "Run the business between calls", "Forecasts, plans, and the difference between interest and evidence.", ["forecast-commit", "ninety-day-plan"]),
-  track("inside", "Sell inside and lead", "Finance, your manager, and your own team need selling too.", ["finance-rejects-trade", "coach-the-discounter"]),
+  track("execute", "Make it happen", "The buyer said yes. Find out where execution can break.", ["authorized-not-set", "display-no-pos", "menu-no-bartenders", "distributor-not-selling"]),
+  track("manage", "Run the business between calls", "Forecasts and plans. Separate interest from evidence.", ["forecast-commit", "ninety-day-plan"]),
+  track("inside", "Sell inside and lead", "Your own organization is part of the sale.", ["finance-rejects-trade", "coach-the-discounter"]),
 ];
 export const challengeIds2 = ["not-moving-ask", "too-expensive-meaning", "ten-stores-for-trade", "send-me-the-info", "authorized-not-set"];
 
