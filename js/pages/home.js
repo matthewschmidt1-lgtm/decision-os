@@ -27,7 +27,7 @@ export default function Home() {
     h("section", { class: "reveal" },
       h("p", { class: "eyebrow" }, `${greet}.`),
       h("h1", { class: "hero", style: { marginTop: "16px" } }, "Real decisions. Real judgment. Better results."),
-      h("p", { class: "hero-sub" }, "Sales doesn't happen in spreadsheets. It happens in moments: a key account decline, a promo request, a distributor loading up before quarter-end."),
+      h("p", { class: "hero-sub" }, "Sales doesn't happen in spreadsheets. It happens in moments: a key account goes quiet, a customer asks for a discount, a distributor loads up before quarter-end."),
       h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "Decision OS puts you in those moments and makes the thinking visible. What matters? What doesn't? What evidence should you trust? What tradeoffs are you making?"),
       h("p", { class: "hero-sub", style: { marginTop: "14px" } }, "You make the call. Then we show you the evidence, reasoning, and principles behind it so you can see not just what the decision was, but ", h("b", { style: { fontWeight: 600, color: "var(--ink)" } }, "why"), " it was the right one."),
     ),
