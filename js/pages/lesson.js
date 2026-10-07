@@ -47,7 +47,9 @@ function drillPage(l, d, i, next) {
   const first_ = round(D, { trap: D.trap, right: D.right, onDone: () => { twist.hidden = false; twist.classList.add("in"); twist.scrollIntoView({ behavior: "smooth", block: "start" }); } });
   return h("article", { class: "drill" },
     h("header", { class: "reveal" }, eyebrow(`Algorithm ${String(i + 1).padStart(2, "0")}`), h("h1", { class: "hero", style: { marginTop: "16px" } }, l.title), h("p", { class: "hero-sub" }, l.tagline)),
-    h("section", { class: "section reveal drill-intro" }, eyebrow("The situation"), h("p", { class: "drill-situation lede" }, D.situation), first_),
+    h("section", { class: "section reveal drill-intro" }, eyebrow("The situation"),
+      h("p", { class: "drill-situation lede" }, D.situation.lead ?? D.situation),
+      D.situation.points ? h("ul", { class: "drill-points" }, D.situation.points.map((t) => h("li", {}, t))) : null, first_),
     h("section", { class: "section" }, twist),
     h("section", { class: "section" }, close),
     h("nav", { class: "section", "aria-label": "Next lesson", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },

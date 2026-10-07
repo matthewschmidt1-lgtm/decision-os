@@ -375,6 +375,8 @@
 .drill-rule .eyebrow{font-weight:700;color:var(--ink)}
 .drill .drill-intro{margin-top:28px}
 .drill .drill-intro .drill-round{margin-top:40px}
+.drill-points{margin:14px 0 0;padding-left:1.2em;display:grid;gap:8px;max-width:var(--measure);font-size:1.0625rem;line-height:1.5;color:var(--ink-2)}
+.drill-points li::marker{color:var(--muted)}
 .drill-monday{font-size:1.0625rem;margin:16px 0;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.drill-monday b{font-weight:600}
 .drill-links{display:flex;gap:12px;flex-wrap:wrap}
 .drill [hidden]{display:none}

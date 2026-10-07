@@ -5,7 +5,7 @@ export const lessons = [
     concept: "Multiply what you'd gain by how likely you are to gain it, then subtract what it costs to try. That number, not the size of the prize, is what an opportunity is worth.",
     formula: "EV = P(success) × value − cost of pursuing",
     drill: {
-      situation: "One visit slot left this week. Cedar Street Kitchen is 84% likely to take a Brand H placement worth $21K a year, and the visit costs about $1.5K of your time. A large account is worth $95K a year, but you'd win it about 15% of the time, and chasing it costs $6K.",
+      situation: { lead: "One visit slot left this week, and two accounts want it.", points: ["Cedar Street Kitchen: 84% likely to take a Brand H placement worth $21K a year. The visit costs about $1.5K of your time.", "A large account: worth $95K a year, but you'd win it about 15% of the time, and chasing it costs $6K."] },
       question: "Where does the slot go?",
       options: [
         { id: "cedar", label: "Cedar Street Kitchen", math: "84% × $21K − $1.5K", value: 16.1 },
@@ -34,7 +34,7 @@ export const lessons = [
     concept: "Start with a base rate. Each new piece of evidence multiplies the odds by how much more likely it is under one hypothesis than the other. Strong evidence moves you a lot; weak evidence, a little. Nothing moves you to certainty.",
     formula: "posterior odds = prior odds × likelihood ratio",
     drill: {
-      situation: "You're asking Fresh Thyme's buyer to take a second SKU. About a third of these asks get a yes, so you start at 35%. Since then: your first SKU is top-third on velocity in her stores (twice as likely if she'll say yes), two nearby competitors added the second SKU last quarter (1.8× as likely), and she emailed asking for the data (1.5× as likely).",
+      situation: { lead: "You're asking Fresh Thyme's buyer to take a second SKU. About a third of these asks get a yes, so you start at 35%. Since then:", points: ["Your first SKU is top-third on velocity in her stores (twice as likely if she'll say yes).", "Two nearby competitors added the second SKU last quarter (1.8× as likely).", "She emailed asking for the data (1.5× as likely)."] },
       question: "Where does that put the odds of a yes?",
       estimate: true, best: "75",
       options: [
@@ -63,7 +63,7 @@ export const lessons = [
     concept: "Lay out what could happen, how likely each branch is, and what each end is worth. Then roll the value back from the leaves to the root. The tree tells you the value of the opportunity today and which uncertainty matters most.",
     formula: "value(node) = Σ P(branch) × value(child)",
     drill: {
-      situation: "A new account. There's a 55% chance its velocity turns out high. If it does, you win distribution 60% of the time and expand (worth $40K); otherwise you get a listing ($18K). If velocity is low, you win distribution 40% of the time and spend a year diagnosing ($8K); otherwise you exit (−$4K).",
+      situation: { lead: "A new account, with two things you don't know yet:", points: ["Velocity: a 55% chance it turns out high.", "If high: you win distribution 60% of the time and expand (worth $40K); otherwise you get a listing ($18K).", "If low: you win distribution 40% of the time and spend a year diagnosing ($8K); otherwise you exit (−$4K)."] },
       question: "What is this account worth today?",
       estimate: true, best: "17",
       options: [
@@ -92,7 +92,7 @@ export const lessons = [
     concept: "Each brand is a slot machine with an unknown payout. Spend all your time on the best-known machine and you never discover a better one. Spend it all exploring and you forfeit known returns. The algorithm gives uncertain options a bonus proportional to how little you know about them.",
     formula: "score = expected return + c × uncertainty × √(log N / n)",
     drill: {
-      situation: "Four selling hours free this week. Brand A returns about $0.95K of gross profit per hour, proven over 140 hours. Brand D returns about $1.12K per hour, but that's from only 34 hours; the true number could be $0.80K or $1.40K.",
+      situation: { lead: "Four selling hours free this week, and two brands that could use them:", points: ["Brand A: about $0.95K of gross profit per hour, proven over 140 hours.", "Brand D: about $1.12K per hour, but from only 34 hours. The true number could be $0.80K or $1.40K."] },
       question: "Where do the four hours go?",
       options: [
         { id: "a", label: "All four on Brand A", math: "4 × $0.95K", value: 3.8 },
@@ -121,7 +121,7 @@ export const lessons = [
     concept: "Sometimes the best decision is to find something out. The value of information is how much better your decision gets, in expectation, once you know it. If that exceeds the cost of learning it, learn first.",
     formula: "VOI = E[best decision with info] − best decision without info",
     drill: {
-      situation: "Cascade shipped 14% more to Harbor Foods, but shelf sales are up only 1%. The likeliest cause is distributor inventory, about 30%. It's also the one cause where shipping more hurts you: a −$12K order that comes back. Acting without more information, your best move is to pause the order, worth about $1.8K on average. You have time for one check before you decide.",
+      situation: { lead: "Cascade shipped 14% more to Harbor Foods, but shelf sales are up only 1%. You have time for one check before you decide.", points: ["The likeliest cause is distributor inventory, about 30%.", "It's also the one cause where shipping more hurts you: a −$12K order that comes back.", "Acting without more information, your best move is to pause the order, worth about $1.8K on average."] },
       question: "Which check do you run first?",
       options: [
         { id: "dep", label: "Pull the depletion report", sub: "Free", math: "Worth $1.5K more than deciding without it, and free", value: 1.5 },
@@ -152,7 +152,7 @@ export const lessons = [
     concept: "There is rarely one best option; there is a best option for a stated set of priorities. A utility function turns several objectives into one score by weighting them. Change the weights and the answer changes. That is not a flaw; it is the point.",
     formula: "U(option) = Σ weight_i × normalized outcome_i",
     drill: {
-      situation: "Brand B takes 32% of your trade spend for 15% of your revenue. Three options for next year: hold its support (volume +3%, margin −1.0 pt, revenue +2.5%), rebalance $300–500K of it to Brands D and H (+5%, +1.4 pts, +3.8%), or cut it (+1%, +2.6 pts, +0.8%). Your brand plan says: margin first, then volume and revenue, about 40 / 30 / 30.",
+      situation: { lead: "Brand B takes 32% of your trade spend for 15% of your revenue. Three options for next year:", points: ["Hold its support: volume +3%, margin −1.0 pt, revenue +2.5%.", "Rebalance $300–500K of it to Brands D and H: volume +5%, margin +1.4 pts, revenue +3.8%.", "Cut it: volume +1%, margin +2.6 pts, revenue +0.8%.", "Your brand plan says margin first, then volume and revenue: about 40 / 30 / 30."] },
       question: "Which do you pick?",
       options: [
         { id: "hold", label: "Hold", math: "Vol +3% · margin −1.0 pt · rev +2.5%, weighted 30 / 40 / 30", show: "32 of 100", value: 32 },
@@ -183,7 +183,7 @@ export const lessons = [
     concept: "Returns diminish. The first $10K of promotion buys a lot of volume; the sixth buys much less. Optimization means spending until the next dollar returns exactly a dollar, and not one dollar more.",
     formula: "stop where marginal contribution = marginal cost",
     drill: {
-      situation: "Northwest Market: Brand A's promotion runs at $40K a quarter. Volume is up 8%, margin is down 3 points. The buyer will run more weeks if you fund them. Your model of the promotion says it returns $17.4K of contribution at $20K of spend, $24.2K at $40K, $23.4K at $60K and $17.2K at $80K.",
+      situation: { lead: "Northwest Market: Brand A's promotion runs at $40K a quarter. Volume is up 8%, margin is down 3 points, and the buyer will run more weeks if you fund them. Your model of the promotion says it returns:", points: ["$17.4K of contribution at $20K of spend", "$24.2K at $40K", "$23.4K at $60K", "$17.2K at $80K"] },
       question: "Where do you set next quarter's spend?",
       options: [
         { id: "20", label: "Cut to $20K", math: "Contribution $17.4K", value: 17.4 },
@@ -214,7 +214,7 @@ export const lessons = [
     concept: "Prediction estimates what will happen. Decision chooses what to do given costs, payoffs, and uncertainty. A good prediction with a bad payoff model produces confident mistakes. Keep them separate, and spend your care on the decision.",
     formula: "decision = argmax over actions of E[payoff | prediction]",
     drill: {
-      situation: "Two plans for Brand A next quarter, and both forecast sales up 8%. Plan 1: volume +5%, price +3%, trade spend +14%. Plan 2: volume +2%, price +6%, trade spend +2%. Margin moves with price and against trade spend.",
+      situation: { lead: "Two plans for Brand A next quarter, and both forecast sales up 8%. Margin moves with price and against trade spend.", points: ["Plan 1: volume +5%, price +3%, trade spend +14%.", "Plan 2: volume +2%, price +6%, trade spend +2%."] },
       question: "Which plan do you approve?",
       options: [
         { id: "p1", label: "Plan 1", math: "Sales +8.2% · margin: 0.6 × 3 − 0.4 × 14 + 0.1 × 5", show: "margin −3.3 pts", value: -3.3 },
@@ -242,7 +242,7 @@ export const lessons = [
     concept: "Exploit: act on what you know works. Explore: act to learn whether something else works better. Every allocation of scarce attention is a mix of the two, whether you choose the mix deliberately or not.",
     formula: "regret = value of best choice − value of your choice, summed over time",
     drill: {
-      situation: "Forty selling hours this month, and six more months in this territory. Brand A is proven at about $0.95K of gross profit an hour. Brands M and O have a handful of hours of data each: each has maybe a one-in-three chance of being a $1.10K-an-hour brand, and is otherwise worth about $0.50K. Illustrative numbers.",
+      situation: { lead: "Forty selling hours this month, and six more months in this territory. Illustrative numbers.", points: ["Brand A: proven at about $0.95K of gross profit an hour.", "Brands M and O: a handful of hours of data each. Each has maybe a one-in-three chance of being a $1.10K-an-hour brand, and is otherwise worth about $0.50K."] },
       question: "How many of the 40 hours go to M and O?",
       options: [
         { id: "0", label: "None, all 40 on A", math: "6 months × 40 × $0.95K", value: 228 },
