@@ -349,3 +349,25 @@
 .visits-q:focus{outline:none}
 @media (max-width:900px){.rules{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:720px){.rule-bar{grid-template-columns:minmax(0,1fr) 64px}.rule-bar .track{grid-column:1 / -1;grid-row:2}}
+
+/* Learn: one call, one twist, one rule */
+.drill-situation{max-width:var(--measure)}
+.drill-round{display:grid;gap:16px;margin-top:24px}
+.drill-q{font-weight:600;font-size:1.0625rem}
+.drill-opts{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.drill-opt{display:grid;gap:4px;align-content:start}
+.drill-opt:disabled{cursor:default;color:inherit}
+.drill-sub{font-size:var(--fs-micro);margin:0}
+.drill-math,.drill-val{margin:0;font-variant-numeric:tabular-nums;font-size:var(--fs-small);color:var(--ink-2);display:none}
+.drill-opt.shown .drill-math,.drill-opt.shown .drill-val{display:block}
+.drill-opt .says[hidden]{display:none}
+.drill-val{font-weight:600;color:var(--ink)}
+.drill-opt.preferred .drill-val{color:var(--good)}
+.drill-twist,.drill-close{display:grid;gap:16px}
+.drill-twist .drill-situation{font-size:1.125rem;line-height:1.45}
+.drill-rule{display:grid;gap:10px;border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.drill-flip{font-size:var(--fs-small);color:var(--ink-2);margin:0}.drill-flip b{color:var(--ink);font-weight:600}
+.drill-formula{font-size:var(--fs-micro);margin:0}
+.drill-monday{font-size:1.0625rem;margin:0}.drill-monday b{font-weight:600}
+.drill-links{display:flex;gap:12px;flex-wrap:wrap}
+.drill [hidden]{display:none}
