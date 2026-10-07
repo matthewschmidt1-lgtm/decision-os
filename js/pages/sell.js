@@ -45,7 +45,7 @@ export default async function Sell() {
 
   return h("div", {},
     h("section", { class: "reveal" }, eyebrow("Practice · Module 2 · Conversation"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "You know the right call. Now help the customer act on it."),
-      h("p", { class: "hero-sub" }, "Module 1 trained the judgment: what should I do? This module trains the conversation: what do I say, what do I ask, what do I give, and what do I get. Same short cases. This time, the goal is to move the conversation forward."),
+      h("p", { class: "hero-sub" }, "Module 1 taught you how to decide. Module 2 teaches you how to move the conversation forward: what do I say, what do I ask, what do I give, and what do I get? Same short cases. This time, the goal is to move the conversation forward."),
       h("div", { class: "mod-steps" },
         link("/practice", h("span", { class: "mod" }, h("b", {}, "Module 1 · Judgment"), "What should I do?")),
         h("span", { class: "arrow", "aria-hidden": "true" }, "→"),

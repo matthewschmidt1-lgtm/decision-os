@@ -39,7 +39,7 @@ const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => 
 export const tracks2 = [
   track("discover", "Discover before you pitch", "The buyer tells you what's wrong. Your first job is to find out what's really going on.", ["not-moving-ask", "more-margin-ask", "no-room-means", "open-the-meeting", "buyer-gave-answer"]),
   track("objections", "Handle the objection", "An objection is information. Find out what it means before you answer it.", ["too-expensive-meaning", "private-label-shift", "competitor-margin", "send-me-something", "next-reset", "angry-buyer-recovery"]),
-  track("case", "Make the business case", "Same numbers, different sentence. Say what they mean for the buyer.", ["velocity-into-story", "category-language", "recommend-not-dump"]),
+  track("case", "Make the business case", "Same numbers, different meaning. Say what they mean for the buyer.", ["velocity-into-story", "category-language", "recommend-not-dump"]),
   track("negotiate", "Give to get", "Every concession should buy something you can name.", ["ten-stores-for-trade", "free-product-ask", "exclusive-ask", "more-promo-weeks"]),
   track("close", "Get the commitment", "Interest is not commitment. Leave with a decision, or a date for one.", ["send-me-the-info", "ask-for-the-test", "false-commitment", "define-success"]),
   track("execute", "Make it happen", "The buyer said yes. Find out where execution can break.", ["authorized-not-set", "display-no-pos", "menu-no-bartenders", "distributor-not-selling"]),
