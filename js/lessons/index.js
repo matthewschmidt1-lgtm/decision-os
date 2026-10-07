@@ -214,7 +214,7 @@ export const lessons = [
     concept: "Prediction estimates what will happen. Decision chooses what to do given costs, payoffs, and uncertainty. A good prediction with a bad payoff model produces confident mistakes. Keep them separate, and spend your care on the decision.",
     formula: "decision = argmax over actions of E[payoff | prediction]",
     drill: {
-      situation: { lead: "Two plans for Brand A next quarter, and both forecast sales up 8%. Margin moves with price and against trade spend.", points: ["Plan 1: volume +5%, price +3%, trade spend +14%.", "Plan 2: volume +2%, price +6%, trade spend +2%."] },
+      situation: { lead: "Two plans for Brand A next quarter, both forecast sales up 8% but the economics are different.", points: ["Plan 1: volume +5%, price +3%, trade spend +14%.", "Plan 2: volume +2%, price +6%, trade spend +2%."] },
       question: "Which plan do you approve?",
       options: [
         { id: "p1", label: "Plan 1", math: "Sales +8.2% · margin: 0.6 × 3 − 0.4 × 14 + 0.1 × 5", show: "margin −3.3 pts", value: -3.3 },
