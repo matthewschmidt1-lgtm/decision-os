@@ -372,7 +372,7 @@
 .drill-rule{display:grid;gap:10px;border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .drill-flip{font-size:var(--fs-small);color:var(--ink-2);margin:0}.drill-flip b{color:var(--ink);font-weight:600}
 .drill-formula{font-size:var(--fs-small);color:var(--ink-2);margin:10px 0 0;padding:10px 14px;background:var(--bg-sunk);border-radius:var(--r-sm);display:inline-block;letter-spacing:.01em}
-.drill-rule .eyebrow{font-weight:700;color:var(--ink)}
+.drill-rule .eyebrow,.drill-intro > .eyebrow{font-weight:700;color:var(--ink)}
 .drill .drill-intro{margin-top:28px}
 .drill .drill-intro .drill-round{margin-top:40px}
 .drill-points{margin:14px 0 0;padding-left:1.2em;display:grid;gap:8px;max-width:var(--measure);font-size:1.0625rem;line-height:1.5;color:var(--ink-2)}
