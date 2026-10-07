@@ -43,7 +43,7 @@ export const tracks2 = [
   track("negotiate", "Give to get", "Every concession should buy something you can name.", ["ten-stores-for-trade", "free-product-ask", "exclusive-ask", "more-promo-weeks"]),
   track("close", "Get the commitment", "Interest is not commitment. Leave with a decision, or a date for one.", ["send-me-the-info", "ask-for-the-test", "false-commitment", "define-success"]),
   track("execute", "Make it happen", "The buyer said yes. Find out where execution can break.", ["authorized-not-set", "display-no-pos", "menu-no-bartenders", "distributor-not-selling"]),
-  track("manage", "Run the business between calls", "Forecasts and plans. Separate interest from evidence.", ["forecast-commit", "ninety-day-plan"]),
+  track("manage", "Run the business between calls", "Forecasts, plans, and the difference between interest and evidence.", ["forecast-commit", "ninety-day-plan"]),
   track("inside", "Sell inside and lead", "Your own organization is part of the sale.", ["finance-rejects-trade", "coach-the-discounter"]),
 ];
 export const challengeIds2 = ["not-moving-ask", "too-expensive-meaning", "ten-stores-for-trade", "send-me-the-info", "authorized-not-set"];
