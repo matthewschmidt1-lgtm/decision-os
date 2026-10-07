@@ -63,7 +63,7 @@ export const lessons = [
     concept: "Lay out what could happen, how likely each branch is, and what each end is worth. Then roll the value back from the leaves to the root. The tree tells you the value of the opportunity today and which uncertainty matters most.",
     formula: "value(node) = Σ P(branch) × value(child)",
     drill: {
-      situation: { lead: "A new account, with two things you don't know yet:", points: ["Velocity: a 55% chance it turns out high.", "If high: you win distribution 60% of the time and expand (worth $40K); otherwise you get a listing ($18K).", "If low: you win distribution 40% of the time and spend a year diagnosing ($8K); otherwise you exit (−$4K)."] },
+      situation: { lead: "You\u2019re evaluating a new account. One thing is still unknown:", points: ["Velocity: a 55% chance it turns out high.", "If high: you win distribution 60% of the time and expand (worth $40K); otherwise you get a listing ($18K).", "If low: you win distribution 40% of the time and spend a year diagnosing ($8K); otherwise you exit (−$4K)."] },
       question: "What is the expected value of this account?",
       estimate: true, best: "17",
       options: [
@@ -71,7 +71,7 @@ export const lessons = [
         { id: "25", label: "About $25K" }, { id: "31", label: "About $31K" },
       ],
       trap: "Roll the value back from the ends: weight each ending by the odds of getting there, then add. Nearly all of the $17.5K sits on the high-velocity branch; the low branch is worth almost nothing.",
-      right: "You weighted each ending by its odds and added them up. That's the whole tree.",
+      right: "You weighed each ending by its odds and added them up. That's the whole tree.",
       twist: {
         text: "Pursuing it costs about $10K of your time and samples before you know which branch you're on. Walking away costs nothing.",
         question: "Pursue it?",
@@ -81,7 +81,7 @@ export const lessons = [
         ],
         lesson: "Worth pursuing, by $7.5K. The tree highlights the key uncertainty: velocity. If you could change the decision, it would be the first fact to investigate.",
       },
-      rule: "Lay out the branches, weight each ending by its odds, roll the value back to today. Then compare that number with what pursuing costs.",
+      rule: "Lay out the branches, weigh each one by its odds, roll the value back to today. Then compare that number with what pursuing costs.",
       flip: "Walk away once the chance of high velocity drops below about 30%, or the cost of pursuing passes about $17K.",
       monday: "Sketch the two biggest uncertainties for one key account and put rough odds on them.",
       practice: "opportunity",
