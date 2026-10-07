@@ -141,7 +141,7 @@ export const lessons = [
         lesson: "Free isn't the test. Information has value if it can change the decision before the decision has to be made. Three weeks after Friday, the panel changes nothing.",
       },
       rule: "Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.",
-      flip: "The store visit is a wash at $1.5K. Get it for $1K and it's worth running, behind the report and the distributor call.",
+      flip: "The store visit breaks even at a $1.5K cost. Get it for $1K and it's worth running, behind the report and the distributor call.",
       monday: "List the causes and what you'd do under each before you open a report.",
       practice: "diagnose",
     },
