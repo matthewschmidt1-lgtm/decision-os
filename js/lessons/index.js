@@ -191,7 +191,7 @@ export const lessons = [
         { id: "60", label: "Add $20K, to $60K", math: "Contribution $23.4K", value: 23.4 },
         { id: "80", label: "Add $40K, to $80K", math: "Contribution $17.2K", value: 17.2 },
       ],
-      trap: "More promotion still buys volume, but the next $20K returns less than it costs: contribution falls $0.8K. Volume up and value down is what past-the-peak looks like.",
+      trap: "More promotion still buys volume, but the next $20K returns less than it costs: contribution falls $0.8K. More volume, but less value returned once you pass the peak.",
       right: "You stopped where the next dollar stops paying for itself. The volume target would have pushed you past it.",
       twist: {
         text: "Brand D's buyer offers a display slot: $20K, returning about $1.50 of contribution per dollar. Your budget is fixed at $40K.",
@@ -207,7 +207,7 @@ export const lessons = [
       monday: "Ask what the last $10K bought, not what the whole budget did.",
       practice: "promo",
     },
-    sales: "Northwest Market is growing volume and losing margin. More promotion still raises volume, but the expected incremental contribution has turned negative. Volume up and value down is what past-the-peak looks like.",
+    sales: "Northwest Market is growing volume and losing margin. More promotion still raises volume, but the expected incremental contribution has turned negative. More volume, but less value returned once you pass the peak.",
     apply: ["Ask what the last increment of spend bought, not what the total did.", "Redirect spend from flat marginal returns to steep ones.", "Treat volume targets with suspicion when margin is falling."],
     decision: "protect-northwest" },
   { slug: "prediction-vs-decision", title: "Prediction vs. Decision", tagline: "A forecast is not a plan.", widget: "fingerprint",
