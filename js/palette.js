@@ -2,6 +2,7 @@ import { h } from "./ui.js";
 import { accounts, decisions } from "./data.js";
 import { rankByEV } from "./models.js";
 import { scenarios } from "./scenarios.js";
+import { scenarios2 } from "./scenarios2.js";
 const roi20 = rankByEV(accounts).filter(a => (a.ev / a.value) * 100 >= 20).length;
 import { navigate } from "./app.js";
 import { closeModal } from "./modal.js";
@@ -17,6 +18,7 @@ const canned = [
   { t: "Practice on-premise", s: "Bars, restaurants and hotels: menus, back bars and staff.", k: "practice", href: "/practice/tavern-pour-decline?set=onpremise&i=0" },
   { t: "Win back a lost account", s: "No order in six months. Find out why first.", k: "practice", href: "/practice/lapsed-accounts?set=lapsed&i=0" },
   { t: "How am I doing?", s: "Your practice results by skill.", k: "practice", href: "/practice/summary" },
+  { t: "Module 2: the selling conversation", s: "Discover, handle the objection, negotiate, close, execute.", k: "practice", href: "/sell" },
   { t: "What should I learn before I decide?", s: "Value of information.", k: "learn", href: "/learn/value-of-information" },
   { t: "Why teach decisions this way?", s: "The learning principles behind Decision OS.", k: "learn", href: "/about" },
 ];
@@ -32,6 +34,7 @@ export function initPalette() {
     ...canned,
     ...decisions.map(d => ({ t: `${d.verb} — ${d.headline}`, s: d.question, k: "decision", href: `/decisions/${d.id}` })),
     ...scenarios.map(s => ({ t: `${s.customer}: ${s.question}`, s: `${s.level} · ${s.category}`, k: "practice", href: `/practice/${s.id}` })),
+    ...scenarios2.map(s => ({ t: `${s.customer}: ${s.question}`, s: `Module 2 · ${s.stage} · ${s.category}`, k: "practice", href: `/sell/${s.id}` })),
     ...accounts.map(a => ({ t: a.name, s: `${a.channel === "on" ? "On-premise" : "Off-premise"} · velocity ${a.velocity > 0 ? "+" : ""}${a.velocity}%`, k: "account", href: `/accounts/${a.id}` })),
     { t: "Algorithm library", s: "How machines make decisions under uncertainty.", k: "learn", href: "/learn" },
   ];

@@ -66,5 +66,11 @@ export default function Practice() {
         h("tbody", {}, [...scenarios].sort((a, b) => levels.indexOf(a.level) - levels.indexOf(b.level)).map(s => { const r = p.results[s.id]; return h("tr", { class: "clickable", tabindex: "0", onClick: () => navigate(`/practice/${s.id}`), onKeydown: e => { if (e.key === "Enter") navigate(`/practice/${s.id}`); } },
           h("td", {}, h("b", { style: { fontWeight: 500 } }, s.customer)), h("td", { class: "muted" }, s.situation.split(". ")[0] + "."), h("td", {}, h("span", { class: "chip" }, s.level)), h("td", { class: "muted" }, skills[s.skill].name),
           h("td", { class: "num" }, r ? h("span", { class: `chip ${r.quality === "best" ? "chip-good" : r.quality === "good" ? "" : "chip-warn"}` }, r.quality === "best" ? "Strong" : r.quality === "good" ? "Reasonable" : "Revisit") : h("span", { class: "muted" }, "—"))); })))))),
+
+    // Module 2 lives on its own pages and keeps its own scores; this card is the only thing Module 1 knows about it.
+    h("section", { class: "section reveal" }, h("div", { class: "card", style: { display: "grid", gap: "12px" } },
+      eyebrow("Next · Module 2 · Conversation"), h("h2", { style: { fontSize: "var(--fs-h3)" } }, "You know the right call. Now get the customer to act on it."),
+      h("p", { class: "muted", style: { maxWidth: "var(--measure)" } }, "Thirty conversations where the buyer talks back: discover before you pitch, handle the objection, make the case in their numbers, give to get, leave with a commitment, and make sure it actually happens."),
+      link("/sell", h("span", { class: "btn", style: { justifySelf: "start" } }, "Start Module 2 ", arrow())))),
   );
 }

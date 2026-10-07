@@ -11,3 +11,8 @@ export function clearAll() { write({}); }
 export function recordResult(scenarioId, { option, quality, skill }) { const s = read(); s.results = { ...(s.results || {}), [scenarioId]: { option, quality, skill, at: Date.now() } }; write(s); }
 export function getResult(scenarioId) { return read().results?.[scenarioId] || null; }
 export function allResults() { return read().results || {}; }
+
+// Module 2 (Conversation) progress: kept apart from Module 1 so neither module's counts or scores include the other.
+export function recordResult2(scenarioId, { option, quality, skill, pattern }) { const s = read(); s.results2 = { ...(s.results2 || {}), [scenarioId]: { option, quality, skill, pattern: pattern || null, at: Date.now() } }; write(s); }
+export function getResult2(scenarioId) { return read().results2?.[scenarioId] || null; }
+export function allResults2() { return read().results2 || {}; }
