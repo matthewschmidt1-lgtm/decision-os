@@ -412,8 +412,8 @@ export const scenarios = [
       { label: "Own the outage and ask to be considered at the next menu change", quality: "good", feedback: "Owning the outage is right, and the menu change is the right moment. But it's a vague ask with no drink and no date. A small, specific ask can get a yes today." },
       { label: "Offer a free case to make up for the outage", quality: "weak", feedback: "The instinct to make amends is good, but free product for placement isn't allowed in many states, and it doesn't answer his worry, which is supply." },
     ],
-    reasoning: "Map the branches over two years. Full ask: a 15% chance of $20K a year, about $6K over two years. Menu cocktail: a 60% chance of $6K in year one, worth $3.6K. If it works, there's a 40% chance of the full $20K in year two; otherwise the cocktail's $6K continues. That's 60% × (40% × $20K + 60% × $6K) ≈ $7K in year two, about $10.5K in total. The smaller ask wins because it answers his real concern and opens the next branch.",
-    principle: "When you've lost trust, ask for the smallest yes that lets you prove it. Then earn the rest.",
+    reasoning: "Map the branches over two years. Full ask: a 15% chance of $20K a year, about $6K over two years. Menu cocktail: a 60% chance of $6K in year one, worth $3.6K. If it works, there's a 40% chance of the full $20K in year two; otherwise the cocktail's $6K continues. That's 60% × (40% × $20K + 60% × $6K) ≈ $7K in year two, about $10.5K in total. The smaller ask wins because it answers the owner's real concern: supply risk.",
+    principle: "When you've lost trust, ask for the smallest yes that lets you prove you've earned it. Then earn the rest.",
     nextMove: "Open by owning the outage. Show the distributor's 10 weeks of stock. Propose one gin cocktail for the next menu, with a check-in after 90 days to talk about the back bar and well.",
   },
 
