@@ -261,6 +261,9 @@ export default function Portfolio() {
     let view = "all";
     const NOISE = 2; // points of forecast error the sim's own noise can produce
     const board = h("div", { class: "sim-plots" }), boardNote = h("p", { class: "sim-dots-sum" });
+    // Tap or click a brand on either chart and its numbers appear here (native tooltips never show on touch).
+    const readout = h("p", { class: "sim-readout", role: "status", hidden: true });
+    const select = (g, text) => { board.querySelectorAll(".pt.on, .col.on").forEach((el) => el.classList.remove("on")); board.querySelectorAll(`[data-brand="${g.dataset.brand}"]`).forEach((el) => el.classList.add("on")); readout.textContent = text; readout.hidden = false; };
     const drawTable = () => {
       const rows = q.rows.map((r) => {
         const share = S.simBrands(vi).find((b) => b.id === r.id).share;
@@ -272,8 +275,10 @@ export default function Portfolio() {
         return { id: r.id, f: fr, a: ar, dd, spend, t: Math.abs(dd) < NOISE ? "even" : dd > 0 ? "good" : "bad" };
       }).sort((x, y) => x.id.localeCompare(y.id));
       const signal = rows.filter((x) => x.t !== "even");
-      const tip = (x) => svg("title", {}, `Brand ${x.id}: forecast ${pts(x.f)}, actual ${pts(x.a)} (${x.t === "even" ? "on plan" : `${delta(x.dd)} pts`}) · ${$k(x.spend)} trade`);
-      board.replaceChildren(scatter(rows, tip), columns(rows, tip));
+      const tipText = (x) => `Brand ${x.id}: forecast ${pts(x.f)}, actual ${pts(x.a)} (${x.t === "even" ? "on plan" : `${delta(x.dd)} pts`}) · ${$k(x.spend)} trade`;
+      const tip = (x) => svg("title", {}, tipText(x));
+      const tappable = (g, x) => { g.dataset.brand = x.id; g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.addEventListener("click", () => select(g, tipText(x))); g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(g, tipText(x)); } }); return g; };
+      board.replaceChildren(scatter(rows, tip, tappable), columns(rows, tip, tappable)); readout.hidden = true;
       const names = (list) => { const ids = list.map((x) => x.id); return `${ids.length > 1 ? "Brands" : "Brand"} ${ids.length > 1 ? `${ids.slice(0, -1).join(", ")} and ${ids.at(-1)}` : ids[0]}`; };
       const beat = signal.filter((x) => x.dd > 0), missed = signal.filter((x) => x.dd < 0);
       const parts = [beat.length && `${names(beat)} beat forecast`, missed.length && `${names(missed)} missed`].filter(Boolean).join("; ");
@@ -281,7 +286,7 @@ export default function Portfolio() {
         : `${signal.length === 1 ? "1 brand" : `${signal.length} brands`} landed outside the noise: ${parts}. That's the signal; start there.`;
     };
     const ticks = (lo, hi) => { const step = hi - lo > 24 ? 10 : 5, out = []; for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) out.push(v); return out; };
-    const scatter = (rows, tip) => {
+    const scatter = (rows, tip, tappable) => {
       const W = 360, H = 300, L = 56, R = 12, T = 14, B = 46;
       const vals = rows.flatMap((x) => [x.f, x.a]), step = Math.max(...vals) - Math.min(...vals) > 24 ? 10 : 5;
       const lo = Math.floor((Math.min(0, ...vals) - 1) / step) * step, hi = Math.ceil((Math.max(0, ...vals) + 1) / step) * step;
@@ -290,23 +295,27 @@ export default function Portfolio() {
       g.append(svg("polygon", { class: "band", points: [[lo, lo + band], [hi - band, hi], [hi, hi], [hi, hi - band], [lo + band, lo], [lo, lo]].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ") }));
       for (const v of ticks(lo, hi)) g.append(
         svg("line", { class: v === 0 ? "axis" : "grid", x1: L, x2: W - R, y1: Y(v), y2: Y(v) }), svg("line", { class: v === 0 ? "axis" : "grid", y1: T, y2: H - B, x1: X(v), x2: X(v) }),
-        svg("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, pts(v)), svg("text", { x: X(v), y: H - B + 16, "text-anchor": "middle" }, pts(v)));
+        svg("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, pts(v)), svg("text", { x: X(v), y: H - B + 16, "text-anchor": v >= hi ? "end" : v <= lo ? "start" : "middle" }, pts(v)));
       g.append(svg("line", { class: "diag", x1: X(lo), y1: Y(lo), x2: X(hi), y2: Y(hi) }),
         svg("text", { class: "zone good", x: L + 8, y: T + 14 }, "Beat forecast"), svg("text", { class: "zone bad", x: W - R - 8, y: H - B - 8, "text-anchor": "end" }, "Missed forecast"),
         svg("text", { class: "ttl", x: (L + W - R) / 2, y: H - 8, "text-anchor": "middle" }, "Forecast growth →"),
         svg("text", { class: "ttl", x: 12, y: (T + H - B) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(T + H - B) / 2})` }, "Actual growth →"));
-      // Letters go right of the dot unless another label already sits there.
-      const placed = rows.map((x) => [X(x.f), Y(x.a)]), spots = [[8, 4, "start"], [-8, 4, "end"], [0, -9, "middle"], [0, 16, "middle"], [11, -7, "start"], [-11, -7, "end"]];
+      // Letters go on the side away from the diagonal (up-left for beats, down-right for misses) unless another label already sits there.
+      const placed = rows.map((x) => [X(x.f), Y(x.a)]);
+      const spotsFor = (t) => t === "good" ? [[-9, -6, "end"], [0, -10, "middle"], [-9, 4, "end"], [9, -6, "start"], [0, 17, "middle"], [9, 4, "start"]]
+        : t === "bad" ? [[9, 12, "start"], [0, 17, "middle"], [9, 4, "start"], [-9, 12, "end"], [0, -10, "middle"], [-9, 4, "end"]]
+        : [[8, 4, "start"], [-8, 4, "end"], [0, -9, "middle"], [0, 16, "middle"], [11, -7, "start"], [-11, -7, "end"]];
       const dots = [...rows].sort((a, b) => Math.abs(b.dd) - Math.abs(a.dd)).map((x) => {
         const cx = X(x.f), cy = Y(x.a);
+        const spots = spotsFor(x.t);
         const [dx, dy, anchor] = spots.find(([dx, dy]) => placed.every((p) => (p[0] === cx && p[1] === cy) || Math.abs(p[0] - (cx + dx)) > 10 || Math.abs(p[1] - (cy + dy)) > 10)) || spots[0];
         placed.push([cx + dx, cy + dy]);
-        return svg("g", { class: `pt ${x.t}` }, tip(x), svg("circle", { cx, cy, r: x.t === "even" ? 5 : 6 }), svg("text", { x: cx + dx, y: cy + dy, "text-anchor": anchor }, x.id));
+        return tappable(svg("g", { class: `pt ${x.t}` }, tip(x), svg("circle", { class: "hit", cx, cy, r: 16 }), svg("circle", { cx, cy, r: x.t === "even" ? 5 : 6 }), svg("text", { x: cx + dx, y: cy + dy, "text-anchor": anchor }, x.id)), x);
       });
       g.append(...dots.reverse());
       return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Forecast vs actual"), h("span", {}, "Above the line beat the forecast. Below it missed.")), g);
     };
-    const columns = (rows, tip) => {
+    const columns = (rows, tip, tappable) => {
       const W = 360, H = 260, L = 56, R = 12, T = 22, B = 46;
       const top_ = Math.ceil((Math.max(3, ...rows.map((x) => x.dd)) + 2) / 2) * 2, bot = Math.floor((Math.min(-3, ...rows.map((x) => x.dd)) - 2) / 2) * 2;
       const Y = (v) => T + ((top_ - v) / (top_ - bot)) * (H - T - B), bw = (W - L - R) / rows.length, band = NOISE - 0.5;
@@ -316,9 +325,9 @@ export default function Portfolio() {
       for (let v = Math.ceil(bot / stp) * stp; v <= top_; v += stp) g.append(svg("line", { class: v === 0 ? "axis" : "grid", x1: L, x2: W - R, y1: Y(v), y2: Y(v) }), svg("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end" }, delta(v)));
       rows.forEach((x, i) => {
         const cx = L + bw * (i + 0.5), w = Math.min(26, bw * 0.56), top = Math.min(Y(x.dd), Y(0)), ht = Math.max(2, Math.abs(Y(x.dd) - Y(0)));
-        g.append(svg("g", { class: `col ${x.t}` }, tip(x), svg("rect", { x: cx - w / 2, width: w, y: top, height: ht, rx: 3 }),
+        g.append(tappable(svg("g", { class: `col ${x.t}` }, tip(x), svg("rect", { class: "hit", x: cx - bw / 2, width: bw, y: T, height: H - T - B }), svg("rect", { x: cx - w / 2, width: w, y: top, height: ht, rx: 3 }),
           svg("text", { class: "v", x: cx, y: x.dd >= 0 ? top - 5 : top + ht + 13, "text-anchor": "middle" }, x.dd ? delta(x.dd) : "0"),
-          svg("text", { class: "id", x: cx, y: H - B + 18, "text-anchor": "middle" }, x.id)));
+          svg("text", { class: "id", x: cx, y: H - B + 18, "text-anchor": "middle" }, x.id)), x));
       });
       g.append(svg("text", { class: "ttl", x: (L + W - R) / 2, y: H - 8, "text-anchor": "middle" }, "Brand"),
         svg("text", { class: "ttl", x: 12, y: (T + H - B) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(T + H - B) / 2})` }, "Points vs forecast"));
@@ -351,8 +360,8 @@ export default function Portfolio() {
       requestLine,
       achLine,
       h("div", {}, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
-        boardNote, board,
-        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point. Hover or tap a brand for its numbers.")),
+        boardNote, board, readout,
+        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point. Tap a brand for its numbers.")),
       h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
     ];
     if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding)))));

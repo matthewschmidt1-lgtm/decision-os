@@ -94,7 +94,8 @@ export function evidence(rows, { optionTones = true } = {}) {
   const tile = (f) => {
     const text = deltaText(f.value);
     const big = FIGURE.test(text) && text.length <= 12;
-    return h("div", { class: "ev-tile" }, h("span", { class: "k" }, f.label), h("span", { class: `v ${big ? "" : "is-text"} ${f.tone}` }, text));
+    // A long label gets the full row on phones instead of wrapping to three lines in a half-width tile.
+    return h("div", { class: `ev-tile${f.label.length > 32 ? " wide" : ""}` }, h("span", { class: "k" }, f.label), h("span", { class: `v ${big ? "" : "is-text"} ${f.tone}` }, text));
   };
   const row = (f) => {
     const parts = String(f.value).split(SEP).filter(Boolean);

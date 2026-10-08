@@ -189,7 +189,11 @@
 .sim-plot .pt.even text,.sim-plot .col.even text{fill:var(--muted);font-weight:500}
 .sim-plot .good circle,.sim-plot .col.good rect{fill:var(--good)}.sim-plot .bad circle,.sim-plot .col.bad rect{fill:var(--bad)}.sim-plot .even circle,.sim-plot .col.even rect{fill:var(--muted)}
 .sim-plot .col text.id{font-size:12px;font-weight:600;fill:var(--ink)}.sim-plot .col text.v{font-weight:600;fill:var(--ink)}
-.sim-plot .pt,.sim-plot .col{cursor:default}
+.sim-plot .pt,.sim-plot .col{cursor:pointer;outline:none}
+.sim-plot .pt .hit,.sim-plot .col .hit{fill:transparent!important;stroke:none!important;pointer-events:all}
+.sim-plot .pt.on circle:not(.hit){stroke:var(--ink);stroke-width:2.5}.sim-plot .col.on rect:not(.hit){stroke:var(--ink);stroke-width:2}
+.sim-plot .pt:focus-visible circle:not(.hit),.sim-plot .col:focus-visible rect:not(.hit){stroke:var(--accent);stroke-width:2.5}
+.sim-readout{margin:10px 0 0;font-size:var(--fs-small);color:var(--ink);font-variant-numeric:tabular-nums}.sim-readout[hidden]{display:none}
 @media (max-width:720px){.sim-plots{grid-template-columns:1fr}.sim-fig{padding:12px 10px 6px}}
 .sim-chains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
 .sim-chain{border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;background:var(--bg-elev);display:grid;gap:12px;align-content:start}
@@ -311,6 +315,7 @@
 .twist-lines{max-width:520px}
 @media (max-width:720px){.twist-opt{grid-template-columns:1fr}.twist-opt h4{grid-row:auto}}
 .twist-opt{padding-right:48px}
+@media (max-width:720px){.twist-opt{padding-right:20px}.twist-opt h4{padding-right:36px}}
 
 /* Accounts intro: scattered data → the algorithm → the ranked answer */
 .acct-viz{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-elev);padding:18px 20px 20px;display:grid;gap:12px}
