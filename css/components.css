@@ -101,6 +101,11 @@ a.card:hover,.card.clickable:hover{transform:translateY(-2px);box-shadow:var(--s
 .option:hover{border-color:var(--line-strong)}
 .option[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);background:var(--bg-elev)}
 .option[aria-pressed="true"]::after{content:"✓";position:absolute;top:14px;right:14px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:12px;font-weight:600}
+/* The model's preferred option gets a soft green fill and border, so it reads at a glance even when a different option is the one selected. */
+.option.preferred{background:var(--good-soft);border-color:var(--good)}
+.option.preferred[aria-pressed="true"]{background:var(--good-soft);border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.option.preferred[aria-pressed="true"]::after{background:var(--good)}
+.option.preferred .choice-letter{border-color:var(--good);color:var(--good)}
 .option.preferred::before{content:"Model prefers";position:absolute;top:-10px;left:16px;padding:2px 8px;border-radius:var(--r-pill);background:var(--accent);color:#fff;font-size:11px;font-weight:600;letter-spacing:.02em}
 .option{position:relative}
 .option h4{margin:0 0 12px;font-size:1.0625rem;font-weight:600}
