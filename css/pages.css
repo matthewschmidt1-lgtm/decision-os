@@ -460,3 +460,7 @@
 .sim-byb,.sim-go{margin-top:12px}
 .sim-scorecard{align-items:end}
 @media (max-width:620px){.sim-chain .lanes{grid-template-columns:1fr}.sim-chain li{flex-wrap:wrap}}
+
+/* Home hero: more room between the headline and the two opening lines on larger screens; phones keep the tighter scale */
+.home-bold{margin-top:16px}
+@media (min-width:621px){.home-lead{margin-top:32px}.home-bold{margin-top:28px}}
