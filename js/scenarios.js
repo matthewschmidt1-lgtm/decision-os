@@ -552,7 +552,7 @@ export const scenarios = [
       { label: "A $12 gin and tonic would sell better and still make money", quality: "weak", feedback: "It might sell a few more, but it answers the wrong question and costs margin. Guests aren't rejecting the price. They're not being shown the value." },
     ],
     reasoning: "The manager believes price is the problem. Update on the evidence. At $15, the drink is already one of the cheaper cocktails on the Arden's menu. The sister hotel isn't a controlled test, but its results are suggestive: the drink takes twice the share of cocktails at a higher price.\n\nThe important difference is how the value is presented. So don't cut the price yet. Change the presentation, then see what happens.",
-    principle: "A price can't be judged apart from how the value is presented. If the guest can't see what makes it worth $15, it isn't worth $15 to them.",
+    principle: "Don't assume a price problem is a price problem. If the guest can't see what makes it worth $15, it isn't worth $15 to them.",
     nextMove: "Ask for two changes before the menu is cut: name the gin with a one-line description, and run a short staff tasting through your distributor. Ask for the menu mention; never pay for it. Compare its share of cocktails after four weeks.",
   },
   {
