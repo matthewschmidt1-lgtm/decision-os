@@ -1,6 +1,7 @@
 import { h, link, arrow, eyebrow, says } from "../ui.js";
 import { tracks, scenarios } from "../scenarios.js";
 import { pictureFor } from "../lessons/pictures.js";
+import { pan } from "../ui.js";
 import { lessons, lessonBySlug } from "../lessons/index.js";
 import { decisionById } from "../data.js";
 import { setMeta } from "../app.js";
@@ -50,7 +51,7 @@ function drillPage(l, d, i, next) {
   const twist = h("div", { class: "drill-twist", hidden: true }, eyebrow("Then something changes"), h("p", { class: "drill-situation" }, D.twist.text),
     round(D.twist, { trap: D.twist.lesson, right: D.twist.lesson, onDone: () => {
       const pic = pictureFor(l.slug, picks);
-      if (pic) picHost.replaceChildren(h("figure", { class: "card drill-pic" }, h("figcaption", {}, eyebrow("The rule in one picture")), h("div", { class: "drill-pic-scroll" }, pic[0]), h("p", { class: "muted drill-pic-cap" }, pic[1])));
+      if (pic) picHost.replaceChildren(h("figure", { class: "card drill-pic" }, h("figcaption", {}, eyebrow("The rule in one picture")), pan(pic[0]), h("p", { class: "muted drill-pic-cap" }, pic[1])));
       close.hidden = false; close.classList.add("in");
       requestAnimationFrame(() => requestAnimationFrame(() => close.querySelectorAll(".pick").forEach((g) => g.classList.add("in"))));
     } }));

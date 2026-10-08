@@ -1,7 +1,7 @@
 import { s, h } from "./ui.js";
 
 // Generic line chart with optional marker. series: [{pts:[[x,y]], cls}] xs/ys domain auto.
-export function lineChart({ width = 560, height = 260, series, marker, xLabel, yLabel, zeroLine = false, annotate }) {
+export function lineChart({ width = 560, height = 260, series, marker, xLabel, yLabel, zeroLine = false, annotate, tickFormat = (v) => Math.round(v) }) {
   const pad = { l: 44, r: 20, t: 20, b: 40 };
   const all = series.flatMap(sr => sr.pts);
   const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
@@ -16,13 +16,15 @@ export function lineChart({ width = 560, height = 260, series, marker, xLabel, y
   svg.append(s("line", { class: "axis", x1: pad.l, y1: pad.t, x2: pad.l, y2: height - pad.b }));
   if (zeroLine && y0 < 0) svg.append(s("line", { class: "grid", x1: pad.l, y1: Y(0), x2: width - pad.r, y2: Y(0) }));
   for (const sr of series) svg.append(s("path", { class: `curve ${sr.cls || ""}`, d: sr.pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join(" ") }));
-  for (const v of [y0 + pady, (y0 + y1) / 2, y1 - pady]) { const yy = Y(v); svg.append(s("line", { class: "axis", x1: pad.l - 4, y1: yy, x2: pad.l, y2: yy })); svg.append(s("text", { class: "tick", x: pad.l - 8, y: yy + 4, "text-anchor": "end" }, Math.round(v))); }
+  const ticks = zeroLine && y0 < 0 ? [y0 + pady, 0, y1 - pady] : [y0 + pady, (y0 + y1) / 2, y1 - pady];
+  for (const v of ticks) { const yy = Y(v); svg.append(s("line", { class: "axis", x1: pad.l - 4, y1: yy, x2: pad.l, y2: yy })); svg.append(s("text", { class: "tick", x: pad.l - 8, y: yy + 4, "text-anchor": "end" }, tickFormat(v))); }
   svg.append(s("text", { x: width - pad.r, y: height - 10, "text-anchor": "end" }, xLabel));
   svg.append(s("text", { x: pad.l, y: 12 }, yLabel));
   const dot = s("circle", { class: "dot", r: 6, cx: X(marker?.[0] ?? x0), cy: Y(marker?.[1] ?? y0) });
   const lbl = s("text", { class: "lbl mono", "text-anchor": "middle" }, "");
   if (marker) { svg.append(dot, lbl); }
-  svg.setMarker = (x, y, text) => { dot.setAttribute("cx", X(x)); dot.setAttribute("cy", Y(y)); lbl.setAttribute("x", X(x)); lbl.setAttribute("y", Y(y) - 14); lbl.textContent = text ?? ""; };
+  // The marker label sits above the dot unless that would run into the axis title at the top; then it sits below.
+  svg.setMarker = (x, y, text) => { dot.setAttribute("cx", X(x)); dot.setAttribute("cy", Y(y)); lbl.setAttribute("x", X(x)); lbl.setAttribute("y", Y(y) - 14 > pad.t + 10 ? Y(y) - 14 : Y(y) + 24); lbl.textContent = text ?? ""; };
   if (marker) svg.setMarker(marker[0], marker[1], marker[2]);
   return svg;
 }

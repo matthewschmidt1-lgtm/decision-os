@@ -178,3 +178,15 @@ export function toast(msg) {
   toastEl.textContent = msg; toastEl.classList.add("show");
   clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
 }
+
+// A sideways-scrolling frame for a wide picture or chart on a phone: fade on the right edge and a short hint while there is more to see.
+export function pan(node, hint = "Swipe sideways to see the whole picture →") {
+  const scroll = h("div", { class: "pan-scroll" }, node);
+  const frame = h("div", { class: "pan-frame" }, scroll);
+  const wrap = h("div", { class: "pan" }, frame, h("p", { class: "pan-hint muted" }, hint));
+  const update = () => { wrap.classList.toggle("can-pan", scroll.scrollWidth > scroll.clientWidth + 2); wrap.classList.toggle("at-end", scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 2); };
+  scroll.addEventListener("scroll", update, { passive: true });
+  addEventListener("resize", update);
+  requestAnimationFrame(() => requestAnimationFrame(update));
+  return wrap;
+}

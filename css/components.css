@@ -291,3 +291,18 @@ tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .gate-actions{display:flex;gap:10px;justify-content:flex-end}
 .gate-actions .btn{padding:12px 20px;justify-content:center}
 @media (max-width:420px){.gate-actions .btn{flex:1}}
+
+/* Bar rows on phones: label and value on one line, the bar on its own line underneath, so the track is never a sliver. */
+@media (max-width:620px){
+  .bar-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"label val" "track track";gap:6px 12px}
+  .bar-row .label{grid-area:label}.bar-row .bar-track{grid-area:track}.bar-row .val{grid-area:val;white-space:nowrap}
+}
+/* Pan frame: wide pictures scroll sideways on phones with a right-edge fade and a hint while there is more to see. */
+.pan-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.pan-scroll::-webkit-scrollbar{display:none}
+.pan{min-width:0;max-width:100%}
+.pan-frame{position:relative;min-width:0}
+.pan-frame::after{content:"";position:absolute;top:0;right:0;bottom:0;width:64px;background:linear-gradient(90deg,transparent,var(--bg-elev));pointer-events:none;opacity:0;transition:opacity .3s}
+.pan.can-pan:not(.at-end) .pan-frame::after{opacity:1}
+.pan-hint{display:none;font-size:var(--fs-micro);margin:8px 0 0}
+.pan.can-pan .pan-hint{display:block}
+@media (max-width:620px){.pan .pic{min-width:560px}.pan .chart{min-width:480px}}

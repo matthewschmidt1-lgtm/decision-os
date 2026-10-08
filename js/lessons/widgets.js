@@ -1,5 +1,5 @@
 // Interactive "algorithm underneath" experiments. Each returns a DOM node. Shared by decisions and lessons.
-import { h, slider, segmented, says, bar, tween, metric } from "../ui.js";
+import { h, slider, segmented, says, bar, tween, metric, pan } from "../ui.js";
 import { lineChart, beforeAfter } from "../charts.js";
 import * as M from "../models.js";
 import { brands } from "../data.js";
@@ -10,7 +10,7 @@ export function marginalWidget({ compact = false } = {}) {
   const pts = []; for (let sp = 0; sp <= 160; sp += 4) pts.push([sp, M.contributionAt(sp, base)]);
   const mpts = []; for (let sp = 0; sp <= 160; sp += 4) mpts.push([sp, M.marginalContribution(sp, base) * 40]);
   const sc0 = M.promoScenario(0, base);
-  const chart = lineChart({ series: [{ pts, cls: "" }], marker: [base.spend, sc0.contribution, "now"], xLabel: "Trade spend ($K)", yLabel: "Incremental contribution ($K)", zeroLine: true, annotate: { aria: "Contribution rises with trade spend, peaks, then falls: diminishing returns." } });
+  const chart = lineChart({ series: [{ pts, cls: "" }], marker: [base.spend, sc0.contribution, "now"], xLabel: "Trade spend ($K)", yLabel: "Incremental contribution ($K)", zeroLine: true, tickFormat: (v) => Math.round(v) === 0 ? "$0" : `${v < 0 ? "−" : ""}$${Math.abs(Math.round(v))}K`, annotate: { aria: "Contribution rises with trade spend, peaks, then falls: diminishing returns." } });
   const ba = beforeAfter([
     { label: "Volume", before: sc0.volume, after: sc0.volume, max: 1200, format: v => `${Math.round(v)} cases` },
     { label: "Contribution", before: sc0.contribution, after: sc0.contribution, max: 90, format: v => `$${v.toFixed(1)}K` },
@@ -29,7 +29,7 @@ export function marginalWidget({ compact = false } = {}) {
     else line.set(`The additional $${extra.toFixed(0)}K buys ${M.pct(sc.volumePct)} volume and ${M.pct(sc.contributionPct)} contribution. Still worth it, barely.`, "good");
   } });
   const reset = h("button", { type: "button", class: "link", style: { fontSize: "var(--fs-small)" }, onClick: () => { sl.set(0); sl.querySelector("input").dispatchEvent(new Event("input")); } }, "Reset to today's spend");
-  return h("div", { class: "stack", style: { "--gap": "22px" } }, compact ? null : chart, sl, ba, line, h("div", { style: { display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `The model's optimum is about $${opt.toFixed(0)}K, where the marginal contribution of the next dollar reaches zero.`), reset));
+  return h("div", { class: "stack", style: { "--gap": "22px" } }, compact ? null : pan(chart, "Swipe sideways to see the whole chart →"), sl, ba, line, h("div", { style: { display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" } }, h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, `The model's optimum is about $${opt.toFixed(0)}K, where the marginal contribution of the next dollar reaches zero.`), reset));
 }
 
 /* Utility: adjust objective weights, watch the ranking change */

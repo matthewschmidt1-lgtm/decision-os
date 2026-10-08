@@ -416,7 +416,7 @@
 .drill-pic{display:grid;gap:10px;margin:0}
 .drill-pic figcaption .eyebrow{font-weight:700;color:var(--ink)}
 .drill-pic-cap{font-size:var(--fs-small);margin:0;max-width:var(--measure)}
-.drill-pic-scroll{max-width:720px}
+.drill-pic .pan{max-width:720px}
 .pic{width:100%;height:auto;display:block;overflow:visible}
 .pic text{font-size:12px;fill:var(--muted);font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--bg-elev);stroke-width:3.5px;stroke-linejoin:round}
 .pic text.l{fill:var(--ink);font-weight:600}.pic text.cap{fill:var(--ink-2)}
@@ -434,7 +434,7 @@
 .pic .pick circle{fill:var(--bg-elev);stroke:var(--ink);stroke-width:2.2}.pic .pick text{fill:var(--ink);font-weight:600;font-size:12px}
 .pic .pick.you circle{fill:var(--ink);stroke:var(--bg-elev);stroke-width:2}.pic .pick.you text{font-weight:500;font-size:11px;fill:var(--ink-2)}
 @media (prefers-reduced-motion:reduce){.pic .pick{opacity:1;transition:none}}
-@media (max-width:620px){.drill-pic-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.drill-pic-scroll .pic{min-width:560px}}
+
 
 /* Module 2 hub: the two-module strip under the hero */
 .mod-steps{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px;font-size:var(--fs-small);color:var(--ink-2)}

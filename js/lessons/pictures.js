@@ -40,7 +40,7 @@ const pictures = {
     ring(c.svg, c.x(30), c.y(big(0.3)), "Round 2 · 30% odds = $22.5K", { dy: -14, anchor: "end", dx: 10 });
     // The learner's pick each round: a dot on the line they chose, at that round's odds.
     you(c.svg, c.x(15), c.y(p1 === "cedar" ? cedar : big(0.15)), { dy: -8, dx: 0, anchor: "middle" });
-    you(c.svg, c.x(30), c.y(p2 === "cedar" ? cedar : big(0.3)), { dy: p2 === "cedar" ? 16 : -8, dx: 0, anchor: "middle" });
+    if (p2 === "cedar") you(c.svg, c.x(30), c.y(cedar), { dy: 16, dx: 0, anchor: "middle" }); else you(c.svg, c.x(30), c.y(big(0.3)), { dy: -8, dx: 10, anchor: "start" });
     return [c.svg, "Below 23% odds the sure $16.1K wins; above it the big account does. Round 1 sat left of the flip point, round 2 right of it. Same rule, two answers."];
   },
 
@@ -59,7 +59,7 @@ const pictures = {
     // Your estimates, on the rows they answered.
     const e1 = Number(p1), e2 = Number(p2);
     if (e1) you(svg, x(e1), rowY(3), { label: `you said ${e1}%`, dy: -10, dx: 0, anchor: "middle" });
-    if (e2) you(svg, x(e2), rowY(4), { label: `you said ${e2}%`, dy: 18, dx: 0, anchor: "middle" });
+    if (e2) you(svg, x(e2), rowY(4), { label: `you said ${e2}%`, dy: -10, dx: 0, anchor: "middle" });
     svg.append(txt((left + W - R) / 2, H - 8, "Chance Fresh Thyme takes the second SKU →", { "text-anchor": "middle", class: "cap" }));
     return [svg, "Three decent clues carry you from 35% to 74%. The rep's comment, weak evidence, takes you back only to 67%, still well past 50%. Each clue moves you by its strength, never to certainty."];
   },
@@ -74,10 +74,10 @@ const pictures = {
     flip(c.svg, c.x(30.3), "Flip point: 30%", { ty: T + 14 });
     ring(c.svg, c.x(55), c.y(val(0.55)), "Round 1 · 55% high velocity = $17.5K", { dy: -14, anchor: "end", dx: -8 });
     const guess = { 8: 8, 17: 17.5, 25: 25, 31: 31 }[p1];
-    if (guess && guess !== 17.5) you(c.svg, c.x(55), c.y(guess), { label: `you said ${fmtK(guess)}`, dx: 10 });
+    if (guess && guess !== 17.5) you(c.svg, c.x(55), c.y(guess), { label: `you said ${fmtK(guess)}`, dx: 10, dy: guess >= 30 ? 16 : 4 });
     c.svg.append(s("line", { class: "gap", x1: c.x(55), x2: c.x(55), y1: c.y(val(0.55)) + 7, y2: c.y(cost) - 2 }));
     c.svg.append(txt(c.x(55) + 8, c.y((val(0.55) + cost) / 2) - 2, "Round 2 · worth pursuing by $7.5K", { class: "l" }));
-    if (p2) c.svg.append(txt(c.x(55) + 8, c.y((val(0.55) + cost) / 2) + 12, `you ${p2 === "go" ? "pursued" : "walked away"}`, { class: "mid" }));
+    if (p2) c.svg.append(txt(c.x(55) + 8, c.y((val(0.55) + cost) / 2) + 16, `you ${p2 === "go" ? "pursued" : "walked away"}`, { class: "mid" }));
     return [c.svg, "Roll the endings back and the account is worth $17.5K at 55% odds, $7.5K more than it costs to pursue. Drop the odds below 30% and it stops being worth it: velocity is the fact to check first."];
   },
 
@@ -127,7 +127,7 @@ const pictures = {
     let f = 100; for (let m = 0; m <= 100; m += 1) if (score("Cut", m) > score("Rebalance", m)) { f = m; break; }
     flip(c.svg, c.x(f), `Flip point: about ${f}% margin`, { side: "left", ty: H - B - 10 });
     ring(c.svg, c.x(40), c.y(score("Rebalance", 40)), "Round 1 · the plan, 40% margin", { dy: -14 });
-    ring(c.svg, c.x(80), c.y(score("Cut", 80)), "Round 2 · the VP, 80%", { dy: -14, anchor: "end", dx: -6 });
+    ring(c.svg, c.x(80), c.y(score("Cut", 80)), "Round 2 · VP, 80%", { dy: -14, anchor: "start", dx: 10 });
     const nameOf = (id) => opts.find((o) => o.id === id)?.name;
     if (nameOf(p1)) you(c.svg, c.x(40), c.y(score(nameOf(p1), 40)), { dy: 18, dx: 0, anchor: "middle" });
     if (nameOf(p2)) you(c.svg, c.x(80), c.y(score(nameOf(p2), 80)), { dy: 18, dx: 0, anchor: "middle" });
@@ -140,12 +140,12 @@ const pictures = {
       xLabel: "Promotion spend on Brand A per quarter →", aria: "Contribution rises with spend, peaks near $47K, then falls. The four options sit at $20K, $40K, $60K and $80K." });
     const pts = []; for (let sp = 0; sp <= 100; sp += 2) pts.push([c.x(sp), c.y(f(sp))]);
     c.svg.append(poly("ln acc", pts));
-    flip(c.svg, c.x(opt), `Peak: about $${opt.toFixed(0)}K`, { ty: H - B - 12 });
+    flip(c.svg, c.x(opt), `Peak: about $${opt.toFixed(0)}K`);
     [20, 60, 80].forEach((sp) => c.svg.append(s("circle", { class: "dot", cx: c.x(sp), cy: c.y(f(sp)), r: 5 }), txt(c.x(sp), c.y(f(sp)) + 20, fmtK(+f(sp).toFixed(1)), { "text-anchor": "middle" })));
-    ring(c.svg, c.x(40), c.y(f(40)), "Round 1 · hold at $40K = $24.2K", { dy: -14 });
+    ring(c.svg, c.x(40), c.y(f(40)), "Round 1 · hold at $40K = $24.2K", { dy: -14, anchor: "end", dx: -10 });
     const yours = Number(p1); if (yours && yours !== 40) you(c.svg, c.x(yours), c.y(f(yours)), { dy: -8, dx: 0, anchor: "middle" });
     c.svg.append(txt(c.x(78), c.y(6), "Past the peak, each extra dollar loses money", { class: "l bad", "text-anchor": "middle" }));
-    c.svg.append(txt(c.x(100), c.y(29), `Round 2 · $20K on Brand D's display earns $10K${p2 ? ` (you ${p2 === "move" ? "moved it" : "kept it on A"})` : ""}`, { class: "l", "text-anchor": "end" }));
+    c.svg.append(txt(c.x(100), c.y(1.8), `Round 2 · $20K on Brand D's display earns $10K${p2 ? ` (you ${p2 === "move" ? "moved it" : "kept it on A"})` : ""}`, { class: "l", "text-anchor": "end" }));
     return [c.svg, "Contribution climbs, peaks near $47K, and falls. The last $20K from $40K to $60K buys volume and loses $0.8K; the same $20K on Brand D's display earns $10K."];
   },
 
@@ -153,18 +153,18 @@ const pictures = {
     const plans = [["p1", "Plan 1", 8.2, -3.3], ["p2", "Plan 2", 8.1, 3.0], ["p2b", "Plan 2, rerun", 3.9, 2.6]];
     const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, class: "pic", role: "img", "aria-label": "Two panels. Left, what the forecast says: sales up 8.2%, 8.1% and 3.9%. Right, what each plan does to margin: minus 3.3 points, plus 3.0 and plus 2.6." });
     const panel = (x0, title, key, lo, hi, unit, fmt) => {
-      const pw = (W - L - R - 30) / 2, y = (v) => H - B - ((v - lo) / (hi - lo)) * (H - T - 20 - B);
+      const pw = (W - L - R - 30) / 2, base = H - B - 20, y = (v) => base - ((v - lo) / (hi - lo)) * (base - T - 20);
       svg.append(txt(x0 + pw / 2, T + 2, title, { class: "l", "text-anchor": "middle" }));
       svg.append(s("line", { class: "ax", x1: x0, x2: x0 + pw, y1: y(0), y2: y(0) }));
       plans.forEach(([id, name, sales, margin], i) => {
         const v = key === "sales" ? sales : margin, bw = 34, bx = x0 + 16 + i * ((pw - 32) / 3) + ((pw - 32) / 3 - bw) / 2;
         const picked = (i === 0 && (p1 === "p1" || p2 === "p1")) || (i === 1 && p1 === "p2") || (i === 2 && p2 === "p2");
         svg.append(s("rect", { class: `bar ${key === "sales" ? "mid" : v < 0 ? "bad" : "acc"}${picked ? " picked" : ""}`, x: bx, y: v < 0 ? y(0) : y(v), width: bw, height: Math.abs(y(v) - y(0)), rx: 2 }));
-        svg.append(txt(bx + bw / 2, v < 0 ? y(v) + 14 : y(v) - 6, fmt(v), { class: `l ${key === "sales" ? "" : v < 0 ? "bad" : "acc"}`, "text-anchor": "middle" }));
-        svg.append(txt(bx + bw / 2, H - B + 16, name, { "text-anchor": "middle" }));
-        if (picked) svg.append(txt(bx + bw / 2, H - B + 30, "your pick", { class: "l", "text-anchor": "middle" }));
+        svg.append(txt(bx + bw / 2, v < 0 ? y(v) + 12 : y(v) - 6, fmt(v), { class: `l ${key === "sales" ? "" : v < 0 ? "bad" : "acc"}`, "text-anchor": "middle" }));
+        svg.append(txt(bx + bw / 2, base + 18, name, { "text-anchor": "middle" }));
+        if (picked) svg.append(txt(bx + bw / 2, base + 34, "your pick", { class: "l", "text-anchor": "middle" }));
       });
-      svg.append(txt(x0 + pw, H - B + 44, unit, { "text-anchor": "end", class: "cap" }));
+      svg.append(txt(x0 + pw, base + 52, unit, { "text-anchor": "end", class: "cap" }));
     };
     panel(L, "What the forecast says", "sales", 0, 10, "sales growth next quarter", (v) => `+${v}%`);
     panel(L + (W - L - R - 30) / 2 + 30, "What it does to margin", "margin", -4, 4, "margin, in points", (v) => `${v > 0 ? "+" : "−"}${Math.abs(v)} pts`);
@@ -186,10 +186,10 @@ const pictures = {
     c.svg.append(txt(c.x(4.2), c.y(e24[4][1]) + 16, "24 hours exploring", { class: "l bad", "text-anchor": "middle" }), txt(c.x(6) - 10, c.y(e24.at(-1)[1]) + 26, `+${fmtK(Math.round(e24.at(-1)[1]))} by month 6`, { class: "l bad", "text-anchor": "end" }));
     flip(c.svg, c.x(1.6), "Flip point: pays back during month 2", { ty: T + 14 });
     ring(c.svg, c.x(6), c.y(e8.at(-1)[1]), `Round 1 · six months: +${fmtK(Math.round(e8.at(-1)[1]))}`, { dy: -14, anchor: "end", dx: 6 });
-    ring(c.svg, c.x(1), c.y(-2), "Round 2 · leaving after month 1: still behind", { dy: -14, anchor: "start", dx: 6 });
+    ring(c.svg, c.x(1), c.y(-2), "Round 2 · leaving after month 1", { dy: -14, anchor: "start", dx: 6 });
     const at = (hrs, m) => (hrs === 0 ? 0 : (lines[hrs] || gain(first[hrs]))[m][1]);
-    if (p1 in first) you(c.svg, c.x(6), c.y(at(Number(p1), 6)), { dx: -10, anchor: "end", dy: Number(p1) === 8 ? 16 : 4 });
-    if (p2 in first) you(c.svg, c.x(1), c.y(at(Number(p2), 1)), { dx: 8 });
+    if (p1 in first) you(c.svg, c.x(6), c.y(at(Number(p1), 6)), { dx: -10, anchor: "end", dy: Number(p1) === 8 ? 16 : Number(p1) === 0 ? -8 : 4 });
+    if (p2 in first) you(c.svg, c.x(1), c.y(at(Number(p2), 1)), Number(p2) === 0 ? { dx: -10, anchor: "end" } : { dx: 8 });
     return [c.svg, "Exploring puts you behind in month one and ahead every month after, if you're still there. Eight hours is enough to learn; twenty-four digs a deeper hole for the same lesson."];
   },
 };
