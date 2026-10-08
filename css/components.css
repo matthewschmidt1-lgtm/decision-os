@@ -64,7 +64,7 @@ a.card:hover,.card.clickable:hover{transform:translateY(-2px);box-shadow:var(--s
 .delta.flat::before{width:8px;height:2px;border:0;background:currentColor}
 
 /* Evidence (practice scenarios): stat tiles, full-width rows, option cards */
-.evidence{display:grid;gap:24px;min-width:0}
+.evidence{display:grid;gap:16px;min-width:0}.ev-tiles+.ev-rows{margin-top:-16px}
 .ev-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:0 20px}
 .ev-tile{display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:12px 0 14px;border-top:1px solid var(--line);min-width:0}
 .ev-tile .k{font-size:var(--fs-micro);line-height:1.35;color:var(--muted)}
@@ -331,4 +331,11 @@ tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .nav-pair{flex-direction:column-reverse}
   .nav-stack>a,.nav-pair>a,.drill-links>a{display:flex}
   .nav-stack .btn,.nav-pair .btn,.drill-links .btn{width:100%;justify-content:center}
+}
+
+/* Empty progress tracks stay visible on a sunk card */
+.card-sunk .bar-track{background:var(--line)}
+@media (max-width:620px){
+  .layer{padding:20px}
+  .ev-tile:last-child:nth-child(odd){grid-column:1/-1}
 }

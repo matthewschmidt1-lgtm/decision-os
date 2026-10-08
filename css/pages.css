@@ -170,9 +170,9 @@
 .sim-tierbar .track i.neg{background:var(--bad)}
 .sim-tierbar .mark{position:absolute;top:-18px;transform:translateX(-50%);font-size:11px;font-weight:600;white-space:nowrap}
 .sim-tierbar .mark::after{content:"";position:absolute;left:50%;top:16px;width:2px;height:12px;background:currentColor}
-.sim-outcome{font-size:var(--fs-small);color:var(--ink-2)}
+.sim-outcome{font-size:var(--fs-small);color:var(--ink-2);margin-top:-10px}
 .sim-tablehead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.sim-dots-sum{font-size:var(--fs-small);color:var(--ink-2);margin:0 0 10px;max-width:var(--measure)}
+.sim-dots-sum{font-size:var(--fs-small);color:var(--ink-2);margin:4px 0 16px;max-width:var(--measure)}
 .sim-plots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .sim-fig{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-elev);padding:14px 16px 8px;display:grid;gap:6px;align-content:start}
 .sim-fig figcaption{display:grid;gap:2px}.sim-fig figcaption b{font-weight:600;font-size:var(--fs-small)}.sim-fig figcaption span{font-size:var(--fs-micro);color:var(--muted)}
@@ -193,7 +193,7 @@
 .sim-plot .pt .hit,.sim-plot .col .hit{fill:transparent!important;stroke:none!important;pointer-events:all}
 .sim-plot .pt.on circle:not(.hit){stroke:var(--ink);stroke-width:2.5}.sim-plot .col.on rect:not(.hit){stroke:var(--ink);stroke-width:2}
 .sim-plot .pt:focus-visible circle:not(.hit),.sim-plot .col:focus-visible rect:not(.hit){stroke:var(--accent);stroke-width:2.5}
-.sim-readout{margin:10px 0 0;font-size:var(--fs-small);color:var(--ink);font-variant-numeric:tabular-nums}.sim-readout[hidden]{display:none}
+.sim-readout{margin:10px 0 0;min-height:1.5em;font-size:var(--fs-small);color:var(--muted);font-variant-numeric:tabular-nums}.sim-readout.on{color:var(--ink)}
 @media (max-width:720px){.sim-plots{grid-template-columns:1fr}.sim-fig{padding:12px 10px 6px}}
 .sim-chains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
 .sim-chain{border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;background:var(--bg-elev);display:grid;gap:12px;align-content:start}
@@ -455,3 +455,8 @@
 /* Learning Principles: tighter steps, no dead space before the first */
 .step.principle{padding:28px 0}
 .section > .step.principle:first-child{padding-top:0;border-top:0}
+
+/* Portfolio results: a caption hugs its verdict, the brand charts and the quarter CTA get a section's worth of air */
+.sim-byb,.sim-go{margin-top:12px}
+.sim-scorecard{align-items:end}
+@media (max-width:620px){.sim-chain .lanes{grid-template-columns:1fr}.sim-chain li{flex-wrap:wrap}}

@@ -262,8 +262,12 @@ export default function Portfolio() {
     const NOISE = 2; // points of forecast error the sim's own noise can produce
     const board = h("div", { class: "sim-plots" }), boardNote = h("p", { class: "sim-dots-sum" });
     // Tap or click a brand on either chart and its numbers appear here (native tooltips never show on touch).
-    const readout = h("p", { class: "sim-readout", role: "status", hidden: true });
-    const select = (g, text) => { board.querySelectorAll(".pt.on, .col.on").forEach((el) => el.classList.remove("on")); board.querySelectorAll(`[data-brand="${g.dataset.brand}"]`).forEach((el) => el.classList.add("on")); readout.textContent = text; readout.hidden = false; };
+    const readoutFor = () => h("p", { class: "sim-readout", role: "status" }, "Tap a brand for its numbers.");
+    const select = (g, text) => {
+      board.querySelectorAll(".pt.on, .col.on").forEach((el) => el.classList.remove("on")); board.querySelectorAll(`[data-brand="${g.dataset.brand}"]`).forEach((el) => el.classList.add("on"));
+      board.querySelectorAll(".sim-readout").forEach((p) => { p.textContent = "Tap a brand for its numbers."; p.classList.remove("on"); });
+      const p = g.closest(".sim-fig")?.querySelector(".sim-readout"); if (p) { p.textContent = text; p.classList.add("on"); }
+    };
     const drawTable = () => {
       const rows = q.rows.map((r) => {
         const share = S.simBrands(vi).find((b) => b.id === r.id).share;
@@ -278,7 +282,7 @@ export default function Portfolio() {
       const tipText = (x) => `Brand ${x.id}: forecast ${pts(x.f)}, actual ${pts(x.a)} (${x.t === "even" ? "on plan" : `${delta(x.dd)} pts`}) · ${$k(x.spend)} trade`;
       const tip = (x) => svg("title", {}, tipText(x));
       const tappable = (g, x) => { g.dataset.brand = x.id; g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.addEventListener("click", () => select(g, tipText(x))); g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(g, tipText(x)); } }); return g; };
-      board.replaceChildren(scatter(rows, tip, tappable), columns(rows, tip, tappable)); readout.hidden = true;
+      board.replaceChildren(scatter(rows, tip, tappable), columns(rows, tip, tappable));
       const names = (list) => { const ids = list.map((x) => x.id); return `${ids.length > 1 ? "Brands" : "Brand"} ${ids.length > 1 ? `${ids.slice(0, -1).join(", ")} and ${ids.at(-1)}` : ids[0]}`; };
       const beat = signal.filter((x) => x.dd > 0), missed = signal.filter((x) => x.dd < 0);
       const parts = [beat.length && `${names(beat)} beat forecast`, missed.length && `${names(missed)} missed`].filter(Boolean).join("; ");
@@ -313,7 +317,7 @@ export default function Portfolio() {
         return tappable(svg("g", { class: `pt ${x.t}` }, tip(x), svg("circle", { class: "hit", cx, cy, r: 16 }), svg("circle", { cx, cy, r: x.t === "even" ? 5 : 6 }), svg("text", { x: cx + dx, y: cy + dy, "text-anchor": anchor }, x.id)), x);
       });
       g.append(...dots.reverse());
-      return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Forecast vs actual"), h("span", {}, "Above the line beat the forecast. Below it missed.")), g);
+      return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Forecast vs actual"), h("span", {}, "Above the line beat the forecast. Below it missed.")), g, readoutFor());
     };
     const columns = (rows, tip, tappable) => {
       const W = 360, H = 260, L = 56, R = 12, T = 22, B = 46;
@@ -331,7 +335,7 @@ export default function Portfolio() {
       });
       g.append(svg("text", { class: "ttl", x: (L + W - R) / 2, y: H - 8, "text-anchor": "middle" }, "Brand"),
         svg("text", { class: "ttl", x: 12, y: (T + H - B) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(T + H - B) / 2})` }, "Points vs forecast"));
-      return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Miss or beat"), h("span", {}, "Points above or below forecast. The grey band is normal noise.")), g);
+      return h("figure", { class: "sim-fig" }, h("figcaption", {}, h("b", {}, "Miss or beat"), h("span", {}, "Points above or below forecast. The grey band is normal noise.")), g, readoutFor());
     };
     drawTable();
     const viewBtns = [["all", "All"], ["on", "On-premise"], ["off", "Off-premise"]].map(([k, l]) => h("button", { type: "button", "aria-pressed": String(k === view), onClick: () => { view = k; viewBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k))); drawTable(); }, dataset: { k } }, l));
@@ -359,9 +363,9 @@ export default function Portfolio() {
       says(q.insight, "warn"),
       requestLine,
       achLine,
-      h("div", {}, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
-        boardNote, board, readout,
-        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "8px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point. Tap a brand for its numbers.")),
+      h("div", { class: "sim-byb" }, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
+        boardNote, board,
+        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "12px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point.")),
       h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
     ];
     if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding)))));
