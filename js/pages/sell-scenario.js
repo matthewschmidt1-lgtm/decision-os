@@ -38,11 +38,11 @@ export default async function SellScenario({ id, params }) {
   const isLastInSet = set && !nextInSet;
   const prior = getResult2(s.id);
 
-  const feedback = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
+  const feedback = h("div", { hidden: true, class: "stack verdict", style: { "--gap": "14px" } });
   const whyBtn = h("button", { type: "button", class: "btn btn-ghost", hidden: true }, "Why? See the reasoning and the principle ", h("span", { class: "arrow", "aria-hidden": "true" }, "↓"));
   const why = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
   const principle = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
-  const nextNav = h("nav", { hidden: true, "aria-label": "Next", style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } });
+  const nextNav = h("nav", { hidden: true, "aria-label": "Next", class: "nav-stack" });
 
   const show = (el) => { el.hidden = false; el.classList.add("reveal"); requestAnimationFrame(() => el.classList.add("in")); el.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
   const best = s.options.find(o => o.quality === "best");
@@ -55,7 +55,7 @@ export default async function SellScenario({ id, params }) {
     const head = o.quality === "best" ? "That's the move." : o.quality === "good" ? "Close. One more step." : "A common move. Here's a better one.";
     const habit = o.pattern && patterns[o.pattern];
     feedback.replaceChildren(...[h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `You chose: ${o.label}`), h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
-      habit ? h("div", { class: "layer layer-1", style: { marginTop: "4px" } }, h("p", { class: "eyebrow" }, "The habit this reveals"), h("p", { style: { marginTop: "8px", fontWeight: 500 } }, habit.name), h("p", { class: "muted", style: { marginTop: "4px", fontSize: "var(--fs-small)" } }, habit.coach)) : null,
+      habit ? h("div", { class: "layer layer-1" }, h("p", { class: "eyebrow" }, "The habit this reveals"), h("p", { style: { marginTop: "8px", fontWeight: 500 } }, habit.name), h("p", { class: "muted", style: { marginTop: "4px", fontSize: "var(--fs-small)" } }, habit.coach)) : null,
       o.quality !== "best" ? h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `Strongest option: ${best.label}`) : null].filter(Boolean));
     show(feedback); whyBtn.hidden = false;
   };

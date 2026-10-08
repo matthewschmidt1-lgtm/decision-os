@@ -22,11 +22,11 @@ export default async function Scenario({ id, params }) {
   const prior = getResult(s.id);
 
   // Progressive reveal: choice → feedback → why (evidence → reasoning → principle) → next move
-  const feedback = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
+  const feedback = h("div", { hidden: true, class: "stack verdict", style: { "--gap": "14px" } });
   const whyBtn = h("button", { type: "button", class: "btn btn-ghost", hidden: true }, "Why? See the reasoning and the principle ", h("span", { class: "arrow", "aria-hidden": "true" }, "↓"));
   const why = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
   const principle = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
-  const nextNav = h("nav", { hidden: true, "aria-label": "Next", style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } });
+  const nextNav = h("nav", { hidden: true, "aria-label": "Next", class: "nav-stack" });
 
   const show = (el) => { el.hidden = false; el.classList.add("reveal"); requestAnimationFrame(() => el.classList.add("in")); el.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
   const best = s.options.find(o => o.quality === "best");

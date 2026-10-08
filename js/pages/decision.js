@@ -67,7 +67,7 @@ function objectiveRounds(d, onDone) {
       s.prize ? h("div", { class: "obj-prize" }, h("b", {}, "The offer changes the options. "), s.prize.text, h("span", { class: "muted" }, " Your objective is back to the plan's; the options are what's different.")) : null,
       h("p", { class: "obj-ask" }, s.prize ? "What does the offer change? Adjust the weights if you want, then commit." : "What changes? Set the weights to match what they said, then commit to an option."),
       h("div", { class: "grid grid-2 obj-work" },
-        h("div", { class: "stack", style: { "--gap": "12px" } }, ...KEYS.map((k) => sliders[k]), h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Each slider sets how much that objective matters. The shares of 100% are worked out for you."), empty),
+        h("div", { class: "stack", style: { "--gap": "20px" } }, ...KEYS.map((k) => sliders[k]), h("p", { class: "muted", style: { fontSize: "var(--fs-micro)" } }, "Each slider sets how much that objective matters. The shares of 100% are worked out for you."), empty),
         h("div", {}, eyebrow("Score under your weights"), h("div", { style: { marginTop: "10px" } }, ranking))),
       h("div", { class: "obj-commit" }, h("span", { class: "muted" }, "Commit to:"), ...commitBtns),
       result);
@@ -175,8 +175,8 @@ export default async function Decision({ id }) {
     h("div", { style: { marginTop: "20px" } }, rounds), summary);
   // Returning to an answered decision starts fresh, like Practice: no hint of the earlier answer, and the badge and reasoning wait for a new choice.
   return h("article", {},
-    h("header", { class: "reveal" }, h("p", { class: "tag" }, subject), h("p", { class: `tag verb-${d.verb.toLowerCase()}`, style: { marginTop: "6px" } }, d.verb),
-      eyebrow("Question"), h("h1", { class: "hero", style: { marginTop: "12px", maxWidth: "24ch" } }, d.question)),
+    h("header", { class: "reveal" }, h("div", { class: "tags" }, h("p", { class: "tag" }, subject), h("p", { class: `tag verb-${d.verb.toLowerCase()}` }, d.verb)),
+      h("p", { class: "eyebrow", style: { marginTop: "20px" } }, "Question"), h("h1", { class: "hero", style: { marginTop: "12px", maxWidth: "24ch" } }, d.question)),
     h("section", { class: "section reveal", "aria-labelledby": "sees" }, h("h2", { id: "sees", style: { fontSize: "var(--fs-h3)" } }, "What the model sees"), h("div", { style: { marginTop: "16px" } }, metrics(d.sees))),
     h("section", { class: "section reveal", "aria-labelledby": "objective" }, h("div", { class: "card obj-card" },
       h("div", {}, eyebrow("The objective"), h("h2", { id: "objective", style: { fontSize: "var(--fs-h3)", marginTop: "8px" } }, d.objective.text),
@@ -186,7 +186,7 @@ export default async function Decision({ id }) {
     h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)", marginBottom: "16px" } }, "Your options"), h("div", { class: "options" }, ...optionEls), h("div", { style: { marginTop: "16px" } }, line)),
     whySection,
     roundsSection,
-    h("nav", { class: "section", "aria-label": "Next decision", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },
+    h("nav", { class: "section nav-pair", "aria-label": "Next decision" },
       link("/decisions", h("span", { class: "btn btn-ghost" }, "All decisions")),
       isLast ? link("/portfolio", h("span", { class: "btn" }, "You've seen all four. Now run the portfolio for a year ", arrow()))
              : link(`/decisions/${next.id}`, h("span", { class: "btn" }, `Next: ${next.verb} `, arrow()))),

@@ -54,10 +54,10 @@ export default function Practice() {
         h("div", { class: "card card-sunk stack" },
           eyebrow(p.done ? `${p.done} of ${p.total} completed · ${p.practiced} of ${Object.keys(skills).length} skills practiced` : "Your training"),
           ...Object.entries(skills).map(([k, s]) => { const b = p.bySkill[k]; return bar(s.name, b.score ?? 0, 100, { tone: b.score == null ? "muted" : b.score >= 80 ? "good" : b.score >= 60 ? "" : "warn", format: v => b.score == null ? "—" : `${v}%` }); }),
-          h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Scores reflect how often you chose the strongest option. They're meant to show you improving, not to rank you.")))),
+          h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "16px" } }, "Scores reflect how often you chose the strongest option. They're meant to show you improving, not to rank you.")))),
 
     h("section", { class: "section" },
-      h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "10px" } }, "What do you want to get better at?"))),
+      h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "12px" } }, "What do you want to get better at?"))),
       h("div", { class: "grid grid-3" },
         p.done ? setCard("5-minute challenge", "One case from each skill. The fastest way to see where you stand.", challengeList, `/practice/${challengeIds[0]}?set=challenge&i=0`) : null,
         ...tracks.map(t => { const list = scenarios.filter(t.filter); const first = nextUnplayed(list) || list[0]; return setCard(t.title, t.blurb, list, `/practice/${first.id}?set=${t.id}&i=${list.indexOf(first)}`); }))),

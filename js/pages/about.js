@@ -80,7 +80,7 @@ function playLoop(wrap, ol, steps, arc) {
       wrap.classList.replace("pre", "cards");
       setTimeout(drawArrow, (steps.length - 1) * LOOP_STAGGER_MS + LOOP_FADE_MS + 50);
     } else if (phase === "run") start();
-  }, { threshold: 0.4 }).observe(wrap);
+  }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }).observe(wrap);
 }
 
 function learningLoop() {
@@ -107,13 +107,13 @@ export default function About() {
     h("section", { class: "reveal" }, eyebrow("Learning Principles"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Don't show people algorithms. Let them experience them."),
       h("p", { class: "hero-sub" }, "Decision OS is built on a hard rule: never give a salesperson a recommendation without showing the decision logic. Not the whole model. Enough to answer five questions.")),
     h("section", { class: "section reveal" }, h("div", { class: "card card-sunk" }, h("ol", { style: { margin: 0, paddingLeft: "1.2em", display: "grid", gap: "8px", fontSize: "1.125rem" } }, ["What do they believe?", "Why do they believe it?", "What evidence matters?", "What is uncertain?", "What would change the recommendation?"].map(q => h("li", {}, q))))),
-    h("section", { class: "section" }, principles.map(p => h("div", { class: "step reveal", style: { padding: "40px 0" } },
+    h("section", { class: "section" }, principles.map(p => h("div", { class: "step reveal principle" },
       h("span", { class: "n" }, p.n),
       h("div", { class: "stack", style: { "--gap": "16px", maxWidth: "var(--measure)" } },
         h("h2", {}, p.title),
         h("p", { class: "lede", style: { fontSize: "1.25rem", color: "var(--ink)" } }, p.lede),
         ...p.body.map(t => h("p", { class: "muted", style: { fontSize: "1.0625rem" } }, t)),
-        h("p", { style: { fontWeight: 500, marginTop: "6px" } }, p.tagline))))),
+        h("p", { style: { fontWeight: 500, marginTop: "20px" } }, p.tagline))))),
     learningLoop(),
     h("section", { class: "section reveal" }, link("/learn", h("span", { class: "btn" }, "Visit the algorithm library ", arrow()))),
   );

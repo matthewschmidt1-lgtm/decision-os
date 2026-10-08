@@ -60,10 +60,10 @@ export default async function Sell() {
           eyebrow(p.done ? `${p.done} of ${p.total} completed · ${p.practiced} of ${Object.keys(skills2).length} skills practiced` : "Your selling"),
           ...Object.entries(skills2).map(([k, s]) => { const b = p.bySkill[k]; return bar(s.name, b.score ?? 0, 100, { tone: b.score == null || b.n < 3 ? "muted" : b.score >= 80 ? "good" : b.score >= 60 ? "" : "warn", format: v => b.score == null ? "—" : b.n < 3 ? "Early" : v >= 80 ? "Strong" : v >= 60 ? "Solid" : "Watch" }); }),
           lines.length ? h("div", { style: { marginTop: "10px", paddingTop: "12px", borderTop: "1px solid var(--line)" } }, eyebrow("How you sell"), ...lines.map(t => h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, t)))
-            : h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "6px" } }, "Strong, Solid, or Watch, once you've played three in a skill: how often you chose the strongest move. After five conversations, this panel also names the selling habits your choices reveal.")))),
+            : h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "16px" } }, "Strong, Solid, or Watch, once you've played three in a skill: how often you chose the strongest move. After five conversations, this panel also names the selling habits your choices reveal.")))),
 
     h("section", { class: "section" },
-      h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "10px" } }, "Where does the conversation go wrong for you?"))),
+      h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "12px" } }, "Where does the conversation go wrong for you?"))),
       h("div", { class: "grid grid-3" },
         p.done ? setCard("5-minute challenge", "Five conversations across the sales process. Find the habits that shape how you sell.", challengeList, `/sell/${challengeIds2[0]}?set=challenge&i=0`) : null,
         ...tracks2.map((t, k) => { const list = scenarios2.filter(t.filter); const first = nextUnplayed2(list) || list[0]; return setCard(t.title, t.blurb, list, `/sell/${first.id}?set=${t.id}&i=${list.indexOf(first)}`, k + 1); }))),

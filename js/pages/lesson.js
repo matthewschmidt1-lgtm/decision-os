@@ -63,6 +63,6 @@ function drillPage(l, d, i, next) {
       D.situation.points ? h("ul", { class: "drill-points" }, D.situation.points.map((t) => h("li", {}, t))) : null, first_),
     h("section", { class: "section" }, twist),
     h("section", { class: "section" }, close),
-    h("nav", { class: "section", "aria-label": "Next lesson", style: { display: "flex", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" } },
+    h("nav", { class: "section nav-pair", "aria-label": "Next lesson" },
       link("/learn", h("span", { class: "btn btn-ghost" }, "All algorithms")), next ? link(`/learn/${next.slug}`, h("span", { class: "btn" }, `Next: ${next.title} `, arrow())) : link("/portfolio", h("span", { class: "btn" }, "Run the portfolio ", arrow()))));
 }

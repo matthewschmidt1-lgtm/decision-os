@@ -86,7 +86,7 @@ a.card:hover,.card.clickable:hover{transform:translateY(-2px);box-shadow:var(--s
 .ev-card li b{font-weight:600;color:var(--ink)}
 
 /* Bars */
-.bars{display:grid;gap:10px}
+.bars{display:grid;gap:14px}
 .bar-row{display:grid;grid-template-columns:minmax(110px,170px) 1fr 64px;gap:14px;align-items:center;font-size:var(--fs-small)}
 .bar-row .label{color:var(--ink-2);line-height:1.25}
 .bar-track{height:10px;background:var(--bg-sunk);border-radius:var(--r-pill);overflow:hidden}
@@ -124,10 +124,10 @@ a.card:hover,.card.clickable:hover{transform:translateY(-2px);box-shadow:var(--s
 .layer{padding:20px 24px;border-radius:var(--r-md)}
 .layer-1{background:var(--bg-sunk)}
 .layer-2{border:1px solid var(--line)}
-.layer .eyebrow{margin-bottom:8px}
+.layer .eyebrow{margin-bottom:12px}
 
 /* Sliders */
-.control{display:grid;gap:10px}
+.control{display:grid;gap:4px}
 .control-head{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--fs-small)}
 .control-head output{font-family:var(--mono);font-size:var(--fs-small)}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0}
@@ -215,7 +215,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac
 .toast.show{opacity:1;transform:translateX(-50%)}
 
 /* Practice choices */
-.choices{display:grid;gap:10px}
+.choices{display:grid;gap:12px}
 .option.choice{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:center;font-size:var(--fs-body);padding:14px 18px}
 .option.choice:disabled{cursor:default}
 .option.choice:disabled:not([aria-pressed="true"]):not(.preferred){opacity:.55}
@@ -314,4 +314,21 @@ tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .btn,.sim-scout{min-height:44px}
   button.link{min-height:44px;padding:0 4px;margin:-6px -4px}
   .ev-tile.wide{grid-column:1/-1}
+}
+
+/* Spacing pass (phone audit): verdicts, stacked navs, tag rows, badges, headings in cards */
+.verdict{border-top:1px solid var(--line);padding-top:20px}
+.verdict h2{line-height:1.3}
+.card h2{line-height:1.3}
+.stack>a{display:inline-flex}
+.tags{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.nav-stack{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.nav-pair{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.choices:has(.preferred){gap:18px}.options:has(.preferred){row-gap:18px}
+@media (max-width:620px){
+  .bars{gap:16px}.bar-row{gap:4px 12px}
+  .nav-stack,.nav-pair{flex-direction:column;align-items:stretch}
+  .nav-pair{flex-direction:column-reverse}
+  .nav-stack>a,.nav-pair>a,.drill-links>a{display:flex}
+  .nav-stack .btn,.nav-pair .btn,.drill-links .btn{width:100%;justify-content:center}
 }
