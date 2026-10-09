@@ -29,7 +29,6 @@ export default function Home() {
       h("p", { class: "hero-sub home-bold", style: { fontWeight: 600, color: "var(--ink)" } }, "Decision OS puts you in those moments."),
       h("p", { class: "hero-sub", style: { marginTop: "16px" } }, "You make the call. Then we reveal the reasoning and principles behind the situation, so you understand not just the answer, but how to think through the next decision."),
       h("ul", { class: "hero-sub hero-list" }, ["What matters and what doesn\u2019t matter?", "What evidence should you trust?", "What tradeoffs are you making?", "What would change your decision?"].map((t) => h("li", {}, t))),
-      h("p", { class: "hero-sub", style: { marginTop: "24px" } }, "Then we reveal the reasoning and principles behind the situation, so you understand not just the answer, but how to think through the next decision."),
     ),
     h("section", { class: "reveal section" },
       eyebrow("You've got 5 minutes. Let's practice."),
