@@ -1,4 +1,7 @@
 :root {
+  color-scheme: light;
+  --gold: #b8962e; --gold-line: #d8c27a; --gold-soft: #fbf6e6;
+  --tier-bronze: #8a5a2b; --tier-silver: #5d6470; --tier-gold: #9a7400;
   --bg: #F5F5F0;
   --bg-elev: #FBFBF8;
   --bg-sunk: #EDEDE7;
@@ -43,4 +46,56 @@
   --gutter: clamp(16px, 4vw, 48px);
   --max: 1120px;
   --measure: 62ch;
+}
+
+/* Dark: warm charcoal and off-white, the ivory feel inverted. Chosen in the footer (data-theme), or follows the device when set to Auto. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1C1C1A;
+  --bg-elev: #242421;
+  --bg-sunk: #151513;
+  --ink: #ECEAE4;
+  --ink-2: #C6C4BC;
+  --muted: #918F88;
+  --line: rgba(236, 234, 228, 0.12);
+  --line-strong: rgba(236, 234, 228, 0.22);
+  --accent: #7BA2F4;
+  --accent-ink: #0F1626;
+  --accent-soft: rgba(123, 162, 244, 0.16);
+  --good: #5FBD84;
+  --good-soft: rgba(95, 189, 132, 0.16);
+  --warn: #DCA64E;
+  --warn-soft: rgba(220, 166, 78, 0.16);
+  --bad: #E57169;
+  --bad-soft: rgba(229, 113, 105, 0.16);
+  --gold: #D9B64A; --gold-line: rgba(217, 182, 74, 0.45); --gold-soft: rgba(217, 182, 74, 0.12);
+  --tier-bronze: #C98F5A; --tier-silver: #A9B0BC; --tier-gold: #D9B64A;
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+  --shadow-2: 0 2px 6px rgba(0,0,0,0.4), 0 18px 50px rgba(0,0,0,0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  --bg: #1C1C1A;
+  --bg-elev: #242421;
+  --bg-sunk: #151513;
+  --ink: #ECEAE4;
+  --ink-2: #C6C4BC;
+  --muted: #918F88;
+  --line: rgba(236, 234, 228, 0.12);
+  --line-strong: rgba(236, 234, 228, 0.22);
+  --accent: #7BA2F4;
+  --accent-ink: #0F1626;
+  --accent-soft: rgba(123, 162, 244, 0.16);
+  --good: #5FBD84;
+  --good-soft: rgba(95, 189, 132, 0.16);
+  --warn: #DCA64E;
+  --warn-soft: rgba(220, 166, 78, 0.16);
+  --bad: #E57169;
+  --bad-soft: rgba(229, 113, 105, 0.16);
+  --gold: #D9B64A; --gold-line: rgba(217, 182, 74, 0.45); --gold-soft: rgba(217, 182, 74, 0.12);
+  --tier-bronze: #C98F5A; --tier-silver: #A9B0BC; --tier-gold: #D9B64A;
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+  --shadow-2: 0 2px 6px rgba(0,0,0,0.4), 0 18px 50px rgba(0,0,0,0.5);
+  }
 }
