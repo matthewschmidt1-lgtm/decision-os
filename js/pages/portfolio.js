@@ -7,6 +7,8 @@ import { $k, signed$, pts, per$, delta, tone, reduced, verdictOf } from "../port
 import { createDeck } from "../portfolio/deck.js";
 import { createMap } from "../portfolio/map.js";
 import { createPanel } from "../portfolio/panel.js";
+import { createFunding } from "../portfolio/funding.js";
+import * as P from "../portfolio/plan.js";
 
 // Portfolio: run eight brands for a year, on-premise and off-premise. Decide → run the quarter → results → reallocate → review.
 // The goal is a score against last year's plan. The hints are there to use or ignore; the ideas behind them are named at the end.
@@ -17,7 +19,7 @@ const save = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catc
 const fresh = (vi = 0) => ({ vi, plans: [], draft: S.lastYearPlan(), phase: "decide", note: "", nextScout: null });
 
 const tile = (label, value, sub, cls = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${cls}` }, value), sub ? h("span", { class: "sim-sub" }, sub) : null);
-const unlocked = (qi, what) => S.QUARTERS.slice(0, qi + 1).some((q) => q.unlock === what);
+const unlocked = P.unlocked;
 
 export default function Portfolio() {
   setMeta({ title: "Portfolio", description: "Run eight brands for a year, on-premise and off-premise. Beat last year's plan." });
@@ -78,10 +80,8 @@ export default function Portfolio() {
     const qi = st.plans.length, Q = S.QUARTERS[qi], plan = st.draft, vi = st.vi;
     const brands = S.simBrands(vi), dil = S.dilemma(qi, vi);
     const canFocus = unlocked(qi, "focus"), canDays = unlocked(qi, "days");
-    if (!canDays) plan.days = { ...S.lastYearPlan().days };
-    if (!canFocus) plan.focus = { ...S.lastYearPlan().focus };
-    if (st.nextScout && !plan.scout.includes(st.nextScout) && state.scouted[st.nextScout] === undefined && state.scoutsLeft > plan.scout.length) plan.scout.push(st.nextScout);
-    st.nextScout = null;
+    P.applyLocks(plan, qi);
+    P.takeNextScout(plan, st, state);
 
     const go2 = h("button", { type: "button", class: "btn btn-lg", onClick: () => runQuarter() });
     let nums = null; // the latest forecast and budgets, shared by the map and the panel
@@ -112,13 +112,16 @@ export default function Portfolio() {
       if (why) announce(`${why} Free trade ${$k(free)}. This quarter ≈ ${signed$(proj)} against last year's plan.`);
     };
 
-    // Plan edits from the panel. Same limits as before: + needs $10K free, − stops at zero; days likewise.
+    // Plan edits from the panel, all through js/portfolio/plan.js: + needs $10K free, − stops at zero; days likewise.
     const actions = {
-      trade: (id, d) => { if (d > 0 && nums.free < S.STEP.trade) return; plan.trade[id] = Math.max(0, plan.trade[id] + d * S.STEP.trade); refresh(`Brand ${id} ${$k(plan.trade[id])}.`); },
-      days: (id, d) => { if (d > 0 && nums.freeDays < 1) return; plan.days[id] = Math.max(0, plan.days[id] + d); refresh(`Brand ${id} ${plan.days[id]} field days.`); },
-      focus: (id, k) => { plan.focus[id] = k; refresh(`Brand ${id}: ${S.FOCUS[k]}.`); },
-      scout: (id) => { const i = plan.scout.indexOf(id); if (i >= 0) plan.scout.splice(i, 1); else if (state.scouted[id] === undefined && nums.scoutsLeft > 0) plan.scout.push(id); else return; refresh(`Brand ${id}: ${i >= 0 ? "scout removed" : "scout sent"}.`); },
+      trade: (id, d) => { funding.rebase(); P.stepTrade(plan, id, d, qi, vi); refresh(`Brand ${id} ${$k(plan.trade[id])}.`); },
+      setTrade: (id, x) => { const was = plan.trade[id]; P.setTrade(plan, id, x, qi, vi); if (plan.trade[id] !== was) refresh(`Brand ${id} ${$k(plan.trade[id])}.`); },
+      move: (from, to) => { P.moveTrade(plan, from, to, qi, vi); refresh(`$10K moved from Brand ${from} to Brand ${to}: ${$k(plan.trade[from])} and ${$k(plan.trade[to])}.`); },
+      days: (id, d) => { P.stepDays(plan, id, d, qi, vi); refresh(`Brand ${id} ${plan.days[id]} field days.`); },
+      focus: (id, k) => { P.setFocus(plan, id, k); refresh(`Brand ${id}: ${S.FOCUS[k]}.`); },
+      scout: (id) => { const had = plan.scout.includes(id); P.toggleScout(plan, id, state); refresh(`Brand ${id}: ${had ? "scout removed" : plan.scout.includes(id) ? "scout sent" : "no scout free"}.`); },
     };
+    const funding = createFunding({ actions });
     const findingOf = (id) => { const at = state.scouted[id]; const r = at === undefined ? null : yearQs[at]?.rows.find((x) => x.id === id && x.finding); return r ? { q: at, text: r.finding } : null; };
     const showPanel = () => {
       if (!nums) return;
@@ -127,30 +130,8 @@ export default function Portfolio() {
     };
 
     const request = dil ? (() => {
-      // Every option is clickable. If a choice costs money you haven't freed up, it's funded for you (first from the brand the
-      // request is about, then from the brands whose next $10K returns least) and the card says what moved.
-      const fund = (o) => {
-        let need = o.cost - (S.BUDGET.trade - S.planTotals({ ...plan, answer: null }, qi, vi).trade);
-        const moved = {};
-        const f = S.forecastQuarter(state, plan, qi).rows;
-        const order = [o.extra?.id, ...[...f].sort((x, y) => x.next - y.next).map((r) => r.id)].filter(Boolean);
-        for (const id of order) { while (need > 0 && plan.trade[id] >= S.STEP.trade) { plan.trade[id] -= S.STEP.trade; need -= S.STEP.trade; moved[id] = (moved[id] || 0) + S.STEP.trade; } if (need <= 0) break; }
-        const list = Object.entries(moved).map(([id, x]) => `${$k(x)} from Brand ${id}`);
-        st.fundNote = list.length ? `To fund it, ${list.join(" and ")} moved into the request.` : null;
-        st.funded = list.length ? moved : null;
-      };
-      // Changing or clearing the answer gives back whatever the earlier choice pulled out of the brands.
-      const refund = () => { if (st.funded) { for (const [id, x] of Object.entries(st.funded)) plan.trade[id] = (plan.trade[id] || 0) + x; st.funded = null; } };
-      const pick = (o) => {
-        st.fundNote = null; refund();
-        if (plan.answer === o.id) plan.answer = null;
-        else {
-          if (o.cost) fund(o);
-          if (o.scout) { const free = state.scoutsLeft - plan.scout.length; if (free <= 0 && plan.scout.length) { const dropped = plan.scout.pop(); st.fundNote = `Your scout on Brand ${dropped} goes here instead.`; } }
-          plan.answer = o.id;
-        }
-        stage.replaceChildren(decideView(state, prev));
-      };
+      // Every option is clickable; js/portfolio/plan.js funds a paid option from the brands and refunds it on a change.
+      const pick = (o) => { P.pickAnswer(plan, st, o, state, qi, vi); stage.replaceChildren(decideView(state, prev)); };
       const box = h("div", { class: "sim-request", role: "group", "aria-label": `Request from ${dil.who}` },
         h("p", { class: "who" }, `A request from ${dil.who}`), h("p", { class: "ask" }, dil.ask),
         h("div", { class: "opts" }, ...dil.options.map((o) => {
@@ -168,11 +149,11 @@ export default function Portfolio() {
     // The map and the inspection panel (a bottom sheet under 1024px).
     const open = (id, focus) => { selectedId = id; map.select(id); showPanel(); sheetOpen = true; panel.open(focus); };
     const map = createMap({ onSelect: (id) => open(id, true) });
-    const panel = createPanel({ actions, onSelect: (id) => { open(id, false); }, onClose: () => { sheetOpen = false; panel.close(); map.tile(selectedId).focus(); } });
+    const panel = createPanel({ actions, extra: (slot, c) => funding.update(slot, { ...c, f: nums.f }), onSelect: (id) => { open(id, false); }, onClose: () => { sheetOpen = false; panel.close(); map.tile(selectedId).focus(); } });
     map.select(selectedId);
     if (sheetOpen) panel.open(false);
 
-    const setPlan = (p) => { st.draft = { ...S.clonePlan(p), answer: plan.answer }; stage.replaceChildren(decideView(state, prev)); };
+    const setPlan = (p) => { st.draft = P.resetTo(plan, p); stage.replaceChildren(decideView(state, prev)); };
     const view = h("div", { class: "sim-flow" },
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
       request,
@@ -189,7 +170,7 @@ export default function Portfolio() {
   function howTo() {
     return h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
       h("li", {}, h("b", {}, "The goal: "), "end the year ahead of what last year's plan would have made. Your score counts gross profit after trade."),
-      h("li", {}, h("b", {}, "Trade: "), "press − to take $10K off a brand into your free trade, + to give it to another. You can't overspend, and you don't have to spend it all."),
+      h("li", {}, h("b", {}, "Trade: "), "open a brand and drag its throttle, or press − and +, in $10K steps. Money you take off goes to free trade; you can't overspend, and you don't have to spend it all."),
       h("li", {}, h("b", {}, "Next $10K: "), "what the team expects the next $10K to bring back in gross profit, with the on-premise and off-premise figures underneath. $1 back per $1 breaks even; less loses money. A range means the team isn't sure."),
       h("li", {}, h("b", {}, "Where it goes: "), "Both splits a brand's money in its usual on/off-premise mix, shown in the brand's panel. On-premise work pays 40% of its return next quarter."),
       h("li", {}, h("b", {}, "Scouts: "), "two a year. A rep finds out how a brand really responds, and reports back after the quarter."),
@@ -345,7 +326,7 @@ export default function Portfolio() {
     const viewBtns = [["all", "All"], ["on", "On-premise"], ["off", "Off-premise"]].map(([k, l]) => h("button", { type: "button", "aria-pressed": String(k === view), onClick: () => { view = k; viewBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k))); drawTable(); }, dataset: { k } }, l));
     const scoutsLeft = q.nextState.scoutsLeft;
     const next = h("button", { type: "button", class: "btn btn-lg", onClick: () => {
-      if (nextQ) { st.phase = "decide"; st.draft = { ...S.clonePlan(q.plan), scout: [], answer: null }; } else st.phase = "review";
+      if (nextQ) { st.phase = "decide"; st.draft = P.nextDraft(q); } else st.phase = "review";
       persist(); render({ scroll: true });
     } }, nextQ ? `Plan ${nextQ.id} ` : "See your year ", arrow());
     const requestLine = q.answer ? requestOutcome(q) : null;

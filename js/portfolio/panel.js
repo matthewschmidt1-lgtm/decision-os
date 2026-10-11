@@ -87,7 +87,7 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     const [offT, offC] = gainOf(r.mOff, $k), [onT, onC] = gainOf(r.mOn, $k);
     ui.chan.replaceChildren(
       h("span", {}, h("b", {}, "Off-premise"), ` ${per$(r.mOff)} back · `, h("span", { class: offC }, offT)),
-      h("span", {}, h("b", {}, "On-premise"), ` ${per$(r.mOn)} back · `, h("span", { class: onC }, onT), ", 40% of it lands next quarter"));
+      h("span", {}, h("b", {}, "On-premise"), ` ${per$(r.mOn)} back · `, h("span", { class: onC }, onT), `, 40% of it lands ${c.qi === 3 ? "next year" : "next quarter"}`));
     const last = c.last;
     ui.lastQ.hidden = !last;
     if (last) ui.lastQ.replaceChildren(`${S.QUARTERS[c.qi - 1].id}: `, ...[["off-premise", last.mOffLast, last.xOff < last.floor], ["on-premise", last.mOnLast, false]].filter(([, m]) => m != null)

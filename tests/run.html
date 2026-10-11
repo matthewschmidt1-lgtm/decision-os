@@ -7,6 +7,7 @@
   import "./sim.test.mjs";
   import "./scenarios2.test.mjs";
   import "./sim-baseline.test.mjs";
+  import "./plan.test.mjs";
   const out = document.getElementById("out");
   document.addEventListener("test", () => { out.replaceChildren(...window.__results.map(r => Object.assign(document.createElement("li"), { className: r.ok ? "ok" : "fail", textContent: r.name + (r.err ? " — " + r.err : "") }))); });
   document.dispatchEvent(new CustomEvent("test"));
