@@ -57,6 +57,52 @@ export const VARIANTS = [
   } },
 ];
 const FIXED = { off: { R: 1.30 }, dp: 5 }; // what a broken brand's response becomes once its chain is fixed
+const CAT = { A: "vodka", B: "bourbon", C: "gin", D: "tequila", E: "rum", F: "mezcal", G: "rye", H: "canned cocktails" };
+
+// ---------- The market ----------
+// One or two things change in the market each quarter. Each is one of three kinds, and each kind has a different right
+// answer: demand down (shoppers buy less: don't chase it), response down (promotions lift less: move the money), or shelf
+// under attack (it takes more off-premise money to hold the space: defend the floor). The team reads the signal; the
+// forecast on the card reflects it; the player still decides how much, where, or whether to keep the money.
+const MARKET = [
+  { 0: [{ id: "D", ch: "off", kind: "demand", size: 6 }], 1: [{ id: "A", ch: "off", kind: "shelf", size: 20 }], 2: [{ id: "B", ch: "off", kind: "response", size: 0.7 }], 3: [{ id: "E", ch: "off", kind: "demand", size: 5 }] },
+  { 0: [{ id: "E", ch: "off", kind: "demand", size: 5 }], 1: [{ id: "B", ch: "off", kind: "shelf", size: 20 }], 2: [{ id: "A", ch: "off", kind: "response", size: 0.7 }], 3: [{ id: "D", ch: "off", kind: "demand", size: 4 }] },
+];
+export const marketSignals = (vi, qi) => (MARKET[vi] || MARKET[0])[qi] || [];
+const marketAdj = (vi, qi, id) => {
+  const a = { base: 0, offR: 1, onR: 1, floor: 0 };
+  for (const s of marketSignals(vi, qi)) {
+    if (s.id !== id) continue;
+    if (s.kind === "demand") { a.base -= s.size; if (s.ch === "off") a.offR *= 0.75; else a.onR *= 0.75; } // fewer shoppers, and promotions lift less among those left
+    else if (s.kind === "response") { if (s.ch === "off") a.offR *= s.size; else a.onR *= s.size; }
+    else a.floor += s.size;
+  }
+  return a;
+};
+export const marketBase = (vi, qi, id) => marketAdj(vi, qi, id).base; // for tests and the stated-growth check
+// The read the team gives the player on the Decide screen, with what it implies.
+export function marketRead(vi, qi) {
+  return marketSignals(vi, qi).map((s) => {
+    const who = `Brand ${s.id} (${CAT[s.id]}), ${s.ch === "off" ? "off-premise" : "on-premise"}`;
+    const floor = (BASE[s.id].off.floor || 0) + s.size;
+    return s.kind === "demand" ? { ...s, text: `${who}: the category is down about ${s.size}% at grocery. Fewer shoppers this quarter, and promotions lift less among the ones left.`, answer: "Don't chase it: keep the money, or move it where returns hold." }
+      : s.kind === "response" ? { ...s, text: `${who}: promotions are lifting about ${Math.round((1 - s.size) * 100)}% less than they did. Every dollar here buys less for now.`, answer: "Move money to where it still works." }
+      : { ...s, text: `${who}: a competitor is bidding for its shelf. It now takes about $${floor}K a quarter off-premise to hold the space.`, answer: "Defend the floor. Don't fund past it." };
+  });
+}
+// After the quarter: what the player did about each signal, and what it returned.
+export function marketOutcome(q) {
+  const ly = lastYearPlan(), { truth } = world(q.stateBefore.vi);
+  return marketSignals(q.stateBefore.vi, q.qi).map((s) => {
+    const r = q.rows.find((x) => x.id === s.id), s0 = split(ly, s.id, truth[s.id].share);
+    const x = s.ch === "off" ? r.xOff : r.xOn, x0 = s.ch === "off" ? s0.off : s0.on, d = x - x0, ch = s.ch === "off" ? "off-premise" : "on-premise";
+    const did = Math.abs(d) < 5 ? `held ${ch} at $${Math.round(x)}K` : d > 0 ? `added $${Math.round(d)}K ${ch}` : `cut $${Math.round(-d)}K ${ch}`;
+    const m = s.ch === "off" ? r.mOffLast : r.mOnLast;
+    const ret = m == null ? "nothing was spent there" : `the last $10K there returned $${m.toFixed(2)} per $1`;
+    if (s.kind === "shelf") return { ...s, text: `Brand ${s.id}'s shelf: you ${did}, against the $${Math.round(r.floor)}K it took to hold it. ${r.xOff >= r.floor ? "Distribution held." : `Distribution slipped ${Math.abs(r.chainOff.acv ?? 0).toFixed(1)} pts.`}` };
+    return { ...s, text: `Brand ${s.id} ${ch}, ${s.kind === "demand" ? "demand down" : "promotions lifting less"}: you ${did}, and ${ret}.` };
+  });
+}
 
 function world(vi = 0) {
   const v = VARIANTS[vi] || VARIANTS[0];
@@ -76,7 +122,7 @@ const SPREAD = { Low: 0.6, Medium: 0.3, High: 0.1 };
 
 export function simBrands(vi = 0) {
   const { truth, team } = world(vi);
-  return IDS.map((id) => { const d = brandById[id]; return { id, name: d.name, revenue: d.revenue, growth: d.growth, gm: d.gm, share: truth[id].share, floor: truth[id].off.floor, ...team[id] }; });
+  return IDS.map((id) => { const d = brandById[id]; return { id, name: d.name, category: CAT[id], revenue: d.revenue, growth: d.growth, gm: d.gm, share: truth[id].share, floor: truth[id].off.floor, ...team[id] }; });
 }
 
 // ---------- Response curves ----------
@@ -138,25 +184,26 @@ export function forecastQuarter(state, plan, qi) {
   const { truth } = world(state.vi), ly = lastYearPlan(), d = dilemma(qi, state.vi), opt = d?.options.find((o) => o.id === plan.answer);
   const rows = IDS.map((id) => {
     const b = brandById[id], t = truth[id], bel = state.beliefs[id], gm = b.gm / 100, q = (b.revenue / 1000) / 4;
-    const s = split(plan, id, t.share), s0 = split(ly, id, t.share);
+    const s = split(plan, id, t.share), s0 = split(ly, id, t.share), adj = marketAdj(state.vi, qi, id);
     const extra = opt?.extra?.id === id ? opt.extra : null;
     const xOff = s.off + (extra?.ch === "off" ? extra.x : 0), xOn = s.on + (extra?.ch === "on" ? extra.x : 0);
-    const gOff = offGain(t.off, bel.off.b, xOff) - offGain(t.off, bel.off.b, s0.off);
+    const offC = { ...t.off, floor: t.off.floor + adj.floor }, offB = bel.off.b * adj.offR, onB = bel.on.b * adj.onR;
+    const gOff = offGain(offC, offB, xOff) - offGain(t.off, bel.off.b, s0.off);
     // On-premise work and field days pay partly this quarter and partly next; the forecast counts both halves, separately.
-    const gOnAll = curve(bel.on.b, t.on.k, xOn) - curve(bel.on.b, t.on.k, s0.on), menuBonus = opt?.menu === id ? bel.on.b * 30 : 0;
+    const gOnAll = curve(onB, t.on.k, xOn) - curve(bel.on.b, t.on.k, s0.on), menuBonus = opt?.menu === id ? onB * 30 : 0;
     const gOn = (gOnAll + menuBonus) * (1 - ON_LAG);
     const dAll = curve(bel.d.b, t.kd, plan.days[id] || 0) - curve(bel.d.b, t.kd, ly.days[id]);
     const gD = dAll * (1 - t.lag);
     const carryNext = (gOnAll + menuBonus) * ON_LAG + dAll * t.lag;
     const inc = gOff + gOn + gD + state.carry[id];
-    const base = q * (1 + b.growth / 100);
+    const base = q * (1 + (b.growth + adj.base) / 100);
     const rev = base + inc / gm, spent = xOff + xOn;
     const gp = base * gm + inc - spent;
-    const mOff = marginal((x) => offGain(t.off, bel.off.b, x), xOff), mOn = marginal((x) => curve(bel.on.b, t.on.k, x), xOn);
+    const mOff = marginal((x) => offGain(offC, offB, x), xOff), mOn = marginal((x) => curve(onB, t.on.k, x), xOn);
     const f = onFrac(plan.focus[id] || "both", t.share);
     const next = mOn * f + mOff * (1 - f);
     const w = f * bel.on.w + (1 - f) * bel.off.w, conf = confidence(w);
-    return { id, x: spent, xOn, xOff, rev, gp, growth: (rev / q - 1) * 100, next, mOn, mOff, onFrac: f, carryNext, nextLo: Math.max(0, next * (1 - SPREAD[conf])), nextHi: next * (1 + SPREAD[conf]), conf,
+    return { id, x: spent, xOn, xOff, rev, gp, growth: (rev / q - 1) * 100, next, mOn, mOff, onFrac: f, carryNext, floor: offC.floor, nextLo: Math.max(0, next * (1 - SPREAD[conf])), nextHi: next * (1 + SPREAD[conf]), conf,
       nextDay: marginal((x) => curve(bel.d.b, t.kd, x), plan.days[id] || 0, 1), revOn: base * t.share + (gOn + t.share * (gD + state.carry[id])) / gm, revOff: 0 };
   });
   rows.forEach((r) => { r.revOff = r.rev - r.revOn; });
@@ -188,8 +235,8 @@ export function simulateQuarter(state, plan, qi) {
     const s = split(plan, id, t.share), s0 = split(ly, id, t.share);
     const extra = opt?.extra?.id === id ? opt.extra : null;
     const xOff = s.off + (extra?.ch === "off" ? extra.x : 0), xOn = s.on + (extra?.ch === "on" ? extra.x : 0);
-    const broken = id === v.broken, fixed = fixedBefore(state, qi, id);
-    let growth = b.growth + z(r) * 1.2, loadRev = 0, unwind = 0;
+    const broken = id === v.broken, fixed = fixedBefore(state, qi, id), adj = marketAdj(state.vi, qi, id);
+    let growth = b.growth + adj.base + z(r) * 1.2, loadRev = 0, unwind = 0;
     if (broken) {
       next.trend = fixed ? Math.min(state.trend + 3, 3) : state.trend - 2;
       growth = next.trend + z(r) * 0.8;
@@ -197,11 +244,13 @@ export function simulateQuarter(state, plan, qi) {
       if (qi === 2 && !fixed) { unwind = state.load + 120; next.load = 0; }             // curveball: the distributor stops ordering
       if (fixed && qi > 0 && state.load > 0 && state.scouted[id] === qi - 1) next.load = 0;
     }
-    const off = trueOff(state, qi, id);
+    const off0 = trueOff(state, qi, id), off = { ...off0, floor: off0.floor + adj.floor }, offR = off0.R * adj.offR, onR = t.on.R * adj.onR;
     const nz = 1 + 0.12 * z(r);
-    const gOff = (offGain(off, off.R, xOff) - offGain(t.off, t.off.R, s0.off)) * nz;
-    const gOnAll = (curve(t.on.R, t.on.k, xOn) - curve(t.on.R, t.on.k, s0.on)) * nz;
-    const menuBonus = opt?.menu === id ? t.on.R * 30 : 0;
+    const gOff = (offGain(off, offR, xOff) - offGain(t.off, t.off.R, s0.off)) * nz;
+    const gOnAll = (curve(onR, t.on.k, xOn) - curve(t.on.R, t.on.k, s0.on)) * nz;
+    const menuBonus = opt?.menu === id ? onR * 30 : 0;
+    const mOffLast = xOff >= 10 ? (offGain(off, offR, xOff) - offGain(off, offR, xOff - 10)) / 10 * nz : null;
+    const mOnLast = xOn >= 10 ? (curve(onR, t.on.k, xOn) - curve(onR, t.on.k, xOn - 10)) / 10 * nz : null;
     const onNow = (gOnAll + menuBonus) * (1 - ON_LAG);
     const dAll = (curve(trueDp(state, qi, id), t.kd, plan.days[id] || 0) - curve(t.dp, t.kd, ly.days[id])) * (1 + 0.1 * z(r));
     const dNow = dAll * (1 - t.lag);
@@ -213,7 +262,7 @@ export function simulateQuarter(state, plan, qi) {
     const gp = base * gm + inc - spent + (loadRev - unwind) * gm;
     const revOn = base * t.share + (onNow + t.share * (dNow + state.carry[id])) / gm;
     const revOff = rev - revOn;
-    const absOff = offGain(off, off.R, xOff) * nz, absOn = curve(t.on.R, t.on.k, xOn) * nz;
+    const absOff = offGain(off, offR, xOff) * nz, absOn = curve(onR, t.on.k, xOn) * nz;
     const sell = (base / q - 1) * 100 + (inc / gm) / q * 100;          // what consumers bought, before any loading
     const chainOn = { placements: Math.round((xOn / 10 + (plan.days[id] || 0) * 0.8 + (opt?.menu === id ? 40 : 0))), pours: sell + (xOn > s0.on ? 2 : 0), reorder: Math.round(Math.min(95, 45 + t.on.R * 12 + z(r) * 4)) };
     const chainOff = broken && !fixed
@@ -224,7 +273,7 @@ export function simulateQuarter(state, plan, qi) {
     const bel = next.beliefs[id], before = structuredClone(bel);
     // A quarter's spend reveals the true response, blurred by noise; more spend, clearer read.
     const learn = (key, R, x) => { if (x < 10) return; const obs = R * (1 + 0.15 * z(r)), wo = Math.min(2.5, x / 60); bel[key].b = (bel[key].b * bel[key].w + obs * wo) / (bel[key].w + wo); bel[key].w += wo; };
-    learn("off", off.R, Math.max(0, xOff - off.floor));
+    learn("off", off0.R, Math.max(0, xOff - off.floor));
     learn("on", t.on.R, xOn);
     if ((plan.days[id] || 0) >= 2) { const obs = trueDp(state, qi, id) * (1 + 0.08 * z(r)), wo = Math.min(2, (plan.days[id] || 0) / 4); bel.d.b = (bel.d.b * bel.d.w + obs * wo) / (bel.d.w + wo); bel.d.w += wo; }
     let finding = null;
@@ -236,7 +285,7 @@ export function simulateQuarter(state, plan, qi) {
     }
     return { id, x: spent, xOn, xOff, days: plan.days[id] || 0, focus: plan.focus[id] || "both", q, revF: fc.rows[n].rev, rev, growthF: fc.rows[n].growth, growth: (rev / q - 1) * 100,
       gpF: fc.rows[n].gp, gp, revOn, revOff, revOnF: fc.rows[n].revOn, revOffF: fc.rows[n].revOff, gOff, gOn: onNow, loadRev, unwind, sell,
-      perDollar: spent ? (absOff + absOn) / spent : null, onReturn: xOn ? absOn / xOn : null, offReturn: xOff ? absOff / xOff : null,
+      perDollar: spent ? (absOff + absOn) / spent : null, onReturn: xOn ? absOn / xOn : null, offReturn: xOff ? absOff / xOff : null, mOffLast, mOnLast, floor: off.floor,
       chainOn, chainOff, before, after: structuredClone(bel), finding };
   });
   let borrowed = 0, loadGP = 0;
@@ -449,7 +498,24 @@ export function review(plans, vi = 0) {
   ];
   if (gDays >= 12) tendencies.push({ label: "Time follows habit", text: `${gDays} field days went to Brand G in Q3 and Q4, the brand where time returns least.` });
 
-  return { variant: v, you: Y, habit: Hb, best: Bs, score, bestScore, tier, tiers: tiers(vi), captured, quarters: qs, algorithms, achievements, tendencies, plans };
+  return { variant: v, you: Y, habit: Hb, best: Bs, score, bestScore, tier, tiers: tiers(vi), captured, quarters: qs, algorithms, achievements, tendencies, plans, differences: differences(plans, vi) };
+}
+// The three biggest places the scout-early, follow-the-forecast strategy did something different from the player.
+export function differences(plans, vi = 0) {
+  const best = evidencePlans(vi), out = [], K = (x) => `$${Math.round(x || 0)}K`;
+  plans.forEach((p, qi) => {
+    const b = best[qi], Q = QUARTERS[qi].id, ps = p.scout || [];
+    const bs = (b.scout || []).filter((id) => !ps.includes(id));
+    if (bs.length) out.push({ w: 100, text: `${Q}: it scouted Brand ${bs.join(" and ")}; you ${ps.length ? `scouted Brand ${ps.join(" and ")}` : "sent no scout"}.` });
+    IDS.forEach((id) => {
+      const d = (b.trade[id] || 0) - (p.trade[id] || 0);
+      if (Math.abs(d) >= 30) out.push({ w: Math.abs(d), text: `${Q}: it put ${K(b.trade[id])} on Brand ${id}; you put ${K(p.trade[id])}.` });
+      if (qi >= 1 && b.focus[id] !== "both" && b.focus[id] !== (p.focus[id] || "both")) out.push({ w: 40, text: `${Q}: it set Brand ${id} to ${FOCUS[b.focus[id]].toLowerCase()}; you kept ${FOCUS[p.focus[id] || "both"].toLowerCase()}.` });
+    });
+    if (qi === 2 && b.answer !== p.answer) out.push({ w: 60, text: `${Q}: it gave the menu slot to Brand ${String(b.answer).replace("menu-", "")}; you gave it to ${p.answer ? `Brand ${String(p.answer).replace("menu-", "")}` : "no one"}.` });
+    if (qi === 3 && p.answer === "take") out.push({ w: 80, text: "Q4: it passed on the load-in; you took it." });
+  });
+  return out.sort((a, c) => c.w - a.w).slice(0, 3).map((x) => x.text);
 }
 const pct = (v) => `${Math.round(v * 100)}%`;
 const $k = (v) => (Math.abs(v) >= 1000 ? `$${(v / 1000).toFixed(1)}M` : `$${Math.round(v)}K`);

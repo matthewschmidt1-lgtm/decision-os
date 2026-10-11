@@ -10,7 +10,10 @@ test("sim: the same decisions always produce the same year", () => {
 
 test("sim: running last year's plan grows each brand at its stated rate (give or take noise)", () => {
   const q = S.replay(S.habitPlans(0), 0).quarters[0];
-  for (const r of q.rows) if (r.id !== "C") assert.ok(Math.abs(r.growthF - S.simBrands(0).find((b) => b.id === r.id).growth) < 0.5, `${r.id} forecast ${r.growthF}`);
+  // Brands with a market signal this quarter (a category down, a shelf under attack) are judged separately: their base and response move on purpose.
+  const signalled = S.marketSignals(0, 0).map((m) => m.id);
+  for (const r of q.rows) if (r.id !== "C" && !signalled.includes(r.id)) assert.ok(Math.abs(r.growthF - S.simBrands(0).find((b) => b.id === r.id).growth) < 0.5, `${r.id} forecast ${r.growthF}`);
+  for (const id of signalled) { const r = q.rows.find((x) => x.id === id); assert.ok(r.growthF < S.simBrands(0).find((b) => b.id === id).growth, `${id} should grow less with the category down`); }
 });
 
 test("sim: in both years, following the evidence beats last year's plan and stays inside the budgets", () => {
@@ -81,4 +84,15 @@ test("sim: scouting a shelf brand never advises pulling its shelf support", () =
     const f = S.simulateQuarter(S.initialState(0), p, 0).rows.find((r) => r.id === id).finding;
     assert.ok(/shelf/.test(f) && !/works best on-premise/.test(f), f);
   }
+});
+
+test("sim: the market read, the return table rows and the year-end differences all exist", () => {
+  assert.ok(S.marketSignals(0, 0).length >= 1 && S.marketRead(0, 0)[0].text.length > 20 && S.marketRead(0, 0)[0].answer);
+  const q = S.replay(S.habitPlans(0).slice(0, 1), 0).quarters[0];
+  assert.ok(q.rows.every((r) => (r.xOff < 10 || typeof r.mOffLast === "number") && (r.xOn < 10 || typeof r.mOnLast === "number") && typeof r.floor === "number"));
+  assert.ok(S.marketOutcome(q).every((m) => m.text.length > 20));
+  const diffs = S.differences(S.habitPlans(0), 0);
+  assert.ok(diffs.length >= 1 && diffs.length <= 3 && diffs.every((d) => /^Q[1-4]:/.test(d)));
+  const f = S.forecastQuarter(S.initialState(0), S.lastYearPlan(), 0).rows[0];
+  assert.ok(typeof f.mOn === "number" && typeof f.mOff === "number" && typeof f.carryNext === "number");
 });

@@ -77,7 +77,7 @@ export default function Portfolio() {
       const scoutsLeft = state.scoutsLeft - plan.scout.length;
       board.replaceChildren(
         h("div", { class: "cell" }, h("span", { class: "k" }, "Score"), h("b", { class: `num ${tone(soFar / 10)}` }, signed$(soFar)), h("span", { class: "s" }, `year so far · this quarter ≈ ${signed$(proj)}${Math.abs(projNext) >= 1 ? ` · ${signed$(projNext)} lands next quarter` : ""}`)),
-        h("div", { class: `cell ${free > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Free trade"), h("b", { class: "num" }, $k(free)), h("span", { class: "s" }, free ? "place it or keep it" : "all placed")),
+        h("div", { class: `cell ${free > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Free trade"), h("b", { class: "num" }, $k(free)), h("span", { class: "s" }, free ? `place it, or keep it: ${signed$(free)} to the score` : "all placed")),
         h("div", { class: `cell ${canDays && freeDays > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Field days"), h("b", { class: "num" }, canDays ? `${freeDays} free` : "locked"), h("span", { class: "s" }, canDays ? `of ${S.BUDGET.days}` : "unlocks in Q3")),
         h("div", { class: "cell" }, h("span", { class: "k" }, "Scouts"), h("b", { class: "num", "aria-label": `${scoutsLeft} scouts left` }, "●".repeat(Math.max(0, scoutsLeft)) + "○".repeat(Math.max(0, S.SCOUTS - scoutsLeft))), h("span", { class: "s" }, "for the year")),
         go);
@@ -102,6 +102,7 @@ export default function Portfolio() {
       const amt = h("output", { class: "num amt" }), was = h("span", { class: "was" });
       const next = h("div", { class: "next" }), gauge = h("div", { class: "gauge", "aria-hidden": "true" }, h("i"), h("b"));
       const chan = h("div", { class: "sim-chan" }), splitLine = h("p", { class: "sim-split" });
+      const lastQ = last ? h("p", { class: "sim-lastq" }, `${S.QUARTERS[qi - 1].id}: `, ...[["off-premise", last.mOffLast, last.xOff < last.floor], ["on-premise", last.mOnLast, false]].filter(([, m]) => m != null).flatMap(([ch, m, under], i) => [i ? " · " : "", `${ch} `, h("b", { class: verdictOf(m, under).cls }, verdictOf(m, under).text.toLowerCase())])) : null;
       const minus = h("button", { type: "button", "aria-label": `Take $10K from ${b.name}`, onClick: () => { plan.trade[b.id] = Math.max(0, plan.trade[b.id] - S.STEP.trade); refresh(); } }, "−");
       const plus = h("button", { type: "button", "aria-label": `Give $10K to ${b.name}`, onClick: () => { plan.trade[b.id] += S.STEP.trade; refresh(); } }, "+");
       const dOut = h("output", { class: "num" }), dHint = h("span", { class: "hint" });
@@ -114,7 +115,7 @@ export default function Portfolio() {
       const card = h("div", { class: `sim-brand ${scouted ? "is-scouted" : ""}` },
         h("div", { class: "sim-brand-head" }, h("h3", {}, b.name), h("span", { class: "chip" }, b.role)),
         h("p", { class: "sim-note" }, scouted ? h("span", { class: "scouted" }, `Scouted in ${S.QUARTERS[state.scouted[b.id]].id}. `) : null, b.note),
-        h("div", { class: "sim-next" }, h("span", { class: "k" }, "Next $10K"), next, gauge, chan),
+        h("div", { class: "sim-next" }, h("span", { class: "k" }, "Next $10K"), next, gauge, chan, lastQ),
         h("div", { class: "sim-alloc" }, minus, h("div", { class: "mid" }, amt, was), plus),
         floorWarn,
         splitLine,
@@ -146,9 +147,9 @@ export default function Portfolio() {
         gauge.firstChild.style.width = `${Math.min(100, (r.next / 2.5) * 100)}%`;
         gauge.firstChild.className = Math.abs(gain) < 0.2 ? "even" : r.next >= 1 ? "good" : "bad";
         plus.disabled = free < S.STEP.trade; minus.disabled = x <= 0;
-        const off = r.xOff;
-        floorWarn.hidden = !(b.floor && off < b.floor);
-        floorWarn.textContent = `Off-premise gets ${$k(off)} of the ${$k(x)}, and this brand needs ${$k(b.floor)} off-premise to hold its shelf space.${canFocus ? " Set it to Off-premise, or add $10K." : " Add $10K, or expect to lose some base volume."}`;
+        const off = r.xOff, floorNow = r.floor;
+        floorWarn.hidden = !(floorNow && off < floorNow);
+        floorWarn.textContent = `Off-premise gets ${$k(off)} of the ${$k(x)}, and this brand needs ${$k(floorNow)} off-premise to hold its shelf space${floorNow > b.floor ? " this quarter" : ""}.${canFocus ? " Set it to Off-premise, or add $10K." : " Add $10K, or expect to lose some base volume."}`;
         dOut.textContent = `${plan.days[b.id]} d`; dPlus.disabled = freeDays < 1; dMinus.disabled = plan.days[b.id] <= 0;
         dHint.textContent = `next day ≈ ${$k(r.nextDay)}`;
         const on = plan.scout.includes(b.id);
@@ -204,6 +205,7 @@ export default function Portfolio() {
     const view = h("div", { class: "sim-flow" },
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
       request,
+      (() => { const reads = S.marketRead(vi, qi); return reads.length ? h("div", { class: "sim-market" }, eyebrow("The market this quarter"), ...reads.map((m) => h("p", {}, m.text, " ", h("b", {}, m.answer)))) : null; })(),
       h("div", { class: "sim-bar" }, board), coach,
       achPanel(),
       h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
@@ -261,6 +263,21 @@ export default function Portfolio() {
   }
 
   // ---------- Results ----------
+  // A plain verdict on a channel's last $10K: room to add, near the top, or past it (and whether it was still covering the shelf).
+  const verdictOf = (m, underFloor) => underFloor ? { text: "Below the shelf floor", cls: "bad" } : m == null ? { text: "Nothing spent", cls: "muted" } : m >= 1.1 ? { text: "Room to add", cls: "good" } : m >= 0.95 ? { text: "Near the top", cls: "" } : { text: "Past the top: move it", cls: "bad" };
+  function returnTable(q) {
+    const prev = q.qi ? S.replay(st.plans.slice(0, q.qi), st.vi).quarters.at(-1) : null;
+    const rows = q.rows.flatMap((r) => {
+      const p = prev?.rows.find((x) => x.id === r.id);
+      return [["off", "Off-premise", r.xOff, r.mOffLast, p?.mOffLast, r.xOff < r.floor && r.floor > 0], ["on", "On-premise", r.xOn, r.mOnLast, p?.mOnLast, false]]
+        .filter(([, , x]) => x >= 10).map(([ch, label, x, m, pm, under]) => ({ id: r.id, ch, label, x, m, pm, under, v: verdictOf(m, under) }));
+    }).sort((a, b) => (b.m ?? 0) - (a.m ?? 0));
+    const trend = (m, pm) => (m == null || pm == null ? "" : m - pm > 0.05 ? "▲" : pm - m > 0.05 ? "▼" : "–");
+    return h("div", { class: "table-wrap" }, h("table", { class: "table sim-rt" },
+      h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Channel"), h("th", { class: "num" }, "Spent"), h("th", { class: "num" }, "Last $10K returned"), h("th", { class: "num" }, "vs last Q"), h("th", {}, "Read"))),
+      h("tbody", {}, rows.map((x) => h("tr", {}, h("td", {}, h("b", { style: { fontWeight: 500 } }, `Brand ${x.id}`)), h("td", { class: "muted" }, x.label), h("td", { class: "num" }, $k(x.x)),
+        h("td", { class: `num ${x.v.cls}` }, x.m == null ? "—" : `${per$(x.m)} per $1`), h("td", { class: "num muted" }, trend(x.m, x.pm)), h("td", {}, h("span", { class: `chip ${x.v.cls === "good" ? "chip-good" : x.v.cls === "bad" ? "chip-warn" : ""}` }, x.v.text)))))));
+  }
   function resultsView(q) {
     const Q = S.QUARTERS[q.qi], nextQ = S.QUARTERS[q.qi + 1], vi = st.vi;
     const habitQ = S.replay(S.habitPlans(vi).slice(0, q.qi + 1), vi).quarters[q.qi];
@@ -385,9 +402,13 @@ export default function Portfolio() {
       waterfall,
       requestLine,
       achLine,
-      h("div", { class: "sim-byb" }, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
-        boardNote, board,
-        h("p", { class: "muted", style: { fontSize: "var(--fs-micro)", marginTop: "12px" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point.")),
+      (() => { const outs = S.marketOutcome(q); return outs.length ? h("div", {}, eyebrow("The market"), ...outs.map((m) => h("p", { class: "sim-market-out" }, m.text))) : null; })(),
+      h("div", { class: "sim-byb" }, eyebrow("What the last $10K returned, by brand and channel"),
+        h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)", maxWidth: "var(--measure)" } }, "The return on the last $10K you spent in each channel. Above $1 there was room to add; below it the money would have done more somewhere else."),
+        returnTable(q),
+        h("details", { class: "sim-howto", style: { marginTop: "14px" } }, h("summary", {}, "Forecast vs actual: how far the team's forecast was off"),
+          h("div", { class: "sim-tablehead", style: { marginTop: "10px" } }, h("span", { class: "muted", style: { fontSize: "var(--fs-small)" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point."), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
+          boardNote, board)),
       h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
     ];
     if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding)))));
@@ -452,7 +473,9 @@ export default function Portfolio() {
         h("p", { class: "muted", style: { marginTop: "10px" } }, `Your score counts next year too: ${R.you.carry > 5 ? `${$k(R.you.carry)} of on-premise work is already paying into next year` : "little is building for next year"}${R.you.borrowed ? `, and the load-in took ${$k(R.you.borrowed)} from it` : ""}.`)),
       h("div", {}, eyebrow("Achievements"), h("ul", { class: "sim-ach" }, R.achievements.map((a) => h("li", { class: a.got ? "got" : "" }, h("span", { class: "ic", "aria-hidden": "true" }, a.got ? "★" : "☆"), h("div", {}, h("b", {}, a.name), h("span", {}, a.got ? "Unlocked" : a.note || a.hint)))))),
       h("div", {}, eyebrow("Against the alternatives"), h("p", { class: "muted", style: { marginTop: "8px", fontSize: "var(--fs-small)" } }, "Value created against running last year's plan all year."),
-        h("div", { class: "sim-cmp" }, cmp("You", R.score, "accent"), cmp("Reassess every quarter", R.bestScore, "good"))),
+        h("div", { class: "sim-cmp" }, cmp("You", R.score, "accent"), cmp("Scout early, then follow the forecast", R.bestScore, "good")),
+        h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-small)", maxWidth: "var(--measure)" } }, "The second line is a specific discipline, not a guess: scout the two brands the team is least sure about in Q1, then every quarter put each $10K where the card's Next $10K is highest and set each brand's channel from what the team has learned. It sees only what you saw, with no hindsight."),
+        R.differences.length ? h("div", { style: { marginTop: "12px" } }, eyebrow("Where it differed from you"), h("ul", { class: "sim-diff" }, R.differences.map((t) => h("li", {}, t)))) : null),
       h("div", {}, eyebrow("How you tend to decide"), h("ul", { class: "sim-tend" }, R.tendencies.map((t) => h("li", {}, h("b", {}, t.label), h("span", {}, t.text))))),
       h("div", {}, eyebrow("Where your trade went"), h("div", { class: "sim-migrate" },
         h("div", { class: "hdr" }, h("span", {}), ...S.QUARTERS.map((q) => h("span", {}, q.id))),
