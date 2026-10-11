@@ -1,11 +1,15 @@
 import { h, link, arrow, eyebrow, evidence, says } from "../ui.js";
 import { scenarios2, scenario2ById, skills2, tracks2, challengeIds2, qualityScore2, patterns, families, strengths } from "../scenarios2.js";
-import { recordResult2, getResult2, allResults2 } from "../store.js";
+import { recordResult2, recordReplay2, getResult2, allResults2, getSell, setSell } from "../store.js";
+import { milestones, isFixed, nextFor, revisitList } from "../sell-progress.js";
+import { disclose } from "../ui.js";
 import { setMeta } from "../app.js";
 import { nextUnplayed2, nextUnplayedAfter2 } from "./sell.js";
 
 function setFor(setId) {
   if (setId === "challenge") return { title: "5-minute challenge", list: challengeIds2.map(id => scenario2ById[id]) };
+  if (setId === "challenge2") { const c = getSell("challenge2"); return c?.list?.length ? { title: "Challenge, round 2", list: c.list.map(id => scenario2ById[id]).filter(Boolean) } : null; }
+  if (setId === "revisit") { const ids = getSell("revisit") || []; return ids.length ? { title: "Your Revisits", list: ids.map(id => scenario2ById[id]).filter(Boolean) } : null; }
   const t = tracks2.find(t => t.id === setId);
   return t ? { title: t.title, list: scenarios2.filter(t.filter) } : null;
 }
@@ -30,13 +34,16 @@ export function habits(results) {
 }
 
 export default async function SellScenario({ id, params }) {
-  const s = scenario2ById[id];
+  let s = scenario2ById[id];
   if (!s) return (await import("./notfound.js")).default();
   setMeta({ title: `${s.customer}: ${s.question}`, description: s.situation });
   const set = setFor(params.get("set")); const i = Number(params.get("i") || 0);
   const nextInSet = set ? set.list[i + 1] : null;
   const isLastInSet = set && !nextInSet;
   const prior = getResult2(s.id);
+  // On a replay the options come in a different order each attempt, so it tests judgment rather than memory.
+  if (prior) { let seed = (prior.attempts || 1) * 2654435761 + s.id.length; const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }; s = { ...s, options: [...s.options].sort(() => rnd() - 0.5) }; }
+  const earnedBefore = new Set(milestones(allResults2()).filter(m => m.earned).map(m => m.id));
 
   const feedback = h("div", { hidden: true, class: "stack verdict", style: { "--gap": "14px" } });
   const whyBtn = h("button", { type: "button", class: "btn btn-ghost", hidden: true }, "Why? See the reasoning and the principle ", h("span", { class: "arrow", "aria-hidden": "true" }, "↓"));
@@ -51,12 +58,20 @@ export default async function SellScenario({ id, params }) {
   const choose = (o, el) => {
     picked = o;
     optionEls.forEach(b => { b.disabled = true; b.setAttribute("aria-pressed", String(b === el)); b.classList.toggle("preferred", s.options[optionEls.indexOf(b)] === best); });
-    if (!prior) recordResult2(s.id, { option: o.label, quality: o.quality, skill: s.skill, pattern: o.pattern, strength: o.strength });
-    const head = o.quality === "best" ? "That's the move." : o.quality === "good" ? "Close. One more step." : "A common move. Here's a better one.";
+    if (!prior) recordResult2(s.id, { option: o.label, quality: o.quality, skill: s.skill, pattern: o.pattern, strength: o.strength }); else recordReplay2(s.id, o.quality);
+    const comply = o.pattern === "comply";
+    const head = comply ? "Not allowed. Here's what is." : o.quality === "best" ? "That's the move." : o.quality === "good" ? "Close. One more step." : "A common move. Here's a better one.";
     const habit = o.pattern && patterns[o.pattern];
+    const now = milestones(allResults2()); const newly = now.filter(m => m.earned && !earnedBefore.has(m.id));
+    const others = s.options.filter(x => x !== o);
+    const fixedNow = prior && prior.quality !== "best" && o.quality === "best";
     feedback.replaceChildren(...[h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `You chose: ${o.label}`), h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
       habit ? h("div", { class: "layer layer-1" }, h("p", { class: "eyebrow" }, "The habit this reveals"), h("p", { style: { marginTop: "8px", fontWeight: 500 } }, habit.name), h("p", { class: "muted", style: { marginTop: "4px", fontSize: "var(--fs-small)" } }, habit.coach)) : null,
-      o.quality !== "best" ? h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `Strongest option: ${best.label}`) : null].filter(Boolean));
+      o.cost ? h("p", { class: "muted drill-cost" }, h("b", {}, "What it cost: "), o.cost) : null,
+      o.quality !== "best" ? h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `Strongest option: ${best.label}`) : null,
+      fixedNow ? h("p", { class: "sell-fixed" }, "Fixed on replay. Your first try stays the score; this one counts as a rehearsal.") : null,
+      ...newly.map(m => h("ul", { class: "sim-achnews" }, h("li", { class: "got" }, h("span", { class: "ic", "aria-hidden": "true" }, "★"), h("span", {}, h("b", {}, `Milestone: ${m.name}`), ` ${m.copy}`)))),
+      disclose("Why the other options were weaker", h("div", { class: "stack", style: { "--gap": "12px" } }, ...others.map(x => h("p", { style: { fontSize: "var(--fs-small)" } }, h("b", {}, x === best ? "Strongest: " : `${x.quality === "good" ? "Close: " : "Weak: "}`), x.label, " ", h("span", { class: "muted" }, x.feedback)))))].filter(Boolean));
     show(feedback); whyBtn.hidden = false;
   };
   whyBtn.addEventListener("click", () => {
@@ -64,8 +79,9 @@ export default async function SellScenario({ id, params }) {
     why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { style: { marginTop: "12px" } }, evidence(s.evidence))), reasoningEl);
     whyBtn.hidden = true; why.hidden = false; why.classList.add("reveal", "in");
     principle.replaceChildren(h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "color-mix(in srgb, var(--bg) 60%, transparent)" } }, "The principle"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px", letterSpacing: "-0.01em" } }, s.principle)),
-      s.then ? h("div", { class: "layer layer-2" }, eyebrow(picked === best ? "How the conversation goes from here" : "If you'd made the strongest move"), h("p", {}, s.then)) : null,
-      h("div", { class: "layer layer-2" }, eyebrow("Your next move"), h("p", {}, s.nextMove)));
+      ...(s.then ? [h("div", { class: "layer layer-2" }, eyebrow(picked === best ? "How the conversation goes from here" : "If you'd made the strongest move"), h("p", {}, s.then))] : []),
+      h("div", { class: "layer layer-2" }, eyebrow("Your next move"), h("p", {}, s.nextMove)),
+      ...(s.follows ? [] : (() => { const r2 = scenarios2.find(x => x.follows === s.id); return r2 ? [link(`/sell/${r2.id}`, h("span", { class: "link" }, "Round two: the buyer pushes back ", arrow()))] : []; })()));
     principle.hidden = false; principle.classList.add("reveal", "in");
     const after = nextUnplayedAfter2(s.id);
     nextNav.replaceChildren(
@@ -83,13 +99,13 @@ export default async function SellScenario({ id, params }) {
   const optionEls = s.options.map((o, n) => h("button", { type: "button", class: "option choice", "aria-pressed": "false", onClick: e => choose(o, e.currentTarget) },
     h("span", { class: "choice-letter", "aria-hidden": "true" }, "ABCD"[n]), h("span", {}, o.label)));
 
-  return h("article", {},
+  return h("article", { class: "sell" },
     h("header", { class: "reveal" },
       h("div", { class: "facts" }, set ? h("span", {}, h("b", {}, `${i + 1} / ${set.list.length}`), set.title) : null, h("span", {}, "Customer", h("b", {}, s.customer)), h("span", {}, "Category", h("b", {}, s.category)), h("span", {}, "Skill", h("b", {}, skills2[s.skill].name)), h("span", {}, "Stage", h("b", {}, s.stage))),
       s.buyer ? h("div", { class: "sc-step" }, eyebrow("The buyer says"), says(`“${s.buyer}”`)) : null,
       h("div", { class: "sc-step" }, eyebrow("The situation"), h("h1", { class: "sc-situation" }, s.situation))),
     h("section", { class: "sc-step reveal" }, eyebrow("What you know"),
-      h("div", { class: "card card-sunk sc-facts" }, evidence(s.evidence, { optionTones: false }),
+      h("div", { class: "card card-sunk sc-facts" }, evidence(s.evidence.map(([k, v]) => [k, v]), { optionTones: false }),
         h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Some of this you'd know walking in. Some you'd only learn by asking."))),
     h("section", { class: "sc-step reveal" }, eyebrow("Your move"), h("h2", { class: "sc-question" }, s.question), h("p", { class: "muted", style: { marginTop: "6px", fontSize: "var(--fs-small)" } }, "Pick one. You'll see the reasoning either way."),
       h("div", { class: "choices", style: { marginTop: "18px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, "You've played this one before. Replays don't change your score.") : null),
@@ -102,7 +118,7 @@ export default async function SellScenario({ id, params }) {
 
 // Turn results into two or three plain sentences about how this person sells. Always reads all played results, never one set,
 // so the hub and every summary page agree. Says less when there's less to go on.
-const MIN_PLAYED = 5, MIN_SKILL = 3, MIN_HABIT = 4, HABIT_SHARE = 0.35, HABIT_LEAD = 2, SKILL_GAP = 15;
+const MIN_PLAYED = 5, MIN_SKILL = 3, MIN_HABIT = 3, HABIT_SHARE = 0.3, HABIT_LEAD = 1, SKILL_GAP = 15;
 export function habitSummary(results) {
   const rs = resolve(results); const played = rs.length;
   if (!played) return [];
@@ -126,7 +142,8 @@ export function habitSummary(results) {
   else if (qualifies && (!second || top.n - second.n >= HABIT_LEAD)) lines.push(`The habit that shows up most: ${top.name.toLowerCase()}, ${top.n} times. ${top.coach}`);
   else {
     const goodShare = rs.filter(r => r.quality === "good").length / played;
-    if (goodShare > 0.6) lines.push("You usually find the right question and stop one step short of the ask. Next time, put a number, a date, or a named next step in the same sentence.");
+    if (goodShare > 0.6 && top && top.key === "noask") lines.push("You usually find the right question and stop one step short of the ask. Next time, put a number, a date, or a named next step in the same sentence.");
+    else if (goodShare > 0.6) lines.push("Most of your moves were close: the right direction, one step short of the strongest one. Read the 'why the other options were weaker' note after each pick; the step is usually there.");
     else if (h.tagged === 0) lines.push("No habit stands out. Keep asking before you answer, and keep asking for the next step.");
     else lines.push("No single habit stands out yet. Keep asking before you answer, and keep asking for the next step.");
   }
@@ -138,7 +155,9 @@ export async function SellSummary({ params }) {
   setMeta({ title: "Your results · Module 2" });
   const r = allResults2();
   const done = set.list.filter(s => r[s.id]);
-  const strong = done.filter(s => r[s.id].quality === "best").length;
+  const strong = done.filter(s => r[s.id].quality === "best").length, fixedN = done.filter(s => isFixed(r[s.id])).length;
+  const c2 = params.get("set") === "challenge2" ? getSell("challenge2") : null;
+  if (c2 && !c2.recorded) setSell("challenge2", { ...c2, recorded: true, runs: [...(c2.runs || []), strong] });
   if (!done.length) return h("div", {}, h("section", { class: "reveal" }, eyebrow(set.title), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Nothing here yet."),
     h("p", { class: "hero-sub" }, "Finish a few conversations and your results will show up here."), h("div", { style: { marginTop: "28px" } }, link(`/sell/${(nextUnplayed2() || scenarios2[0]).id}`, h("span", { class: "btn" }, "Start a conversation ", arrow())))));
   const lines = habitSummary(r);
@@ -149,12 +168,14 @@ export async function SellSummary({ params }) {
   const weakest = pool[0]?.s || set.list[0];
   const practiced = [...new Set(done.map(s => skills2[s.skill].name))];
   return h("div", {},
-    h("section", { class: "reveal" }, eyebrow(set.title), h("h1", { class: "hero", style: { marginTop: "16px" } }, strong / done.length >= 0.6 ? "Nice work." : "Here's how you did."),
-      h("p", { class: "hero-sub" }, `You practiced ${practiced.join(", ").replace(/, ([^,]*)$/, " and $1")}. ${strong} of ${done.length} choices were the strongest option.`)),
+    h("section", { class: "reveal" }, eyebrow(set.title), h("h1", { class: "hero", style: { marginTop: "16px" } }, `${strong} of ${done.length} strongest.${fixedN ? ` ${fixedN} fixed on replay.` : ""}`),
+      h("p", { class: "hero-sub" }, `You practiced ${practiced.join(", ").replace(/, ([^,]*)$/, " and $1")}.${strong === done.length ? " Every one was the strongest move." : strong / done.length >= 0.6 ? " Most of your moves were the strongest ones." : " The ones marked Revisit are where the habit shows."}`)),
     lines.length ? h("section", { class: "section reveal" }, h("div", { class: "card card-sunk" }, eyebrow("How you sell"), ...lines.map(t => h("p", { style: { marginTop: "10px" } }, t)))) : null,
     h("section", { class: "section reveal" }, h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "color-mix(in srgb, var(--bg) 60%, transparent)" } }, "One thing to remember"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px" } }, weakest.principle))),
     h("section", { class: "section reveal" }, h("h2", { style: { fontSize: "var(--fs-h3)", marginBottom: "12px" } }, "What you did"),
-      done.map(s => link(`/sell/${s.id}`, h("span", { class: "decision-row" }, h("span", { class: `verb ${r[s.id].quality === "best" ? "good" : r[s.id].quality === "good" ? "" : "warn"}` }, r[s.id].quality === "best" ? "Strong" : r[s.id].quality === "good" ? "Reasonable" : "Revisit"), h("span", { class: "body" }, `${s.customer}: ${s.question}`), arrow())))),
-    h("section", { class: "section reveal", style: { display: "flex", gap: "12px", flexWrap: "wrap" } }, (() => { const n = nextUnplayed2(); return n ? link(`/sell/${n.id}`, h("span", { class: "btn" }, "Next conversation ", arrow())) : link("/sell", h("span", { class: "btn" }, "Back to Module 2 ", arrow())); })(), link("/", h("span", { class: "btn btn-ghost" }, "Home"))),
+      done.map(s => link(`/sell/${s.id}`, h("span", { class: "decision-row" }, h("span", { class: `verb ${r[s.id].quality === "best" || isFixed(r[s.id]) ? "good" : r[s.id].quality === "good" ? "" : "warn"}` }, r[s.id].quality === "best" ? "Strong" : isFixed(r[s.id]) ? "Fixed" : r[s.id].quality === "good" ? "Close" : "Revisit"), h("span", { class: "body" }, `${s.customer}: ${s.buyer ? `“${s.buyer}”` : s.question}`), arrow())))),
+    h("section", { class: "section reveal nav-stack" }, (() => { const n = nextFor(r); return n ? link(`/sell/${n.id}`, h("span", { class: "btn" }, `Next: ${skills2[n.skill].name.toLowerCase()} `, arrow())) : link("/sell", h("span", { class: "btn" }, "Back to Module 2 ", arrow())); })(),
+      (() => { const rv = revisitList(r).filter(s => set.list.includes(s)); if (!rv.length) return null; const a = link(`/sell/${rv[0].id}?set=revisit&i=0`, h("span", { class: "btn btn-ghost" }, `Replay the ${rv.length} marked Revisit `, arrow())); a.addEventListener("click", () => setSell("revisit", rv.map(s => s.id))); return a; })(),
+      link("/", h("span", { class: "btn btn-ghost" }, "Home"))),
   );
 }

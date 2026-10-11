@@ -16,3 +16,12 @@ export function allResults() { return read().results || {}; }
 export function recordResult2(scenarioId, { option, quality, skill, pattern, strength }) { const s = read(); s.results2 = { ...(s.results2 || {}), [scenarioId]: { option, quality, skill, pattern: pattern || null, strength: strength || null, at: Date.now() } }; write(s); }
 export function getResult2(scenarioId) { return read().results2?.[scenarioId] || null; }
 export function allResults2() { return read().results2 || {}; }
+// A replay never changes the first try; it records the best later attempt and how many times the case was played.
+export function recordReplay2(scenarioId, quality) {
+  const s = read(); const r = s.results2?.[scenarioId]; if (!r) return;
+  const rank = { weak: 0, good: 1, best: 2 }; r.attempts = (r.attempts || 1) + 1;
+  if (!r.replay || rank[quality] > rank[r.replay]) r.replay = quality;
+  write(s);
+}
+export function getSell(key) { return read().sell2?.[key]; }
+export function setSell(key, value) { const s = read(); s.sell2 = { ...(s.sell2 || {}), [key]: value }; write(s); }

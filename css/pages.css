@@ -483,3 +483,11 @@
 .sim-lastq{grid-column:1 / -1;margin:0;font-size:var(--fs-micro);color:var(--muted)}.sim-lastq b{font-weight:600;color:var(--ink-2)}.sim-lastq b.good{color:var(--good)}.sim-lastq b.bad{color:var(--bad)}
 .sim-rt td.good{color:var(--good);font-weight:600}.sim-rt td.bad{color:var(--bad);font-weight:600}
 .sim-diff{margin:8px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:var(--fs-small);color:var(--ink-2)}
+
+/* Module 2 progression */
+.sell .option.preferred::before{content:"Strongest move"}
+.sell-tier{margin:0 0 6px;font-size:var(--fs-small);color:var(--ink-2)}.sell-tier b{color:var(--ink);font-weight:600}
+.sell-fixed{font-size:var(--fs-small);color:var(--good);font-weight:500}
+.drill-cost{font-size:var(--fs-small)}.drill-cost b{font-weight:600;color:var(--ink-2)}
+.card.is-clean{border-color:var(--gold-line);background:var(--gold-soft)}
+.tag.good{color:var(--good)}

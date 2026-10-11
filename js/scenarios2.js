@@ -30,6 +30,7 @@ export const strengths = {
   next: { name: "Leaving with a next step" },
   own: { name: "Finding and owning the break" },
   evidence: { name: "Planning on evidence, not enthusiasm" },
+  honest: { name: "Saying what you have, and what you don't" },
 };
 export const patterns = {
   pitch: { family: "tell", name: "Pitching before discovering", coach: "You went to your pitch before you'd heard the buyer's problem. Listen for it, then ask one more question." },
@@ -50,6 +51,7 @@ export const patterns = {
   blame: { family: "buck", name: "Pointing at someone else", coach: "You explained the problem by naming who caused it. The buyer wants to know who's fixing it." },
   apologize: { family: "buck", name: "Over-apologizing", coach: "The apology took the place of the plan. Own it in one sentence, then say what happens next." },
   alone: { family: "buck", name: "Going it alone", coach: "You tried to do alone what needed someone else to move. Name who owns each piece, and go to them." },
+  bluff: { family: "tell", name: "Bluffing on data", coach: "You answered with a number you didn't have, or one that doesn't measure what was asked. Say what you have, say what you don't, and offer to get it." },
   soft: { family: "noask", name: "Asking, but not for a decision", coach: "You found the right question and stopped one step short of the ask. Put a number, a date, or a named next step in the same sentence." },
   // Not a habit and not counted: a compliance line the rep shouldn't be negotiating at all.
   comply: { family: null, name: "A compliance line, not a negotiation", coach: "This one isn't a trade to improve. Check what's allowed with your distributor or compliance team before you offer anything." },
@@ -58,11 +60,11 @@ export const patterns = {
 const track = (id, title, blurb, ids) => ({ id, title, blurb, ids, filter: s => ids.includes(s.id) });
 export const tracks2 = [
   track("discover", "Discover before you pitch", "The buyer tells you what's wrong. Your first job is to find out what's really going on.", ["not-moving-ask", "more-margin-ask", "no-room-means", "open-the-meeting", "buyer-gave-answer"]),
-  track("objections", "Handle the objection", "An objection is information. Find out what it means before you answer it.", ["too-expensive-meaning", "private-label-shift", "competitor-margin", "send-me-something", "next-reset", "angry-buyer-recovery"]),
+  track("objections", "Handle the objection", "An objection is information. Find out what it means before you answer it.", ["too-expensive-meaning", "private-label-shift", "competitor-margin", "send-me-something", "next-reset", "angry-buyer-recovery", "circana-ask", "depletions-not-scans"]),
   track("case", "Make the business case", "Same numbers, different meaning. Say what they mean for the buyer.", ["velocity-into-story", "category-language", "recommend-not-dump"]),
-  track("negotiate", "Give to get", "Every concession should buy something you can name.", ["ten-stores-for-trade", "free-product-ask", "exclusive-ask", "more-promo-weeks"]),
+  track("negotiate", "Give to get", "Every concession should buy something you can name.", ["ten-stores-for-trade", "free-product-ask", "exclusive-ask", "more-promo-weeks", "not-moving-round-two", "slotting-budget"]),
   track("close", "Get the commitment", "Interest is not commitment. Leave with a decision, or a date for one.", ["send-me-the-info", "ask-for-the-test", "false-commitment", "define-success"]),
-  track("execute", "Make it happen", "The buyer said yes. Find out where execution can break.", ["authorized-not-set", "display-no-pos", "menu-no-bartenders", "distributor-not-selling"]),
+  track("execute", "Make it happen", "The buyer said yes. Find out where execution can break.", ["authorized-not-set", "display-no-pos", "menu-no-bartenders", "distributor-not-selling", "portal-not-pulled"]),
   track("manage", "Run the business between calls", "Forecasts, plans, and the difference between interest and evidence.", ["forecast-commit", "ninety-day-plan"]),
   track("inside", "Sell inside and lead", "Your own organization is part of the sale.", ["finance-rejects-trade", "coach-the-discounter"]),
 ];
@@ -84,7 +86,7 @@ export const scenarios2 = [
     ],
     reasoning: "He gave you a conclusion, not a fact. 'Not moving' could mean velocity, sales, share, or a feeling from a store walk. A question with your own number inside it does two things at once: it takes his view seriously, and it tests it.",
     principle: "Don't take the buyer's word for it. Ask the question that checks it.",
-    then: "He pulls up his report. It's total sales, not velocity. He hadn't noticed the 30 stores. Now you're talking about getting them back, not about a promotion.",
+    then: "He pulls up his report. \"I know about the 30 stores. We cut you there: bottom quintile. And flat in a category growing 2% is losing share.\" The question worked. Now the real meeting starts (see Round two in Give to get).",
     nextMove: "Before any line review, split your sales change into distribution and velocity for that banner. Walk in with one question built on that split.",
   },
   {
@@ -124,10 +126,10 @@ export const scenarios2 = [
   {
     id: "open-the-meeting", customer: "Meijer", channel: "off", category: "Refrigerated juice", stage: "Open", skill: "discovery", tags: ["discovery", "meeting"],
     situation: "You have 20 minutes with a buyer you've met twice. You want a second facing for your lead item. He's running late and looks distracted.",
-    evidence: [["Your ask", "second facing on the lead item"], ["His stated priority this year", "reduce out-of-stocks in the cooler", ""], ["Your item's out-of-stock rate", "11%, worst in the set", "bad"], ["Your velocity", "2nd in the set", "good"], ["Time", "20 minutes, started 6 late", "warn"]],
+    evidence: [["Your ask", "second facing on the lead item"], ["His stated priority this year", "reduce out-of-stocks in the cooler", ""], ["Your item's out-of-stock rate", "11%, worst in the set", "bad"], ["Days of supply on one facing", "about 2.5; deliveries twice a week", "warn"], ["Your velocity", "2nd in the set", "good"], ["Time", "20 minutes, started 6 late", "warn"]],
     question: "How do you open?",
     options: [
-      { label: "\"I know out-of-stocks are your focus this year. Our item is the worst offender in your cooler, and a second facing fixes it. Can I show you?\"", quality: "best", strength: "frame", feedback: "You've opened on his priority, admitted the uncomfortable fact, and connected your ask to his problem in two sentences. He's now listening because the meeting is about his year, not your facing." },
+      { label: "\"I know out-of-stocks are your focus this year. Our item is the worst offender in your cooler: it sells through one facing in under three days between deliveries. A second facing fixes that. Can I show you?\"", quality: "best", strength: "frame", feedback: "You've opened on his priority, admitted the uncomfortable fact, and connected your ask to his problem in two sentences. He's now listening because the meeting is about his year, not your facing." },
       { label: "\"Thanks for making time. Let me run you through our performance this quarter.\"", quality: "weak", pattern: "pitch", feedback: "A distracted buyer with 14 minutes doesn't want a performance review. You've spent your opening on your agenda and given him no reason to tune in." },
       { label: "\"How's the year going? Anything I should know about before I start?\"", quality: "good", feedback: "Polite and open, and on a relaxed day it works. Today he's late and distracted, and you already know his priority. Use it, don't ask him to repeat it." },
       { label: "\"I'll keep this short, since you're pressed. We'd like a second facing on the lead item. Our velocity is second in the set, and it's been climbing.\"", quality: "good", pattern: "pitch", feedback: "Short is right and the fact is strong. But it's your reason, not his. The same ask framed around his out-of-stock problem gets a different hearing." },
@@ -182,7 +184,7 @@ export const scenarios2 = [
     options: [
       { label: "\"Where has the store brand's gain come from this year? Our data says the mid-price brands, not us. Our shoppers are the ones who'd leave the aisle.\"", quality: "best", strength: "ask", feedback: "You've accepted the trend and questioned the conclusion. The store brand is winning from brands that look like it. Your brand holds shoppers it can't reach. That's not a fight with his store brand; it's a reason to keep both." },
       { label: "\"Private label can't match our quality. Shoppers will come back.\"", quality: "weak", pattern: "attack", feedback: "You've argued against his store brand to its owner. Even if you're right, he'll defend it. And 'shoppers will come back' is a hope, not evidence." },
-      { label: "\"We could fund a promotion to close the price gap.\"", quality: "weak", pattern: "promo", feedback: "Your shoppers aren't the ones switching. A promotion teaches your loyal 46% to wait for a deal and does nothing about the real question, which is what role your brand plays in his aisle." },
+      { label: "\"We could fund a promotion to close the price gap.\"", quality: "weak", pattern: "promo", feedback: "Your shoppers aren't the ones switching. A promotion teaches your loyal 48% to wait for a deal and does nothing about the real question, which is what role your brand plays in his aisle." },
       { label: "\"That's a fair read, and the trend is real. What role do you see for national brands in this set going forward, and what would a brand have to do to keep its place?\"", quality: "good", feedback: "Open and non-defensive, and it draws out his thinking. But you have the fact that answers his worry, and asking him to define your role hands him the pen. Ask the question that brings your data into it." },
     ],
     reasoning: "The objection has two parts: a trend, which is true, and a conclusion, which may not be. Agree with the trend. Test the conclusion with where the gain came from and who your shoppers are. A brand that holds shoppers the store brand can't reach is an asset to his category, and he's measured on category dollars.",
@@ -246,13 +248,13 @@ export const scenarios2 = [
   {
     id: "velocity-into-story", customer: "Kroger", channel: "off", category: "Sparkling water", stage: "Position", skill: "value", tags: ["value", "distribution"],
     situation: "You've done the analysis. Your velocity is up 12% in the stores that carry you, the category is up 6%, and you're missing from 20 stores. The buyer gives you five minutes.",
-    evidence: [["Your velocity, stores that carry you", "+12%", "good"], ["Category", "+6%"], ["Stores missing you", "20 of 180"], ["Your weekly sales per store", "$410"], ["Category $ those 20 stores would add", "about $8K a week, roughly half incremental to the category", "good"], ["Buyer's goal", "category growth"]],
+    evidence: [["Your velocity, stores that carry you", "+12%", "good"], ["Category", "+6%"], ["Stores missing you", "20 of 180"], ["Your weekly sales per store", "$410"], ["Category $ those 20 stores would add", "about $8K a week, roughly half incremental to the category", "good"], ["Those 20 stores", "smaller formats: expect below-average velocity", "warn"], ["Buyer's goal", "category growth"]],
     question: "What do you say to the buyer?",
     options: [
       { label: "\"Your category is up 6%. Where we're on shelf, we're up 12%. The 20 stores we're missing are about $4K a week of new category sales. Can we get them set?\"", quality: "best", strength: "frame", feedback: "Four sentences: his number, your number next to it, what the gap is worth to him, and the ask. Category language, not brand language. She can repeat this to her boss word for word." },
-      { label: "\"Our velocity is up 12% in the stores that carry us, well ahead of the category. We'd like to close the 20-store distribution gap before the reset, and we can help with the planograms.\"", quality: "good", pattern: "data", feedback: "True and short, but it's about your brand. She has to translate 'your velocity' into 'my category' herself, and she may not. Do the translation for him." },
+      { label: "\"Our velocity is up 12% in the stores that carry us, well ahead of the category. We'd like to close the 20-store distribution gap before the reset, and we can help with the planograms.\"", quality: "good", pattern: "data", feedback: "True and short, but it's about your brand. She has to translate 'your velocity' into 'my category' herself, and she may not. Do the translation for her." },
       { label: "Walk him through the full deck: velocity trend, share, distribution map, shopper profile, then the ask.", quality: "weak", pattern: "data", feedback: "Five minutes, and you've spent them proving you did the work. The buyer doesn't need the analysis; he needs the sentence it produced. The deck is backup, not the pitch." },
-      { label: "\"We're one of your fastest-growing brands. What would it take to get into the remaining stores?\"", quality: "weak", pattern: "soft", feedback: "You've asked her to set the price of something you haven't valued. Tell her what the 20 stores are worth to his category first. Then the ask isn't a favor; it's a number." },
+      { label: "\"We're one of your fastest-growing brands. What would it take to get into the remaining stores?\"", quality: "weak", pattern: "soft", feedback: "You've asked her to set the price of something you haven't valued. Tell her what the 20 stores are worth to her category first. Then the ask isn't a favor; it's a number." },
     ],
     reasoning: "Analysis tells you what's true. The buyer needs to know what it's worth to her. That translation is the job: her number, then yours, then the dollars, then the ask. If the sentence is about your brand, she has to do the translation herself, and she usually won't.",
     principle: "Say what the gap is worth to her category. Then ask.",
@@ -295,13 +297,13 @@ export const scenarios2 = [
   // ---- Give to get ----
   {
     id: "ten-stores-for-trade", customer: "Albertsons", channel: "off", category: "Better-for-you snacks", stage: "Negotiate", skill: "negotiation", tags: ["negotiation", "trade", "distribution"],
-    buyer: "I'll give you 10 more stores if you give me 12% more trade.",
+    buyer: "I'll give you 10 more stores for another 50 cents a case off-invoice across the account. Call it 12% more trade.",
     situation: "An offer, out of nowhere, near the end of a good meeting. Your manager has told you distribution is the priority this year.",
-    evidence: [["Your trade at this account", "$180K a year"], ["12% more", "about $22K a year", "warn"], ["10 stores at your average velocity", "about $85K a year in sales, about $30K gross profit", "good"], ["Which 10 stores", "unknown", "warn"], ["Stores you're missing", "35"], ["What else he could give", "display, a second facing, the other 25 stores"]],
+    evidence: [["Your trade at this account", "$180K a year"], ["12% more", "about $22K a year", "warn"], ["10 stores at your average velocity", "about $85K a year in sales, about $30K gross profit", "good"], ["Stores you're not in", "usually smaller, or a weaker fit: expect below-average velocity", "warn"], ["Which 10 stores", "unknown", "warn"], ["Stores you're missing", "35"], ["What else he could give", "display, a second facing, the other 25 stores"]],
     question: "What do you do?",
     options: [
       { label: "\"Which 10 stores? And what would it take to talk about all 35?\" Then tie the trade to the stores being set.", quality: "best", strength: "trade", feedback: "You've asked the two questions that change the value of the deal: which stores, and whether it can be bigger. Then you've tied your money to his delivery. The deal might still be good at 12%, but you'll know what you're buying." },
-      { label: "Accept. Ten stores for $22K of trade is a good deal on the numbers, and your manager has said distribution is the priority this year.", quality: "good", pattern: "accept", feedback: "The math probably works: $30K of gross profit for $22K, though the net is thin once you count the trade every year. But you've taken the first offer without knowing which stores, and without asking whether the other 25 were available. The buyer opened; you closed on his terms." },
+      { label: "Accept. Ten stores for $22K of trade is a good deal on the numbers, and your manager has said distribution is the priority this year.", quality: "good", pattern: "give", feedback: "The math might work: $30K of gross profit for $22K at average velocity. But stores you aren't in are usually smaller or a weaker fit, and the trade comes off every case every year. But you've taken the first offer without knowing which stores, and without asking whether the other 25 were available. The buyer opened; you closed on his terms." },
       { label: "Decline. Trade is already high at this account.", quality: "weak", pattern: "avoid", feedback: "You've walked away from a deal that's probably worth having, without exploring it. 'No' isn't negotiation. Ask what the stores are worth and what else is on the table." },
       { label: "Counter at 6% for the 10 stores.", quality: "good", feedback: "Negotiating the number is better than accepting it. But you've haggled over the price of something you haven't valued. Which stores, and how many, matter more than the percent." },
     ],
@@ -319,7 +321,7 @@ export const scenarios2 = [
     options: [
       { label: "\"I can't do free cases. I'll train your staff and run a tasting for the launch either way. And I'd like to talk about the menu, not just the back bar.\"", quality: "best", strength: "frame", feedback: "You've said no cleanly, offered support that's worth more to a menu launch than two cases, and opened the menu conversation on its own merits. Nothing is traded for the placement, so nothing breaks a rule." },
       { label: "Agree. Two cases is cheap for a placement.", quality: "weak", pattern: "comply", feedback: "Free goods for a placement aren't allowed, under federal tied-house law or in any state. Cheap isn't the test. Legal is." },
-      { label: "\"I can't do free cases, but let me see what the distributor can do on price for your opening order. That's the usual way we help with a launch, and it keeps us both out of trouble.\"", quality: "good", pattern: "comply", feedback: "Better than free cases, but a discount tied to a placement is the same problem in a different form. Distributor pricing has to be posted and the same for every account, not a trade for the back bar." },
+      { label: "\"I can't do free cases, but let me see what the distributor can do on price for your opening order. That's the usual way we help with a launch, and it keeps us both out of trouble.\"", quality: "weak", pattern: "comply", feedback: "A discount tied to a placement is the same problem in a different form. Distributor pricing has to be posted and the same for every account, not a trade for the back bar." },
       { label: "\"Sorry, no free product. Let me know if you still want the placement.\"", quality: "weak", pattern: "avoid", feedback: "Correct, but it ends the conversation. A no works better with a better yes attached." },
     ],
     reasoning: "An ask for free product is often an ask for help with something else: cost on a launch, or attention for a new menu. You can't give what he asked for, and you can't trade support for a placement either. What you can do is give the support freely and make the menu case on its own: a named drink is worth about three times a back-bar bottle, to him as well as to you.",
@@ -328,21 +330,21 @@ export const scenarios2 = [
     nextMove: "Know what you're allowed to offer and what each thing is worth to a bar. For every ask you can't meet, have a 'no, but' ready that helps the need without buying the placement.",
   },
   {
-    id: "exclusive-ask", customer: "Bayside Hospitality (restaurant group)", channel: "on", category: "Bourbon", stage: "Negotiate", skill: "negotiation", tags: ["negotiation", "on-premise", "exclusive"],
+    id: "exclusive-ask", customer: "Bayside Hospitality (restaurant group)", channel: "on", category: "Bourbon", stage: "Negotiate", skill: "negotiation", tags: ["negotiation", "on-premise", "exclusive", "compliance"],
     buyer: "Make us your exclusive bourbon partner in the city and we'll put you in all seven.",
-    situation: "Six months after you won the Old Fashioned back at Waterfront, the group's beverage director makes you an offer that sounds like the quarter. 'Exclusive' would mean turning down two other groups, one of which you're close to signing.",
-    evidence: [["Seven locations at current velocity", "about $70K a year", "good"], ["The other group you're close with", "about $25K a year, 80% likely", "good"], ["What 'exclusive' would cover", "unclear: bourbon? whiskey? all spirits?", "warn"], ["What he'd commit to", "unclear: menu, well, or back bar", "warn"], ["Term", "not mentioned", "warn"]],
-    question: "What do you do?",
+    situation: "Six months after you won the Old Fashioned back at Waterfront, the group's beverage director makes an offer that sounds like the quarter. 'Exclusive' would mean keeping the bourbon out of two other groups, one of which you're close to signing.",
+    evidence: [["Seven locations at current velocity", "about $70K a year", "good"], ["The other group", "about $25K a year, 80% likely"], ["Can you control who the distributor sells to?", "no: in this state any licensed account can buy at the posted price", "bad"], ["Trading anything for exclusivity", "an inducement: not allowed", "bad"], ["What you can offer every account", "training, a signature cocktail, events within state limits"]],
+    question: "What do you say?",
     options: [
-      { label: "\"What does exclusive mean to you, and what would you commit to: menu, well, or back bar, and for how long? Then I'll tell you what I can do.\"", quality: "best", strength: "ask", feedback: "'Exclusive' is his word, and it's doing a lot of work. Before you give up other accounts, you need to know what you'd get: a menu cocktail in all seven for two years is a different offer from a back-bar bottle until he changes his mind." },
-      { label: "Say yes. Seven locations is the biggest deal of your year.", quality: "weak", pattern: "big", feedback: "You've traded a likely $25K and your freedom in the city for a word you haven't defined. Seven back-bar bottles with no term is worth less than you think." },
-      { label: "Decline. Exclusivity is never worth it.", quality: "weak", pattern: "avoid", feedback: "Some exclusives are excellent. It depends on what's in them, and you've walked away without finding out." },
-      { label: "Counter: exclusive for bourbon only, not all whiskey, in exchange for a named menu cocktail in all seven locations and a two-year term with a review at twelve months.", quality: "good", feedback: "A strong counter, and roughly where you'll end up. You've just skipped a step: you don't yet know what he meant by exclusive or what he'd commit to. Ask first, then this counter lands precisely." },
+      { label: "\"I can't keep the bourbon out of other accounts; the distributor sells to anyone licensed. What I can do is build the menu with you: a signature cocktail in all seven, staff training, a launch event. Would that get us in?\"", quality: "best", strength: "frame", feedback: "You've said no to the thing you can't do, in one sentence and with the reason, and offered the things that actually sell bourbon in seven bars. He wanted to feel like the brand's home in the city. A drink built for him does that, legally." },
+      { label: "\"What does exclusive mean to you, and what would you commit to: menu, well, or back bar, and for how long?\"", quality: "good", pattern: "soft", feedback: "Pinning down a big word is usually right. Here it starts a negotiation you aren't allowed to finish. Say what's off the table first, then ask what he'd commit to on merit." },
+      { label: "Counter: exclusive for bourbon only, in exchange for a named menu cocktail in all seven and a two-year term.", quality: "weak", pattern: "comply", feedback: "A well-built counter to a deal you can't legally make. You can't stop the distributor selling to other groups, and trading for exclusivity is an inducement. Check with compliance before you offer any version of this." },
+      { label: "Say yes. Seven locations is the biggest deal of your year.", quality: "weak", pattern: "big", feedback: "You've promised something you can't deliver, traded away a likely $25K, and put your license and his at risk." },
     ],
-    reasoning: "A word like exclusive has three parts: how wide, what he commits to, and for how long. Each one moves the value by tens of thousands. Until all three are on the table, you can't price what you'd be giving up, including the account you were about to win.",
-    principle: "Pin down the big word before you price the deal.",
-    then: "\"Bourbon only. Menu cocktail in all seven, named. Two years.\" Now it's worth more than the other group, and you can ask for a review clause.",
-    nextMove: "When a buyer uses a word like exclusive, partner, or support, write it down and ask what it means before you respond. The definition is the negotiation. And before you agree to any exclusive, check your state's rules: a supplier can't pay or induce a retailer to shut out competitors.",
+    reasoning: "In three-tier states a supplier generally can't control which licensed accounts the distributor sells to, and can't give anything of value to secure exclusivity. So the question isn't what 'exclusive' means. It's what he really wants, which is usually to feel like the brand's home in the city. A signature drink, training, and events do that, and you can offer them to anyone.",
+    principle: "Say what's off the table first. Then sell what's on it.",
+    then: "\"So the other group can have it too?\" Yes. He's cooler for a week, then puts your signature cocktail in four of the seven. You sign the other group the same month.",
+    nextMove: "Before any on-premise negotiation, know your state's rules on exclusivity, inducements, and events. Have the one-sentence no ready, and the yes that follows it.",
   },
   {
     id: "more-promo-weeks", customer: "H-E-B", channel: "off", category: "Salty snacks", stage: "Negotiate", skill: "negotiation", tags: ["negotiation", "promo"],
@@ -416,10 +418,10 @@ export const scenarios2 = [
   {
     id: "define-success", customer: "Target", channel: "off", category: "Protein bars", stage: "Close", skill: "closing", tags: ["closing", "test"],
     situation: "The buyer has agreed to a 30-store test of your new item. You're about to leave, pleased. Nobody has said what 'success' means.",
-    evidence: [["Test", "30 stores, 8 weeks", "good"], ["Category average velocity", "4.2 units a store a week"], ["Your item at a similar retailer", "5.1", "good"], ["His unstated expectation", "unknown", "warn"], ["Who reads the results", "him, and a category analyst you haven't met", "warn"]],
+    evidence: [["Test", "30 stores, 8 weeks", "good"], ["Category average velocity", "4.2 units a store a week"], ["Your item at a similar retailer", "5.1", "good"], ["His unstated expectation", "unknown", "warn"], ["Who reads the results", "him, and a category analyst you haven't met", "warn"], ["Target's supplier portal", "you can see your own sales by store and week", ""]],
     question: "What do you do before you leave?",
     options: [
-      { label: "\"What rate of sale would make this a yes for the full chain? I'd suggest the category average, 4.2. And can I see the week-4 readout?\"", quality: "best", strength: "next", feedback: "You've agreed the target while he's in a yes mood, set it at a number you expect to beat, and arranged to see the data before the final verdict. The test now has rules both of you signed up to." },
+      { label: "\"What rate of sale makes this a yes for the full chain? I'd suggest the category average on base velocity, 4.2, no promoted weeks. We can both read week 4 from your portal.\"", quality: "best", strength: "next", feedback: "You've agreed the target while he's in a yes mood, set it on base velocity so a deal week can't flatter it, and named the data you'll both read. The test now has rules both of you signed up to." },
       { label: "Thank him and leave. You've got the test; don't complicate it.", quality: "weak", pattern: "nocommit", feedback: "In eight weeks, 'success' will be whatever the analyst thinks that morning. You could have set the bar at 4.2, a number you expect to beat. Now someone else will pick it." },
       { label: "Ask what the next step is after the test: a chain-wide listing, a bigger test, or a review at the next reset, and who makes that call.", quality: "good", pattern: "soft", feedback: "A sensible question, and worth asking. But the step after depends entirely on how the test is judged, and you haven't settled that. Define success first." },
       { label: "Suggest a lower bar, say 3.5, to make sure the test passes.", quality: "weak", pattern: "avoid", feedback: "A target below the category average tells him you don't believe in the item. You'd pass a test nobody respects." },
@@ -438,13 +440,14 @@ export const scenarios2 = [
     question: "Where did it break, and who needs to act?",
     options: [
       { label: "Two breaks: the distributor shipped to 70 of 120, and 41 of those 70 are set. Fix the ship list with the distributor; ask the buyer to push store compliance.", quality: "best", strength: "own", feedback: "You've split the gap into the two places it can break, supply and shelf, and named who fixes each. The buyer wants her authorization executed as much as you do; ask her for the compliance push rather than apologizing to her." },
-      { label: "Tell the buyer her stores aren't setting the item, send her the list of the 79 that haven't scanned, and ask her to push compliance from her side this week.", quality: "good", pattern: "link", feedback: "Half right: store compliance is his to push. But 50 stores never received product, and that's your distributor's gap. If you only raise her half, she'll find the other half and the conversation gets worse." },
+      { label: "Tell the buyer her stores aren't setting the item, send her the list of the 79 that haven't scanned, and ask her to push compliance from her side this week.", quality: "good", pattern: "link", feedback: "Half right: store compliance is hers to push. But 50 stores never received product, and that's your distributor's gap. If you only raise her half, she'll find the other half and the conversation gets worse." },
       { label: "Wait another month. New items always take time to get set.", quality: "weak", pattern: "exec", feedback: "Six weeks and a third of the stores. The buyer's director thinks it's done because you said so. Every week you wait, the authorization looks more like a failed item." },
       { label: "Ask your manager to escalate to the buyer's director.", quality: "weak", pattern: "escalate", feedback: "You'd be escalating a problem you haven't diagnosed, over the buyer's head, to someone you told it was done. Find the two breaks first; most of the fix is below director level." },
     ],
     reasoning: "Between an authorization and a product on the shelf sit a planogram, a distributor's ship list, a store's willingness to set it, and a dozen people with other things to do. When the scan data disagrees with the paperwork, find which link broke and go to the person who owns it. Usually it's more than one.",
     principle: "Approval is not execution. Find where it broke and go to whoever owns that step.",
     nextMove: "After every authorization, book a scan-data check at week 2 and week 4 in your calendar. Don't tell anyone it's done until the stores say so.",
+    then: "Cascade fixes the ship list in a week. Store compliance is slower: 94 of 120 scanning by week ten. Her director asks why it wasn't done in six. You have the answer this time, with dates.",
   },
   {
     id: "display-no-pos", customer: "Publix", channel: "off", category: "Refrigerated juice", stage: "Execute", skill: "execution", tags: ["execution", "display"],
@@ -460,6 +463,7 @@ export const scenarios2 = [
     reasoning: "Displays fail at the store, not at the negotiation. For a store to build one, it needs product, materials, and someone telling them to do it, and the third is the one reps forget because it belongs to a form. Find the break that stops the most stores, fix it first, build a fallback for the rest, and tell the buyer before the problem tells him.",
     principle: "Fix the break that stops the most stores first.",
     nextMove: "Make a one-page execution checklist for displays: product, materials, store comms, merchandiser plan, and a check-in date. Run it the day the display is agreed.",
+    then: "The comms go out Wednesday. 58 of 80 stores build on Monday; 14 build late, 8 never do. The buyer sees 58 and the plan you sent, not 80 and silence.",
   },
   {
     id: "menu-no-bartenders", customer: "The Arden Hotel (bar)", channel: "on", category: "Gin", stage: "Execute", skill: "execution", tags: ["execution", "on-premise"],
@@ -475,6 +479,7 @@ export const scenarios2 = [
     reasoning: "A menu sells the drink to the guest. The bartender sells it too, by recommending it and making it well. Take the bartender out and you have half a placement, and staff turnover takes the bartender out every few months.",
     principle: "If the bartender doesn't know the drink, the placement hasn't happened yet.",
     nextMove: "Every menu win gets a training date before you leave the meeting, and a second one eight weeks later for new staff. Order the drink yourself once a month.",
+    then: "The training lands the following Tuesday. Three weeks later it's 31 a week, and the two new hires are the ones selling it. The bar manager adds it to the pre-shift sheet himself.",
   },
   {
     id: "distributor-not-selling", customer: "Cascade Beverage (distributor)", channel: "on", category: "Craft spirits", stage: "Execute", skill: "execution", tags: ["execution", "distributor"],
@@ -490,6 +495,7 @@ export const scenarios2 = [
     reasoning: "Supplier, distributor, account, consumer: the product moves only when every link pulls. Here the inventory is in place and the accounts are receptive. The link that isn't pulling is the distributor's reps, and they're doing what makes sense for them: selling what they're paid on and what they know. Change those two things and the chain starts moving.",
     principle: "Distributor reps sell what they're paid on and what they know. Make your brand both.",
     nextMove: "Before any launch through a distributor, get three things in writing: an incentive slot, a target account list per rep, and ride-with dates with the top reps in the first month.",
+    then: "\"The incentive calendar is set for this quarter.\" You get a slot next quarter, and the ride-withs now. The top five reps place 22 accounts in six weeks; the other nine place four.",
   },
 
   // ---- Run the business between calls ----
@@ -507,6 +513,7 @@ export const scenarios2 = [
     reasoning: "A forecast is a sorted list of evidence. Commit is what has an action already in motion: a planogram published, a test above its target. Upside is what has a decision date. Pipeline is everything that currently rests on how a buyer sounded. The sort matters more than the total, because your manager plans on the commit line.",
     principle: "Sort your forecast by evidence, not enthusiasm. A decision date is upside. 'He loved it' is pipeline.",
     nextMove: "Next to each opportunity in your pipeline, write the evidence in one line. If the line contains the word 'seemed', 'loved', or 'interested', it's not in your commit.",
+    then: "Meijer and Target land. Kroger says no on Friday: the division director wants to see two more quarters. Your commit holds at $95K, which is why your manager still trusts the number.",
   },
   {
     id: "ninety-day-plan", customer: "Your territory", channel: "off", category: "Portfolio", stage: "Plan", skill: "planning", tags: ["planning", "allocation"],
@@ -522,13 +529,14 @@ export const scenarios2 = [
     reasoning: "There are more good things to do than hours to do them, so a plan is mostly a list of what you won't do. Resets go first because they're dated and decide a year of distribution. A missed reset can't be made up with effort later.",
     principle: "Fund the moments that decide the year. Leave the rest out on purpose.",
     nextMove: "Write the 90 days as a list of what you won't do, next to what you will. Show both to your manager. The second list is where the arguments are, and better now than in week eight.",
+    then: "You win two of the three resets with the new item. The third buyer wanted the second item, which you'd parked. The two biggest decliners turn out to be one real problem and one buyer who'd left.",
   },
 
   // ---- Sell inside and lead ----
   {
     id: "finance-rejects-trade", customer: "Your finance team", channel: "off", category: "Portfolio", stage: "Lead", skill: "leading", tags: ["internal", "trade"],
     situation: "Finance has rejected your request for $40K of trade to fund an eye-level test at Raley's. Their note says 'insufficient return.' The buyer is expecting an answer this week.",
-    evidence: [["Your request", "$40K, one chain-wide promotion", ""], ["Your case as submitted", "'needed to keep the item listed'", "warn"], ["What the test could win", "eye level in all 230 stores: about $300K a year in sales, about $100K in gross profit", "good"], ["What finance saw", "a $40K promotion with a 1.3× lift", "warn"], ["Finance's measure", "incremental gross profit per trade dollar", ""], ["Time", "the buyer wants an answer by Friday"]],
+    evidence: [["Your request", "$40K: the chain-wide promotion the buyer wants in exchange for a 20-store eye-level test", ""], ["Your case as submitted", "'needed to keep the item listed'", "warn"], ["What the test could win", "eye level in all 230 stores: about $300K a year in sales, about $100K in gross profit", "good"], ["What finance saw", "a $40K promotion with a 1.3× lift", "warn"], ["Finance's measure", "incremental gross profit per trade dollar", ""], ["Time", "the buyer wants an answer by Friday"]],
     question: "What do you do?",
     options: [
       { label: "Resubmit the case you'd make to a buyer: $40K buys a test worth about $100K a year in gross profit, with a target. Ask what return they'd need.", quality: "best", strength: "frame", feedback: "Finance rejected what you sent them: a promotion with a weak lift. You never told them it buys a test with a $100K-a-year prize. Sell inside the way you sell outside, in their measure, and ask what number would get a yes." },
@@ -539,6 +547,7 @@ export const scenarios2 = [
     reasoning: "Finance isn't against trade spend. It's against spend with no return it can see. The note you sent described a promotion. The deal is a test with a prize. Same money, different story, and only one of them passes their measure.",
     principle: "Sell inside the way you sell outside: in their measure, with a clear ask.",
     nextMove: "Before every internal request, write the one line finance will read: what we spend, what we could win, and how we'll know. If the line is 'to keep the item,' rewrite it.",
+    then: "Finance approves $25K, not $40K, and asks for a week-4 readout. You take the smaller promotion to the buyer; he keeps the test at 20 stores but wants the readout too.",
   },
   {
     id: "angry-buyer-recovery", customer: "Sprouts", channel: "off", category: "Sparkling water", stage: "Handle", skill: "objections", tags: ["relationship", "service"],
@@ -571,7 +580,94 @@ export const scenarios2 = [
     reasoning: "Jordan isn't a bad rep; Jordan is a rep who has learned that giving is how you win, and has never been shown the alternative. Coaching means making the habit visible in Jordan's own deals, agreeing one change small enough to do next week, and being there when it's tried. Rules and reassignment are what you do when coaching has failed, not instead of it.",
     principle: "Coach the habit, not the number. Show it in the rep's own deals, and be there when they try the change.",
     nextMove: "Pick the one habit costing your team the most and the one rep it shows up in most. Book the deal review this week, and the ride-along the week after.",
+    then: "Jordan's next two deals ask for a display and a store list before any concession. The third slips back. The approval limit stays in your pocket; you don't need it yet.",
   },
+  {
+    id: "circana-ask", customer: "Meijer", channel: "off", category: "Kombucha", stage: "Handle", skill: "objections", tags: ["objection", "data", "syndicated"],
+    buyer: "Before we talk about more stores: what does your Circana data say your velocity is against the category?",
+    situation: "You're asking for 60 more stores. You're a 40-person company and you don't subscribe to Circana; you turned down the quote last year. The buyer knows the big kombucha brands all have it.",
+    evidence: [["Stores carrying you", "180 of 250"], ["Circana subscription", "none: too expensive at your size", "warn"], ["UNFI shipments to Meijer DCs, 13 weeks", "+18%", "good"], ["What's inside the +18%", "filling 22 stores added in July", "warn"], ["Meijer's supplier data portal", "you have a login; you haven't pulled store-level sales this quarter", "warn"], ["His bar for adding stores", "not stated"]],
+    question: "What do you say?",
+    options: [
+      { label: "\"We don't subscribe to Circana. Your own scan data is in your portal, and I'll have our velocity by store against the category to you by Friday. What would you need to see to add the 60?\"", quality: "best", strength: "honest", feedback: "Honest in one sentence, and you've pointed to the data he trusts most: his own. Asking for his bar means Friday's numbers answer his question, not one you picked. Small suppliers lose this moment by pretending, not by admitting they're small." },
+      { label: "\"Our UNFI shipments into your DCs are up 18% this quarter. That's the best read on how we're doing at Meijer.\"", quality: "weak", pattern: "data", cost: "A sell-through question answered with sell-in. He stops trusting your other numbers too.", feedback: "Shipments are what UNFI sold to his warehouse, not what his shoppers bought, and this quarter's number includes filling 22 new stores. He knows that." },
+      { label: "\"Circana has us as one of the fastest-growing kombucha brands in the Midwest.\"", quality: "weak", pattern: "bluff", cost: "If he checks, this meeting and the next one.", feedback: "You're quoting a source you don't subscribe to, probably from a broker newsletter. He has Circana on his other screen." },
+      { label: "\"We don't have Circana. I can buy a one-time pull for your market and have it to you in three weeks.\"", quality: "good", feedback: "Honest, and a one-time pull is a real option for a small brand. But it costs real money, arrives after his review, and gives him a market view when he asked about his stores. His own portal answers his question for free by Friday." },
+    ],
+    reasoning: "A chain buyer asks about syndicated data for two reasons: to see your velocity against the category, and to see whether you know your own business. You can answer the second honestly even when you can't answer the first. Most large chains give suppliers some view of their own scan data, and it's often the number the buyer trusts most. Shipments are not sales, and a bluff about a source he can check costs more than the gap it covers.",
+    principle: "Don't bluff about data you don't have. Say what you do have, and bring the number the buyer trusts.",
+    then: "Friday's pull is mixed: 2.1 units a store a week in your first 140 stores, 0.9 in the 40 small-format ones. \"Fix the small stores before you ask for 60 more.\" No expansion this review, but you know which stores to work, and he'll look again in the spring.",
+    nextMove: "Every month, pull store-level sales from every retailer portal you can get into, and split them by store size and how long you've been in. Know your velocity against the category before any buyer asks.",
+  },
+  {
+    id: "depletions-not-scans", customer: "H-E-B", channel: "off", category: "Wine", stage: "Handle", skill: "objections", tags: ["objection", "data", "three-tier"],
+    buyer: "Your distributor says your depletions are up 40%. Depletions aren't my register. What are my shoppers actually buying?",
+    situation: "Line review for your four California wines, eight weeks after a holiday display program. You sell through a Texas distributor and see depletions by store. You don't buy Nielsen.",
+    evidence: [["Depletions to H-E-B stores, 13 weeks", "+40%", "good"], ["What's inside the +40%", "the holiday display load-in: 120 stores, 5 cases each", "warn"], ["Stores that reordered since the display", "30 of 120"], ["Stores that reordered twice", "18", "good"], ["Nielsen for H-E-B", "you don't subscribe"], ["Your distributor's H-E-B category manager", "works with H-E-B scan data; you haven't asked her"]],
+    question: "What do you say?",
+    options: [
+      { label: "\"You're right: depletions are what we sold into your stores. The closest read I have to your register is reorders: 30 of 120 stores have reordered since the display, 18 twice. I'll get scan by store from our distributor's category manager this week. Can we decide the four items on that?\"", quality: "best", strength: "honest", feedback: "You've agreed with the one thing he's right about, given him the number that does say something about shoppers, and found the scan data inside your own chain. A store that reorders twice has sold through. A store that hasn't reordered in eight weeks is sitting on display stock." },
+      { label: "\"Depletions are the standard measure in wine. Up 40% means it's selling.\"", quality: "weak", pattern: "data", cost: "You've told him your numbers don't measure what he needs.", feedback: "It's the standard on your side of the three tiers. He runs a register. Most of the 40% is one display load-in, and 90 of his stores haven't reordered." },
+      { label: "\"Nielsen has our cabernet as a top-ten $15 cab nationally.\"", quality: "weak", pattern: "bluff", feedback: "A national ranking from a marketing deck, offered as if it answers a question about his stores. Even if it's true, it says nothing about the 90 stores that haven't reordered." },
+      { label: "\"I don't have your scan data; that's yours. What velocity do my four wines need to keep their slots?\"", quality: "good", feedback: "Honest, and asking for his bar is smart. But you've handed him the whole read when you have half of it: reorders by store, and a distributor colleague who has his scan data. Bring what you have, then ask for the bar." },
+    ],
+    reasoning: "In beverage alcohol the supplier's daily number is depletions: what the distributor sold to the retailer. The buyer's number is the register. After a display load-in the two can be far apart for months. Reorders by store are the supplier's best stand-in for sell-through: a store that buys again has sold what it had. And the distributor's category team often works with the retailer's scan data, so the answer may be one call away.",
+    principle: "Sell-in is not sell-through. Know the difference before the buyer points it out.",
+    then: "The scan comes back Thursday. Two wines are selling; two are mostly still display stock. He keeps two and cuts two at the spring reset. You'd hoped for four.",
+    nextMove: "For every retailer, track reorders by store next to depletions. After any display or load-in, report sell-through as reorders, not as the depletion spike.",
+  },
+  {
+    id: "portal-not-pulled", customer: "Target", channel: "off", category: "Sparkling water", stage: "Execute", skill: "execution", tags: ["execution", "data", "in-stock"],
+    buyer: "Your in-stock in my top 200 stores was 88% last month. Did you know that?",
+    situation: "A quarterly review. The number is in Target's supplier portal, which you have access to and haven't opened in six weeks. Your supply chain team says shipments are fine.",
+    evidence: [["Your fill rate to Target DCs", "97%", "good"], ["In-stock, his top 200 stores", "88%, he says"], ["Store-level in-stock report", "in the portal; you haven't opened it in 6 weeks", "warn"], ["Store orders", "set by Target's system from on-hand counts and recent sales"], ["Your new flavor", "launched 8 weeks ago, selling above forecast", "good"]],
+    question: "What do you say?",
+    options: [
+      { label: "\"I hadn't looked at store level this month, and I should have. We're filling 97% to your DCs, so the gap is between DC and shelf. Can we look at the 30 worst stores together this week: on-hands, orders, and the new flavor's forecast?\"", quality: "best", strength: "own", feedback: "One sentence of ownership, then the diagnosis you can already make: DC fill is fine, so the break is in the store. You've asked to work it with him, on his data, on the stores that matter most." },
+      { label: "\"Our fill rate is 97%. The out-of-stocks must be store ordering.\"", quality: "weak", pattern: "blame", feedback: "Possibly true, and you can't know it: you haven't looked. He hears 'your problem,' from a supplier who didn't open the report he did." },
+      { label: "\"That's not what we're seeing. Our numbers look fine.\"", quality: "weak", pattern: "bluff", cost: "Contradicting data you haven't opened. The fastest way to stop being believed.", feedback: "Your numbers are shipments. His are shelves." },
+      { label: "\"I'll pull the store-level report tonight and send you a plan by Friday.\"", quality: "good", feedback: "Honest, and it owns the miss. But you already know the break is between DC and shelf, and you've turned a problem you could work on together into homework he has to wait for." },
+    ],
+    reasoning: "High DC fill and low store in-stock means the break is inside the retailer: on-hand counts that are wrong, orders that are too small, or a forecast that hasn't caught up with a new item. The supplier who opens the retailer's own report first gets to shape the fix. The one who hears it from the buyer spends the meeting catching up.",
+    principle: "If the retailer gives you the data, read it before the buyer does.",
+    then: "Twenty of the 30 stores show units on hand and an empty shelf, so the system never reorders. He asks those stores for a recount, which takes three weeks to show up. In-stock stays under 90% until then, and he notes it in your scorecard.",
+    nextMove: "Put a recurring 30 minutes on your calendar each week to read every retailer portal you have: in-stock, velocity, and your new items against forecast.",
+  },
+  {
+    id: "not-moving-round-two", follows: "not-moving-ask", customer: "Albertsons", channel: "off", category: "Sparkling water", stage: "Negotiate", skill: "negotiation", tags: ["negotiation", "reset", "sku"],
+    buyer: "I know about the 30 stores. We cut you in the clustering: you were bottom quintile there. And flat velocity in a category growing 2% is losing share. So what's your plan?",
+    situation: "Same review, two minutes later. Your question landed and he answered it better than you expected. He's going to cut at least one of your five flavors at the reset in nine weeks.",
+    evidence: [["Your flavors' rank in his set of 40", "4th, 9th, 15th, 31st, 38th"], ["The 38th", "launched 14 months ago; your brand team loves it", "warn"], ["Your top flavor", "out of stock most weekends on one facing", "warn"], ["Where the category's +2% came from", "two flavor-led brands and private label"], ["Promo budget", "$40K, approved"]],
+    question: "What do you propose?",
+    options: [
+      { label: "\"Cut our 38th. Give its facing to our top flavor, which runs out every weekend. Judge the 31st at the reset on non-promoted velocity, same as everyone.\"", quality: "best", strength: "trade", feedback: "You've cut your own weakest flavor before he could, kept its space in your brand by fixing a real out-of-stock, and asked for a fair test on the next one. Buyers remember who brought them the cut." },
+      { label: "Defend all five: the 30 cut stores explain the decline, and you'll earn them back at the next clustering.", quality: "good", pattern: "pitch", feedback: "He's just told you why those stores were cut. Arguing a closed point means he picks which flavors go, and he'll pick two." },
+      { label: "Offer the $40K promotion across all five flavors before the reset to lift the numbers.", quality: "good", pattern: "promo", cost: "$40K moving a number he won't look at.", feedback: "Tempting, and plenty of reps do it. But a buyer reads non-promoted velocity at a reset and strips out the deal weeks." },
+      { label: "\"Which flavors are you thinking of cutting, and what would you want in their place?\"", quality: "good", pattern: "soft", feedback: "A fair question, but it hands him the pen on your own line. He'll cut the 31st and 38th and give the space to a flavor-led brand. You know your tail better than he does. Choose." },
+    ],
+    reasoning: "Once the buyer has shown he knows the numbers, the question isn't whether something gets cut; it's who chooses. The supplier who offers up their own weakest item keeps the space inside the brand and earns the right to argue for the next one. Promotions before a reset rarely help, because the read is non-promoted velocity.",
+    principle: "When a cut is coming, make it yourself, and keep the space.",
+    then: "He takes the 38th, moves the facing to your top flavor, and gives the 31st until the reset. Your brand team is unhappy about the 38th. You've kept five facings of space with four flavors.",
+    nextMove: "Before every line review, rank your items in the buyer's set and decide which one you'd give up. Bring the swap with you.",
+  },
+  {
+    id: "slotting-budget", customer: "Giant Eagle", channel: "off", category: "Better-for-you snacks", stage: "Negotiate", skill: "negotiation", tags: ["negotiation", "slotting", "new-item"],
+    buyer: "I'll take all three flavors in 200 stores. Slotting is $25 per item per store, plus a free fill. That's how it works here.",
+    situation: "A yes on a new line, with a price. Your budget for this account is $20K for the year. New items here are reviewed at 12 weeks.",
+    evidence: [["Slotting, 3 items × 200 stores", "$15K"], ["Free fill", "about $6K at cost"], ["Your budget for the year", "$20K", "warn"], ["What new items need in weeks 4 to 12", "a demo and a price reduction, about $8K"], ["Your flavors elsewhere", "one top quartile, two middle"]],
+    question: "What do you do?",
+    options: [
+      { label: "\"Two flavors, not three: the one that's top quartile everywhere and the next best. And I'd like to pay half the slotting now and half at week 12 if we clear your bar.\"", quality: "best", strength: "trade", feedback: "Fewer items launched well beat more launched thin. Two flavors cut the entry cost to about $10K plus the fill and leave money for the weeks that decide the review. The split payment may not fly, but asking costs nothing." },
+      { label: "Pay it. Slotting is the cost of getting in, and a yes on three flavors is rare.", quality: "good", pattern: "give", cost: "The whole year's budget on getting in, nothing on the 12 weeks that decide whether you stay.", feedback: "It's the going rate and he's not bluffing. Plenty of items die paid-in-full." },
+      { label: "Ask him to waive slotting in exchange for four promoted weeks in the first quarter.", quality: "good", pattern: "promo", feedback: "A real trade that some buyers take. But promoted weeks in launch inflate the 12-week read with deal volume, and you'll pay for the weeks anyway. You've swapped one cost for a bigger one." },
+      { label: "Tell him your brand doesn't pay slotting, and offer a lower everyday cost instead.", quality: "weak", pattern: "avoid", feedback: "Some brands can say that. A new brand asking for 200 stores can't. You've turned a yes into a standoff." },
+    ],
+    reasoning: "Slotting is real and rarely waived for a new brand. The decision isn't whether to pay but how much of the line to launch. Launch fewer items and keep money for support between weeks 4 and 12, which is when the buyer decides. He may push back on creative payment terms; ask anyway.",
+    principle: "Launch what you can support. The review comes before the year is over.",
+    then: "\"Everyone pays up front.\" No split. But two flavors is fine: $10K in slotting, and you keep $10K for a demo and a price cut in weeks 4 to 8.",
+    nextMove: "Before any new-item meeting, know the slotting, the free fill, and the support the item needs to pass its review. If the three don't fit the budget, decide which items to drop before you walk in.",
+  },
+
 ];
 // Balance where the strongest answer sits so position is never a tell (A/B/C/D roughly equal).
 const posBlocks = [[1, 3, 0, 2], [2, 0, 3, 1], [3, 1, 2, 0], [0, 2, 1, 3]];
@@ -583,4 +679,4 @@ scenarios2.forEach((s, i) => {
   s.options = rest;
 });
 export const scenario2ById = byKey(scenarios2);
-export const qualityScore2 = { best: 1, good: 0.7, weak: 0.3 };
+export const qualityScore2 = { best: 1, good: 0.5, weak: 0 };
