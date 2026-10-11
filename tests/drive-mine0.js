@@ -58,7 +58,7 @@ async function scouts(list) {
 }
 async function answer(qi, id) {
   const o = S.dilemma(qi, 0).options.find((x) => x.id === id);
-  const btn = [...document.querySelectorAll(".sim-request .opt")].find((b) => b.firstChild.textContent === o.label);
+  const btn = [...document.querySelectorAll(".fd-brief .opt")].find((b) => b.firstChild.textContent === o.label);
   if (btn.getAttribute("aria-pressed") !== "true") btn.click();
   await wait();
 }

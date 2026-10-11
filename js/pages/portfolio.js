@@ -10,6 +10,8 @@ import { createPanel } from "../portfolio/panel.js";
 import { createFunding } from "../portfolio/funding.js";
 import * as P from "../portfolio/plan.js";
 import { requestScout, rangeShift } from "../portfolio/recon.js";
+import { createBriefing } from "../portfolio/briefing.js";
+import { shownChains } from "../portfolio/debrief.js";
 
 // Portfolio: run eight brands for a year, on-premise and off-premise. Decide → run the quarter → results → reallocate → review.
 // The goal is a score against last year's plan. The hints are there to use or ignore; the ideas behind them are named at the end.
@@ -107,6 +109,7 @@ export default function Portfolio() {
         "Ready when you are. Run the quarter to see what actually happens.");
       deck.horizon({ ...flight, draft: { v: soFar + proj, air: projNext, last: qi === 3 } });
       nums = { f, free, freeDays, scoutsLeft };
+      brief?.update(plan);
       showPanel();
       map.update({ brands, rows: f.rows, plan, state, prev, qi, vi, canFocus, canDays });
       persist();
@@ -130,22 +133,9 @@ export default function Portfolio() {
       panel.update({ b, r: nums.f.rows.find((x) => x.id === b.id), rows: nums.f.rows, plan, free: nums.free, freeDays: nums.freeDays, scoutsLeft: nums.scoutsLeft, state, last: prev?.rows.find((x) => x.id === b.id), qi, canFocus, canDays, finding: findingOf(b.id), reqScout: requestScout(plan, state, qi, vi) });
     };
 
-    const request = dil ? (() => {
-      // Every option is clickable; js/portfolio/plan.js funds a paid option from the brands and refunds it on a change.
-      const pick = (o) => { P.pickAnswer(plan, st, o, state, qi, vi); stage.replaceChildren(decideView(state, prev)); };
-      const box = h("div", { class: "sim-request", role: "group", "aria-label": `Request from ${dil.who}` },
-        h("p", { class: "who" }, `A request from ${dil.who}`), h("p", { class: "ask" }, dil.ask),
-        h("div", { class: "opts" }, ...dil.options.map((o) => {
-          const used = o.scout && state.scouted[o.scout] !== undefined, none = o.scout && state.scoutsLeft <= 0;
-          const read = o.menu ? S.onRead(state, o.menu) : null;
-          const readText = read ? `On-premise: ${read.conf === "High" ? per$(read.b) : `${per$(read.lo)}–${per$(read.hi)}`} per $1 · ${read.conf} confidence` : null;
-          return h("button", { type: "button", class: "opt", "aria-pressed": String(plan.answer === o.id), disabled: used || none, onClick: () => pick(o) },
-            o.label, ...(used ? [h("span", { class: "why" }, "Already scouted")] : none ? [h("span", { class: "why" }, "You've used both scouts this year")] : readText ? [h("span", { class: "why" }, readText)] : []));
-        })),
-        ...(dil.id === "menu" ? [h("p", { class: "note" }, "The team's current read on each brand's on-premise return, updated by everything you've funded and scouted so far. A range means they aren't sure.")] : []),
-        ...(st.fundNote && plan.answer ? [h("p", { class: "note" }, st.fundNote)] : []));
-      return box;
-    })() : null;
+    // The request as a briefing; js/portfolio/plan.js funds a paid option from the brands and refunds it on a change.
+    const pick = (o) => { P.pickAnswer(plan, st, o, state, qi, vi); stage.replaceChildren(decideView(state, prev)); };
+    const brief = dil ? createBriefing({ dil, plan, st, state, qi, vi, prev, onPick: pick }) : null;
 
     // The map and the inspection panel (a bottom sheet under 1024px).
     const open = (id, focus) => { selectedId = id; map.select(id); showPanel(); sheetOpen = true; panel.open(focus); };
@@ -157,8 +147,11 @@ export default function Portfolio() {
     const setPlan = (p) => { st.draft = P.resetTo(plan, p); stage.replaceChildren(decideView(state, prev)); };
     const view = h("div", { class: "sim-flow" },
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
-      request,
-      (() => { const reads = S.marketRead(vi, qi); return reads.length ? h("div", { class: "sim-market" }, eyebrow("The market this quarter"), ...reads.map((m) => h("p", {}, m.text, " ", h("b", {}, m.answer)))) : null; })(),
+      (() => {
+        const reads = S.marketRead(vi, qi);
+        const market = reads.length ? h("aside", { class: "sim-market" }, eyebrow("The market this quarter"), ...reads.map((m) => h("p", {}, m.text, " ", h("b", {}, m.answer)))) : null;
+        return h("div", { class: `fd-briefrow ${market && brief ? "" : "is-one"}` }, brief?.el, market);
+      })(),
       h("div", { class: "fd-cockpit" }, map.el, panel.el),
       h("div", { class: "sim-go" }, h("div", { class: "starts" }, h("span", { class: "muted" }, "Reset to:"),
         qi ? h("button", { type: "button", class: "link", onClick: () => setPlan({ ...st.plans[qi - 1], scout: [] }) }, `your ${S.QUARTERS[qi - 1].id} plan`) : null,
@@ -240,8 +233,6 @@ export default function Portfolio() {
     const qScore = q.gp - habitQ.gp, soFar = S.scoreSoFar(st.plans, vi), T = S.tiers(vi);
     const d = (a, f) => ((a - f) / Math.abs(f)) * 100;
     const findings = q.rows.filter((r) => r.finding);
-    const broken = q.rows.find((r) => r.chainOff.kind === "break");
-    const bigBet = [...q.rows].sort((a, b) => b.x - a.x)[0];
     const learned = q.rows.map((r) => ({ r, dOn: r.after.on.b - r.before.on.b, dOff: r.after.off.b - r.before.off.b })).filter((x) => !x.r.finding && Math.max(Math.abs(x.dOn), Math.abs(x.dOff)) >= 0.15)
       .sort((a, b) => Math.max(Math.abs(b.dOn), Math.abs(b.dOff)) - Math.max(Math.abs(a.dOn), Math.abs(a.dOff))).slice(0, 3);
     let view = "all";
@@ -365,7 +356,7 @@ export default function Portfolio() {
         h("details", { class: "sim-howto", style: { marginTop: "14px" } }, h("summary", {}, "Forecast vs actual: how far the team's forecast was off"),
           h("div", { class: "sim-tablehead", style: { marginTop: "10px" } }, h("span", { class: "muted", style: { fontSize: "var(--fs-small)" } }, "Growth against the same quarter last year. Green beat the forecast, red missed it, grey landed within a point."), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),
           boardNote, board)),
-      h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
+      h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...shownChains(q).map((r) => chainView(r, scoutsLeft)))),
     ];
     if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding),
       h("p", { class: "fd-k" }, "The team's range, before → after the report"), rangeShift(r)))));

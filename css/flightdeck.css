@@ -238,3 +238,44 @@
 .fd-shift .was{color:var(--muted)}
 .fd-shift b{font-weight:600}
 .sim-report .fd-k{margin-top:10px}
+
+/* ---------- Briefing: the quarter's request, on the house background, with the market read beside it ---------- */
+.fd-briefrow{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:16px;align-items:start}
+.fd-briefrow.is-one{grid-template-columns:minmax(0,1fr)}
+.fd-briefrow>.sim-market{position:sticky;top:calc(var(--fd-top) + var(--fd-deck-h) + 12px)}
+@media (max-width:1023px){.fd-briefrow{grid-template-columns:minmax(0,1fr)}.fd-briefrow>.sim-market{position:static}}
+.fd-brief{display:grid;gap:14px;padding:18px 20px;border-radius:var(--r-lg);border:1px solid var(--line-strong);background:var(--bg-elev);min-width:0}
+.fd-brief.is-open{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.fd-brief-who{margin:0;font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.fd-brief.is-open .fd-brief-who::after{content:" · waiting for your answer";color:var(--warn)}
+.fd-brief-part{display:grid;gap:6px;padding-top:12px;border-top:1px solid var(--line);min-width:0}
+.fd-brief-k{margin:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fd-quote{margin:0;display:grid;gap:4px}
+.fd-quote p{margin:0;font-size:1.125rem;line-height:1.4;max-width:var(--measure)}
+.fd-quote footer{font-size:var(--fs-small);color:var(--muted)}.fd-quote footer::before{content:"— "}
+.fd-facts,.fd-questions{margin:0;padding-left:18px;display:grid;gap:4px;font-size:var(--fs-small);color:var(--ink-2);max-width:var(--measure)}
+.fd-questions li::marker{content:"? ";color:var(--warn);font-weight:600}
+.fd-est{display:grid;gap:6px;min-width:0}
+.fd-est-k,.fd-est-note{margin:0;font-size:var(--fs-micro);color:var(--muted)}
+.fd-est-t{width:100%;border-collapse:collapse;font-size:var(--fs-small)}
+.fd-est-t th,.fd-est-t td{padding:6px 8px 6px 0;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.fd-est-t thead th{font-size:var(--fs-micro);font-weight:500;color:var(--muted)}
+.fd-est-t tbody th{font-weight:500}
+.fd-est-t .num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--accent)}
+.fd-est-t thead .num{color:var(--muted);font-family:var(--font)}
+.fd-est-q{color:var(--warn);font-size:var(--fs-micro);text-align:right;min-width:12ch}
+.fd-est-menu{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:0;font-size:var(--fs-small)}
+.fd-est-menu dd{margin:0;color:var(--ink-2)}.fd-est-menu b{font-family:var(--mono);font-weight:500;color:var(--accent)}
+.fd-brief .opts{display:flex;flex-wrap:wrap;gap:8px}
+.fd-brief .opt{padding:10px 16px;border-radius:var(--r-pill);border:1px solid var(--line-strong);background:var(--bg);font-size:var(--fs-small);text-align:left;display:block;min-height:44px}
+.fd-brief .opt[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fd-brief .opt[aria-pressed="true"]::before{content:"✓ "}
+.fd-brief .opt:disabled{opacity:.5;cursor:not-allowed}
+.fd-brief .opt .why{display:block;font-size:11px;color:var(--muted)}
+.fd-brief .note{margin:0;font-size:var(--fs-small);color:var(--ink-2)}
+@media (max-width:759px){
+  .fd-brief{padding:14px 14px;gap:12px}
+  .fd-quote p{font-size:1rem}
+  .fd-brief .opt{width:100%}
+  .fd-est-t th,.fd-est-t td{padding-right:6px}
+}
