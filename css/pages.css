@@ -126,10 +126,6 @@
 .sim-details dt{font-size:var(--fs-micro);color:var(--muted)}.sim-details dd{margin:1px 0 0;font-weight:500}
 .sim-go{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .sim-go .starts{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:var(--fs-small)}
-.sim-clock{border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;background:var(--bg-elev)}
-.sim-clock .months{display:grid;grid-template-columns:repeat(3,1fr);font-family:var(--mono);font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.sim-clock .track{height:8px;border-radius:4px;background:var(--bg-sunk);margin-top:10px;overflow:hidden}
-.sim-clock .fill{height:100%;width:0;background:var(--accent);border-radius:4px}
 .sim-feed{list-style:none;margin:0;padding:0;display:grid;gap:8px;min-height:120px}
 .sim-feed li{display:flex;gap:12px;align-items:baseline;animation:fade .4s var(--ease) both}
 .sim-feed .wk{font-family:var(--mono);font-size:var(--fs-micro);color:var(--muted);min-width:64px}

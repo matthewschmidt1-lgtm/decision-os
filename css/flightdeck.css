@@ -279,3 +279,21 @@
   .fd-brief .opt{width:100%}
   .fd-est-t th,.fd-est-t td{padding-right:6px}
 }
+
+/* ---------- Horizon: the quarter being run, and the year-end benchmark path ---------- */
+.fd-hz .run{stroke:var(--ink);stroke-width:1.5;stroke-linecap:round}
+.fd-hz .run-pt{fill:var(--accent)}
+.fd-hz .month{fill:var(--muted)}.fd-hz .month.now{fill:var(--accent)}
+.fd-hz .ref{fill:none;stroke:var(--ink-2);stroke-width:1.5;stroke-dasharray:6 4;stroke-linejoin:round}
+.fd-hz .ref-pt{fill:var(--bg);stroke:var(--ink-2);stroke-width:1.5}
+
+/* ---------- Debrief: landing, the carry split, the quarter's events ---------- */
+.fd-air{grid-column:1 / -1;margin:0;font-size:var(--fs-small);color:var(--ink-2)}
+.fd-wfwrap{display:grid;gap:14px}
+.fd-split-c{display:block;font-size:var(--fs-micro);color:var(--muted)}
+.sim-feed.is-static{min-height:0;margin-top:10px}
+.sim-feed.is-static li{animation:none;padding:6px 0;border-top:1px solid var(--line);font-size:var(--fs-small);color:var(--ink-2)}
+.sim-feed.is-static .wk{min-width:118px}
+@media (max-width:759px){.sim-feed.is-static li{flex-direction:column;gap:2px}}
+.sim-flow h2[tabindex="-1"]:focus{outline:none}
+.fd .sim-flow>*{min-width:0} /* wide tables scroll inside their wrap instead of widening the page */
