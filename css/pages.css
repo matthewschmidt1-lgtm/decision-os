@@ -464,3 +464,14 @@
 /* Home hero: more room between the headline and the two opening lines on larger screens; phones keep the tighter scale */
 .home-bold{margin-top:16px}
 @media (min-width:621px){.home-lead{margin-top:32px}.home-bold{margin-top:28px}}
+
+/* Portfolio: both channels under Next $10K, the split line, the score waterfall */
+.sim-chan{grid-column:1 / -1;display:grid;gap:3px;font-size:var(--fs-micro);color:var(--ink-2);font-variant-numeric:tabular-nums;margin-top:2px}
+.sim-chan b{font-weight:600;color:var(--ink)}
+.sim-chan .good{color:var(--good);font-weight:600}.sim-chan .bad{color:var(--bad);font-weight:600}
+.sim-split{font-size:var(--fs-micro);color:var(--muted);margin:0}
+.sim-wf ul{list-style:none;margin:10px 0 0;padding:0;display:grid}
+.sim-wf li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:var(--fs-small);color:var(--ink-2)}
+.sim-wf li b{text-align:right;font-weight:600;color:var(--ink)}
+.sim-wf li.total{border-top:1px solid var(--line-strong);color:var(--ink);font-weight:500}
+.sim-wf li.muted b{color:var(--muted);font-weight:500}

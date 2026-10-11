@@ -71,12 +71,12 @@ export default function Portfolio() {
 
     const refresh = () => {
       const t = S.planTotals(plan, qi, vi), f = S.forecastQuarter(state, plan, qi);
-      const habitPlan = { ...S.lastYearPlan(), answer: qi === 2 ? "menu-A" : "pass" };
-      const proj = f.gp - S.forecastQuarter(state, habitPlan, qi).gp;
+      const habitPlan = { ...S.lastYearPlan(), answer: qi === 2 ? "menu-A" : "pass" }, hf = S.forecastQuarter(state, habitPlan, qi);
+      const proj = f.gp - hf.gp, projNext = f.carryNext - hf.carryNext;
       const free = S.BUDGET.trade - t.trade, freeDays = S.BUDGET.days - t.days;
       const scoutsLeft = state.scoutsLeft - plan.scout.length;
       board.replaceChildren(
-        h("div", { class: "cell" }, h("span", { class: "k" }, "Score"), h("b", { class: `num ${tone(soFar / 10)}` }, signed$(soFar)), h("span", { class: "s" }, `year so far · this quarter ≈ ${signed$(proj)}`)),
+        h("div", { class: "cell" }, h("span", { class: "k" }, "Score"), h("b", { class: `num ${tone(soFar / 10)}` }, signed$(soFar)), h("span", { class: "s" }, `year so far · this quarter ≈ ${signed$(proj)}${Math.abs(projNext) >= 1 ? ` · ${signed$(projNext)} lands next quarter` : ""}`)),
         h("div", { class: `cell ${free > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Free trade"), h("b", { class: "num" }, $k(free)), h("span", { class: "s" }, free ? "place it or keep it" : "all placed")),
         h("div", { class: `cell ${canDays && freeDays > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Field days"), h("b", { class: "num" }, canDays ? `${freeDays} free` : "locked"), h("span", { class: "s" }, canDays ? `of ${S.BUDGET.days}` : "unlocks in Q3")),
         h("div", { class: "cell" }, h("span", { class: "k" }, "Scouts"), h("b", { class: "num", "aria-label": `${scoutsLeft} scouts left` }, "●".repeat(Math.max(0, scoutsLeft)) + "○".repeat(Math.max(0, S.SCOUTS - scoutsLeft))), h("span", { class: "s" }, "for the year")),
@@ -101,6 +101,7 @@ export default function Portfolio() {
       const scouted = state.scouted[b.id] !== undefined;
       const amt = h("output", { class: "num amt" }), was = h("span", { class: "was" });
       const next = h("div", { class: "next" }), gauge = h("div", { class: "gauge", "aria-hidden": "true" }, h("i"), h("b"));
+      const chan = h("div", { class: "sim-chan" }), splitLine = h("p", { class: "sim-split" });
       const minus = h("button", { type: "button", "aria-label": `Take $10K from ${b.name}`, onClick: () => { plan.trade[b.id] = Math.max(0, plan.trade[b.id] - S.STEP.trade); refresh(); } }, "−");
       const plus = h("button", { type: "button", "aria-label": `Give $10K to ${b.name}`, onClick: () => { plan.trade[b.id] += S.STEP.trade; refresh(); } }, "+");
       const dOut = h("output", { class: "num" }), dHint = h("span", { class: "hint" });
@@ -113,9 +114,10 @@ export default function Portfolio() {
       const card = h("div", { class: `sim-brand ${scouted ? "is-scouted" : ""}` },
         h("div", { class: "sim-brand-head" }, h("h3", {}, b.name), h("span", { class: "chip" }, b.role)),
         h("p", { class: "sim-note" }, scouted ? h("span", { class: "scouted" }, `Scouted in ${S.QUARTERS[state.scouted[b.id]].id}. `) : null, b.note),
-        h("div", { class: "sim-next" }, h("span", { class: "k" }, "Next $10K"), next, gauge),
+        h("div", { class: "sim-next" }, h("span", { class: "k" }, "Next $10K"), next, gauge, chan),
         h("div", { class: "sim-alloc" }, minus, h("div", { class: "mid" }, amt, was), plus),
         floorWarn,
+        splitLine,
         canFocus ? h("div", { class: "sim-focus", role: "group", "aria-label": `Where ${b.name}'s support goes` }, ...focusBtns) : null,
         canDays ? h("div", { class: "sim-days" }, h("span", { class: "k" }, "Field days"), h("div", { class: "ctl" }, dMinus, dOut, dPlus), dHint) : null,
         h("div", { class: "sim-card-foot" }, scout,
@@ -134,12 +136,19 @@ export default function Portfolio() {
         next.replaceChildren(r.conf === "High" ? h("b", {}, `${per$(r.next)} back`) : h("b", {}, `${per$(r.nextLo)}–${per$(r.nextHi)} back`),
           h("span", { class: `pill ${r.next >= 1.02 ? "good" : r.next <= 0.98 ? "bad" : ""}` }, Math.abs(gain) < 0.2 ? "breaks even" : gain > 0 ? `earns ${$k(gain)}` : `loses ${$k(-gain)}`),
           ...(r.conf !== "High" ? [h("span", { class: "conf", title: "How sure the team is" }, r.conf === "Low" ? "? unsure" : "roughly")] : []));
+        const gainOf = (m) => { const g = Math.round((m - 1) * 100) / 10; return Math.abs(g) < 0.2 ? ["breaks even", ""] : g > 0 ? [`earns ${$k(g)}`, "good"] : [`loses ${$k(-g)}`, "bad"]; };
+        const [offT, offC] = gainOf(r.mOff), [onT, onC] = gainOf(r.mOn);
+        chan.replaceChildren(
+          h("span", {}, h("b", {}, "Off-premise"), ` ${per$(r.mOff)} back · `, h("span", { class: offC }, offT)),
+          h("span", {}, h("b", {}, "On-premise"), ` ${per$(r.mOn)} back · `, h("span", { class: onC }, onT), ", 40% of it lands next quarter"));
+        const mix = plan.focus[b.id] || "both";
+        splitLine.textContent = x ? `Where ${b.name}'s ${$k(x)} goes: off-premise ${$k(r.xOff)} · on-premise ${$k(r.xOn)}${mix === "both" ? ` (Both = its usual ${Math.round(b.share * 100)}% on-premise mix)` : ""}` : `${b.name} gets nothing this quarter.`;
         gauge.firstChild.style.width = `${Math.min(100, (r.next / 2.5) * 100)}%`;
         gauge.firstChild.className = Math.abs(gain) < 0.2 ? "even" : r.next >= 1 ? "good" : "bad";
         plus.disabled = free < S.STEP.trade; minus.disabled = x <= 0;
         const off = r.xOff;
         floorWarn.hidden = !(b.floor && off < b.floor);
-        floorWarn.textContent = `Off-premise is below the ${$k(b.floor)} this brand needs to hold its shelf space. Expect to lose some base volume.`;
+        floorWarn.textContent = `Off-premise gets ${$k(off)} of the ${$k(x)}, and this brand needs ${$k(b.floor)} off-premise to hold its shelf space.${canFocus ? " Set it to Off-premise, or add $10K." : " Add $10K, or expect to lose some base volume."}`;
         dOut.textContent = `${plan.days[b.id]} d`; dPlus.disabled = freeDays < 1; dMinus.disabled = plan.days[b.id] <= 0;
         dHint.textContent = `next day ≈ ${$k(r.nextDay)}`;
         const on = plan.scout.includes(b.id);
@@ -163,9 +172,12 @@ export default function Portfolio() {
         for (const id of order) { while (need > 0 && plan.trade[id] >= S.STEP.trade) { plan.trade[id] -= S.STEP.trade; need -= S.STEP.trade; moved[id] = (moved[id] || 0) + S.STEP.trade; } if (need <= 0) break; }
         const list = Object.entries(moved).map(([id, x]) => `${$k(x)} from Brand ${id}`);
         st.fundNote = list.length ? `To fund it, ${list.join(" and ")} moved into the request.` : null;
+        st.funded = list.length ? moved : null;
       };
+      // Changing or clearing the answer gives back whatever the earlier choice pulled out of the brands.
+      const refund = () => { if (st.funded) { for (const [id, x] of Object.entries(st.funded)) plan.trade[id] = (plan.trade[id] || 0) + x; st.funded = null; } };
       const pick = (o) => {
-        st.fundNote = null;
+        st.fundNote = null; refund();
         if (plan.answer === o.id) plan.answer = null;
         else {
           if (o.cost) fund(o);
@@ -197,7 +209,8 @@ export default function Portfolio() {
       h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
         h("li", {}, h("b", {}, "The goal: "), "end the year ahead of what last year's plan would have made. Your score counts gross profit after trade."),
         h("li", {}, h("b", {}, "Trade: "), "press − to take $10K off a brand into your free trade, + to give it to another. You can't overspend, and you don't have to spend it all."),
-        h("li", {}, h("b", {}, "Next $10K: "), "what the team expects the next $10K to bring back in gross profit. $1 back per $1 breaks even; less loses money. A range means the team isn't sure."),
+        h("li", {}, h("b", {}, "Next $10K: "), "what the team expects the next $10K to bring back in gross profit, with the on-premise and off-premise figures underneath. $1 back per $1 breaks even; less loses money. A range means the team isn't sure."),
+        h("li", {}, h("b", {}, "Where it goes: "), "Both splits a brand's money in its usual on/off-premise mix, shown on the card. On-premise work pays 40% of its return next quarter."),
         h("li", {}, h("b", {}, "Scouts: "), "two a year. A rep finds out how a brand really responds, and reports back after the quarter."),
         h("li", {}, h("b", {}, "Channels (from Q2): "), "choose whether a brand's support goes off-premise (stores), on-premise (bars and restaurants), or both. On-premise builds menus and placements, so part of it pays next quarter."),
         h("li", {}, h("b", {}, "Field days (from Q3): "), "your team's time. It's worth more on some brands than others."))),
@@ -349,6 +362,14 @@ export default function Portfolio() {
     const changed = after.filter((a, i) => a.status !== before[i].status && a.status !== "open");
     const achLine = changed.length ? h("ul", { class: "sim-achnews" }, changed.map((a) => h("li", { class: a.status }, h("span", { class: "ic", "aria-hidden": "true" }, a.got ? "★" : "–"),
       h("span", {}, h("b", {}, a.got ? `Achievement unlocked: ${a.name}` : `Achievement missed: ${a.name}`), a.got ? "" : `. ${a.note || a.hint}`)))) : null;
+    const A = S.attribution(q, habitQ);
+    const top = A.lines.slice(0, 5), rest = A.total - top.reduce((a, l) => a + l.d, 0);
+    const name = (l) => `${l.id ? `Brand ${l.id}` : ""}${l.why ? `${l.id ? ": " : ""}${l.why}` : ""}`;
+    const headline = top.length ? `${Q.id} came in ${signed$(A.total)} against last year's plan. The biggest piece: ${name(top[0])} (${signed$(top[0].d)})${top[1] ? `, then ${name(top[1])} (${signed$(top[1].d)})` : ""}.` : `${Q.id} landed where last year's plan would have.`;
+    const waterfall = h("div", { class: "sim-wf" }, eyebrow("Where the score came from"),
+      h("ul", {}, ...top.map((l) => h("li", {}, h("b", { class: `num ${tone(l.d / 10)}` }, signed$(l.d)), h("span", {}, name(l)))),
+        Math.abs(rest) >= 1 ? h("li", { class: "muted" }, h("b", { class: "num" }, signed$(rest)), h("span", {}, "everything else")) : null,
+        h("li", { class: "total" }, h("b", { class: `num ${tone(A.total / 10)}` }, signed$(A.total)), h("span", {}, `${Q.id} against last year's plan`))));
     const blocks = [
       h("div", {}, eyebrow(`${Q.id} results`), h("h2", { style: { marginTop: "10px" } }, "What actually happened?")),
       h("div", { class: "sim-scorecard" },
@@ -360,7 +381,8 @@ export default function Portfolio() {
         tile("Gross profit after trade", $k(q.gp), `forecast ${$k(q.gpF)} · ${pct(d(q.gp, q.gpF), 1)}`, tone(d(q.gp, q.gpF))),
         tile("On-premise revenue", $k(q.revOn), `forecast ${$k(q.revOnF)} · ${pct(d(q.revOn, q.revOnF), 1)}`, tone(d(q.revOn, q.revOnF))),
         tile("Off-premise revenue", $k(q.revOff), `forecast ${$k(q.revOffF)} · ${pct(d(q.revOff, q.revOffF), 1)}`, tone(d(q.revOff, q.revOffF)))),
-      says(q.insight, "warn"),
+      says(q.insight || headline, q.insight ? "warn" : ""),
+      waterfall,
       requestLine,
       achLine,
       h("div", { class: "sim-byb" }, h("div", { class: "sim-tablehead" }, eyebrow("By brand"), h("div", { class: "seg", role: "group", "aria-label": "Channel" }, ...viewBtns)),

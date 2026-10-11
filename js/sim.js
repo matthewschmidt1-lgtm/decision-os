@@ -142,8 +142,12 @@ export function forecastQuarter(state, plan, qi) {
     const extra = opt?.extra?.id === id ? opt.extra : null;
     const xOff = s.off + (extra?.ch === "off" ? extra.x : 0), xOn = s.on + (extra?.ch === "on" ? extra.x : 0);
     const gOff = offGain(t.off, bel.off.b, xOff) - offGain(t.off, bel.off.b, s0.off);
-    const gOn = (curve(bel.on.b, t.on.k, xOn) - curve(bel.on.b, t.on.k, s0.on)) * (1 - ON_LAG);
-    const gD = (curve(bel.d.b, t.kd, plan.days[id] || 0) - curve(bel.d.b, t.kd, ly.days[id])) * (1 - t.lag);
+    // On-premise work and field days pay partly this quarter and partly next; the forecast counts both halves, separately.
+    const gOnAll = curve(bel.on.b, t.on.k, xOn) - curve(bel.on.b, t.on.k, s0.on), menuBonus = opt?.menu === id ? bel.on.b * 30 : 0;
+    const gOn = (gOnAll + menuBonus) * (1 - ON_LAG);
+    const dAll = curve(bel.d.b, t.kd, plan.days[id] || 0) - curve(bel.d.b, t.kd, ly.days[id]);
+    const gD = dAll * (1 - t.lag);
+    const carryNext = (gOnAll + menuBonus) * ON_LAG + dAll * t.lag;
     const inc = gOff + gOn + gD + state.carry[id];
     const base = q * (1 + b.growth / 100);
     const rev = base + inc / gm, spent = xOff + xOn;
@@ -152,12 +156,12 @@ export function forecastQuarter(state, plan, qi) {
     const f = onFrac(plan.focus[id] || "both", t.share);
     const next = mOn * f + mOff * (1 - f);
     const w = f * bel.on.w + (1 - f) * bel.off.w, conf = confidence(w);
-    return { id, x: spent, xOn, xOff, rev, gp, growth: (rev / q - 1) * 100, next, nextLo: Math.max(0, next * (1 - SPREAD[conf])), nextHi: next * (1 + SPREAD[conf]), conf,
+    return { id, x: spent, xOn, xOff, rev, gp, growth: (rev / q - 1) * 100, next, mOn, mOff, onFrac: f, carryNext, nextLo: Math.max(0, next * (1 - SPREAD[conf])), nextHi: next * (1 + SPREAD[conf]), conf,
       nextDay: marginal((x) => curve(bel.d.b, t.kd, x), plan.days[id] || 0, 1), revOn: base * t.share + (gOn + t.share * (gD + state.carry[id])) / gm, revOff: 0 };
   });
   rows.forEach((r) => { r.revOff = r.rev - r.revOn; });
   const load = opt?.load || 0, fee = opt && !opt.extra ? opt.cost || 0 : 0;
-  return { rows, rev: sum(rows, "rev") + load, gp: sum(rows, "gp") + load * 0.4 - fee, revOn: sum(rows, "revOn"), revOff: sum(rows, "revOff") + load };
+  return { rows, rev: sum(rows, "rev") + load, gp: sum(rows, "gp") + load * 0.4 - fee, carryNext: sum(rows, "carryNext"), revOn: sum(rows, "revOn"), revOff: sum(rows, "revOff") + load };
 }
 // The team's read on a brand's on-premise response: first-dollar return, the range it could be, and how sure they are.
 export function onRead(state, id) {
@@ -268,7 +272,7 @@ function quarterEvents(out, plan, state, qi) {
     else ev.push({ week: 8, text: `Brand ${br} depletions are still falling.` });
   } else if (r[br].x > 0) ev.push({ week: 8, text: `Brand ${br}'s fixed stores are selling through again.` });
   if (r[sl].xOn >= 20 || out.answer?.menu === sl) ev.push({ week: 10, text: `Brand ${sl}: new bars are reordering within 30 days.` });
-  if ((plan.days.G || 0) >= 8) ev.push({ week: 8, text: `${plan.days.G} field days on Brand G. Volume holds, but doesn't move.` });
+  if (qi >= 2 && (plan.days.G || 0) >= 8) ev.push({ week: 8, text: `${plan.days.G} field days on Brand G. Volume holds, but doesn't move.` });
   if (out.answer?.menu) ev.push({ week: 7, text: `Brand ${out.answer.menu} lands the restaurant chain's cocktail menu.` });
   if (out.answer?.load) ev.push({ week: 12, text: "Cascade takes the year-end load-in. Q4 shipments jump." });
   if (out.scouts.length) ev.push({ week: 11, text: `Your rep reports back on Brand ${out.scouts.join(" and ")}.` });
@@ -280,14 +284,31 @@ function quarterInsight(out, state, qi) {
   const { v } = world(state.vi), br = out.rows.find((x) => x.id === v.broken);
   if (br.unwind > 0) return `Cascade stopped ordering Brand ${v.broken} to work down the inventory its promotions had built. The trade on ${v.broken} was funding the symptom.`;
   if (out.answer?.load) return "The load-in made Q4's shipments look strong. That product will sit in Cascade's warehouse into next year.";
-  const rows = [...out.rows].sort((a, c) => Math.abs(c.growth - c.growthF) - Math.abs(a.growth - a.growthF)), top = rows[0];
-  if (Math.abs(top.growth - top.growthF) < 3) return out.scouts.length ? "The quarter landed close to the team's forecast. The real news is in your scout reports and the chain below." : "The quarter landed close to the team's forecast. Look at the chain below: what the numbers don't show yet is where next quarter's surprises start.";
-  const better = top.growth > top.growthF;
-  const why = better ? (top.xOn > top.xOff ? "Its on-premise support worked harder than the team expected." : "It responded to your support more than the team expected.")
-    : top.id === v.broken ? "More money didn't help, which suggests the problem is somewhere else in the chain." : "Your support bought less than the team expected.";
-  return `Brand ${top.id} did ${better ? "better" : "worse"} than forecast (${pts(top.growthF)} expected, ${pts(top.growth)} actual). ${why}`;
+  return null; // the page attributes the quarter's score instead (see attribution)
 }
 const pts = (v) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}%`;
+// Where a quarter's score came from: each brand's gross profit against the same brand under last year's plan, with the
+// reason that explains most of the difference, plus the request's own cost or windfall.
+export function attribution(q, hq) {
+  const { v } = world(q.stateBefore.vi), br = v.broken;
+  const sgn = (x) => `${x > 0 ? "+" : "−"}$${Math.abs(Math.round(x))}K`;
+  const lines = q.rows.map((r) => {
+    const o = hq.rows.find((x) => x.id === r.id), d = r.gp - o.gp, why = [];
+    if (o.unwind > 0 && r.unwind === 0) why.push("your scout fixed the chain before the distributor stopped ordering");
+    else if (r.id === br && r.loadRev === 0 && o.loadRev > 0) why.push("the chain is fixed, so promotions stopped loading the distributor");
+    if (q.answer?.menu === r.id && hq.answer?.menu !== r.id) why.push("the menu slot");
+    if (hq.answer?.menu === r.id && q.answer?.menu !== r.id) why.push("the menu slot went to another brand");
+    const dOn = r.xOn - o.xOn, dOff = r.xOff - o.xOff, dD = r.days - o.days;
+    const moves = [[Math.abs(dOn), `on-premise trade ${sgn(dOn)}`], [Math.abs(dOff), `off-premise trade ${sgn(dOff)}`], [Math.abs(dD), `field days ${dD > 0 ? "+" : "−"}${Math.abs(dD)}`]].filter((m) => m[0] >= 1).sort((a, c) => c[0] - a[0]);
+    if (moves.length) why.push(moves[0][1]);
+    if (!why.length && Math.abs(d) >= 1 && q.stateBefore.carry[r.id] !== hq.stateBefore.carry[r.id]) why.push("last quarter's on-premise work landing");
+    return { id: r.id, d, why: why.join(" · ") };
+  });
+  const extras = [];
+  if (q.answer?.load) extras.push({ id: null, d: q.answer.load * 0.4 - (q.answer.cost || 0), why: "the load-in: this year's shipments, borrowed from next year" });
+  else if (q.answer?.cost && !q.answer.extra) extras.push({ id: null, d: -q.answer.cost, why: q.dilemma?.id === "allowance" ? "the distributor allowance" : "the request" });
+  return { total: q.gp - hq.gp, lines: [...lines, ...extras].filter((l) => Math.abs(l.d) >= 1).sort((a, c) => Math.abs(c.d) - Math.abs(a.d)) };
+}
 
 // ---------- The year ----------
 export function replay(plans, vi = 0) {
@@ -451,6 +472,8 @@ function overfunded(qs) {
   for (const q of qs) for (const id of IDS) {
     if ((q.plan.trade[id] || 0) < STEP.trade) continue;
     const less = { ...q.plan, trade: { ...q.plan.trade, [id]: q.plan.trade[id] - STEP.trade } };
+    const t = world(q.stateBefore.vi).truth[id];
+    if (split(less, id, t.share).off < trueOff(q.stateBefore, q.qi, id).floor) continue; // that $10K was covering the shelf
     const last = forecastQuarter(q.stateBefore, less, q.qi).rows.find((r) => r.id === id).next;
     if (last < 0.9) out.push({ q: q.qi, id, last });
   }
