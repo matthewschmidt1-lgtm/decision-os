@@ -6,6 +6,7 @@ import { $k, signed$, tone } from "./fmt.js";
 
 const STOPS = ["Start", "Q1", "Q2", "Q3", "Q4", "Year end"];
 const phone = () => matchMedia("(max-width: 759px)").matches;
+const narrow = () => matchMedia("(max-width: 1023px)").matches; // where the panel becomes a bottom sheet and room is short
 
 export function createDeck({ onRun }) {
   const horizon = h("div", { class: "fd-horizon" });
@@ -15,10 +16,11 @@ export function createDeck({ onRun }) {
   const el = h("div", { class: "fd-deck" }, horizon, coach, inst);
   let flight = null, drawnW = 0;
 
-  // Sticky offset: on phones only the instrument strip stays stuck (the horizon and coach scroll away under the top bar).
+  // Sticky offset: under 1024px only the instrument strip stays stuck (the horizon and coach scroll away under the top bar),
+  // so the map keeps some room above the bottom sheet.
   const measure = () => {
     const bar = document.getElementById("topbar")?.offsetHeight || 64;
-    const away = phone() && el.classList.contains("is-live") ? inst.offsetTop : 0;
+    const away = narrow() && el.classList.contains("is-live") ? inst.offsetTop : 0;
     el.style.setProperty("--fd-stick", `${bar - away}px`);
     el.closest(".fd")?.style.setProperty("--fd-top", `${bar}px`);
     el.closest(".fd")?.style.setProperty("--fd-deck-h", `${el.classList.contains("is-live") ? el.offsetHeight - away : 0}px`);
@@ -46,8 +48,8 @@ export function createDeck({ onRun }) {
       const cell = (key, value, sub, cls = "") => h("div", { class: `fd-inst ${cls}` },
         h("span", { class: "k" }, SHORT[key] ? [h("span", { class: "kl" }, key), h("span", { class: "ks", "aria-hidden": "true" }, SHORT[key])] : key), value, sub ? h("span", { class: "s" }, sub) : null);
       if (!v.decide) {
-        inst.replaceChildren(cell("Score", h("b", { class: `num ${tone(v.soFar / 10)}` }, signed$(v.soFar)), "banked against last year's plan"),
-          v.final != null ? cell("Year end", h("b", { class: `num ${tone(v.final / 10)}` }, signed$(v.final)), "counting what carries into next year") : null);
+        inst.replaceChildren(...[cell("Score", h("b", { class: `num ${tone(v.soFar / 10)}` }, signed$(v.soFar)), "banked against last year's plan"),
+          v.final != null ? cell("Year end", h("b", { class: `num ${tone(v.final / 10)}` }, signed$(v.final)), "counting what carries into next year") : null].filter(Boolean));
         measure(); return;
       }
       const air = Math.abs(v.air) >= 1 ? ` · ${signed$(v.air)} ${v.qi === 3 ? "lands next year" : "in the air"}` : "";

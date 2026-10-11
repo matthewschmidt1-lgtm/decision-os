@@ -10,6 +10,7 @@
   --fd-cyan: #6CC4D8; --fd-cyan-soft: rgba(108, 196, 216, 0.16);
   --fd-amber: #E0A84A; --fd-amber-soft: rgba(224, 168, 74, 0.16);
   --fd-red: #E8776E; --fd-red-soft: rgba(232, 119, 110, 0.16);
+  --fd-shadow: rgba(0, 0, 0, 0.55);
   --bg: #F5F5F0;
   --bg-elev: #FBFBF8;
   --bg-sunk: #EDEDE7;

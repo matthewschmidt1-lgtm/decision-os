@@ -20,7 +20,7 @@
 /* ---------- Deck: horizon, coach, instruments ---------- */
 .fd-anchor{height:0;scroll-margin-top:calc(var(--fd-top) + 12px)}
 .fd-deck{margin-top:32px;background:var(--bg);border:1px solid var(--fd-border);border-radius:var(--r-lg);padding:12px 16px 14px;display:grid;gap:10px;min-width:0}
-.fd-deck.is-live{position:sticky;top:var(--fd-stick,64px);z-index:6;box-shadow:0 10px 24px -18px rgba(0,0,0,.6)}
+.fd-deck.is-live{position:sticky;top:var(--fd-stick,64px);z-index:6;box-shadow:0 10px 24px -18px var(--fd-shadow)}
 .fd-horizon{order:0;min-width:0;height:116px;overflow:hidden}
 .fd-instruments{order:1;display:grid;grid-template-columns:minmax(0,1.7fr) repeat(3,minmax(0,1fr)) auto;gap:10px;align-items:stretch}
 .fd-coach{order:2;margin:0;font-size:var(--fs-small);color:var(--ink-2)}
@@ -52,12 +52,13 @@
 .fd-run{align-self:center;padding:12px 20px;border-radius:var(--r-pill);background:var(--accent);color:var(--accent-ink);font-weight:600;white-space:nowrap;min-height:44px}
 .fd-run:disabled{background:var(--bg-sunk);color:var(--muted);cursor:not-allowed}
 .fd-under{display:grid;gap:10px;margin-top:16px}
+@media (max-width:1023px){.fd-coach{order:1}.fd-instruments{order:2}}
 .fd-stagewrap{margin-top:28px}
 @media (max-width:759px){
   .fd-deck{margin-top:24px;padding:8px 10px 10px;gap:6px;border-radius:var(--r-md)}
   .fd-horizon{height:90px}
-  .fd-coach{order:1;font-size:var(--fs-micro)}
-  .fd-instruments{order:2;grid-template-columns:repeat(4,minmax(0,auto)) minmax(0,1fr);gap:5px}
+  .fd-coach{font-size:var(--fs-micro)}
+  .fd-instruments{grid-template-columns:repeat(4,minmax(0,auto)) minmax(0,1fr);gap:5px}
   .fd-inst .kl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.fd-inst .ks{display:inline}
   .fd-inst{padding:5px 7px}
   .fd-inst .s{display:none}
@@ -120,4 +121,59 @@
   .fd-tile .t-cat,.fd-tile .t-chg,.fd-tile .t-earn,.fd-tile .t-conf,.fd-tile .t-foot,.fd-tile .sig .w,.fd-tile .t-next .k{display:none}
   .fd-tile .t-next{padding:3px 5px}
   .fd-tile .t-next b{font-size:var(--fs-micro)}
+}
+
+/* ---------- Inspection panel (desktop) and bottom sheet (under 1024px) ---------- */
+.fd-panel{position:sticky;top:calc(var(--fd-top) + var(--fd-deck-h) + 12px);max-height:calc(100vh - var(--fd-top) - var(--fd-deck-h) - 24px);overflow:auto;overscroll-behavior:contain;
+  background:var(--bg-elev);border:1px solid var(--fd-border);border-radius:var(--r-lg);min-width:0}
+.fd-sheet-head{display:none}
+.fd-panel-body{display:grid;gap:14px;padding:16px 18px 18px;font-size:var(--fs-small)}
+.fd-id{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.fd-id h3{font-size:var(--fs-h3)}
+.fd-id .fd-cat{color:var(--ink-2)}
+.fd-id .chip{margin-left:auto}
+.fd-note{color:var(--ink-2)}.fd-note .scouted{color:var(--good);font-weight:600}
+.fd-finding{border:1px solid var(--good);background:var(--good-soft);border-radius:var(--r-md);padding:10px 12px;display:grid;gap:4px}
+.fd-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fd-block{display:grid;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.fd-next{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.fd-next b{font-family:var(--mono);font-weight:500;font-size:1.0625rem}
+.fd-next .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);background:var(--bg-sunk);border:0}
+.fd-next .pill.good{background:var(--good-soft);color:var(--good)}.fd-next .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.fd-next .conf{font-size:11px;color:var(--warn)}
+.fd-chan{display:grid;gap:3px;font-size:var(--fs-micro);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.fd-chan b{font-weight:600;color:var(--ink)}.fd-chan .good{color:var(--good);font-weight:600}.fd-chan .bad{color:var(--bad);font-weight:600}
+.fd-lastq{margin:0;font-size:var(--fs-micro);color:var(--muted)}.fd-lastq b{font-weight:600;color:var(--ink-2)}.fd-lastq b.good{color:var(--good)}.fd-lastq b.bad{color:var(--bad)}
+.fd-panel .sim-alloc{background:var(--bg-sunk)}
+.fd-panel .sim-focus button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.fd-split{margin:0;font-size:var(--fs-micro);color:var(--muted)}
+.fd-panel .floor-warn{margin:0}
+.fd-panel .sim-days{grid-template-columns:auto auto 1fr}
+.fd-panel .sim-scout{justify-self:start}
+.fd-details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.fd-details dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:10px 0 6px}
+.fd-details dt{font-size:var(--fs-micro);color:var(--muted)}.fd-details dd{margin:1px 0 0;font-weight:500}
+.fd-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:var(--r-sm);border:1px solid var(--line);font-size:11px;color:var(--ink-2);white-space:nowrap;min-height:32px}
+.fd-chip b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.fd-chip[aria-current="true"]{border-color:var(--accent);color:var(--ink)}
+.fd-chip .dot{font-size:9px}.fd-chip .dot.good{color:var(--good)}.fd-chip .dot.bad{color:var(--bad)}.fd-chip .dot.even{color:var(--muted)}
+.fd-ctl{width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--line);font-size:1.125rem;line-height:1;color:var(--ink)}
+.fd-ctl:hover{background:var(--bg-sunk)}
+@media (max-width:1023px){
+  .fd-panel{position:fixed;z-index:40;left:max(8px,calc((100vw - var(--max)) / 2));right:max(8px,calc((100vw - var(--max)) / 2));bottom:0;top:auto;
+    height:60vh;max-height:none;border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:0 -12px 40px -12px var(--fd-shadow);display:flex;flex-direction:column;overflow:hidden}
+  .fd-panel:not(.is-open){display:none}
+  .fd-panel.is-tall{height:calc(100dvh - var(--fd-top) - var(--fd-deck-h) - 8px)}
+  .fd-sheet-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--bg-elev)}
+  .fd-rail{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .fd-rail::-webkit-scrollbar{display:none}
+  .fd-sheet-ctl{display:flex;gap:4px}
+  .fd-panel-body{overflow:auto;overscroll-behavior:contain;flex:1}
+  .fd:has(.fd-panel.is-open) .fd-stagewrap{padding-bottom:60vh}
+}
+@media (max-width:759px){
+  .fd-panel{left:0;right:0}
+  .fd-sheet-head{grid-template-columns:1fr;gap:6px}
+  .fd-sheet-ctl{justify-content:flex-end}
+  .fd-panel-body{padding:12px 14px 16px}
 }
