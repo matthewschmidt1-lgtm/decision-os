@@ -32,9 +32,9 @@
 .fd-hz .ground{stroke:var(--fd-terrain);stroke-width:1.5}
 .fd-hz .ground-t{fill:var(--good)}
 .fd-hz .contour{stroke:var(--line-strong);stroke-width:1;stroke-dasharray:2 4}
-.fd-hz .flown{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.fd-hz .flown{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
 .fd-hz .pt{fill:var(--ink)}
-.fd-hz .draft{stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4;stroke-linecap:round}
+.fd-hz .draft{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4;stroke-linecap:round}
 .fd-hz .draft-pt{fill:var(--accent)}
 .fd-hz .air{fill:var(--bg);stroke:var(--accent);stroke-width:1.5}
 .fd-hz .air-link{stroke:var(--accent);stroke-width:1;stroke-dasharray:1 3}
@@ -185,11 +185,11 @@
 .fd-curve{min-width:0;overflow:hidden}
 .fd-curve-svg{display:block}
 .fd-curve-svg .band{fill:var(--accent-soft)}
-.fd-curve-svg .line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.fd-curve-svg .line{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round}
 .fd-curve-svg .even{stroke:var(--ink-2);stroke-width:1;stroke-dasharray:4 4}
-.fd-curve-svg .floor{stroke:var(--warn);stroke-width:2}
+.fd-curve-svg .floor{stroke:var(--warn);stroke-width:1.5}
 .fd-curve-svg .cur{stroke:var(--ink);stroke-width:1;opacity:.5}
-.fd-curve-svg .cur-pt{fill:var(--ink);stroke:var(--bg-elev);stroke-width:2}
+.fd-curve-svg .cur-pt{fill:var(--ink);stroke:var(--bg-elev);stroke-width:1.5}
 .fd-curve-svg .lbl{font-family:var(--mono);font-size:10px;fill:var(--muted)}
 .fd-curve-svg .floor-t{fill:var(--warn)}
 .fd-throttle{height:32px}
@@ -297,3 +297,9 @@
 @media (max-width:759px){.sim-feed.is-static li{flex-direction:column;gap:2px}}
 .sim-flow h2[tabindex="-1"]:focus{outline:none}
 .fd .sim-flow>*{min-width:0} /* wide tables scroll inside their wrap instead of widening the page */
+
+/* ---------- Motion: only on a state change, never looping. Reduced motion removes all of it (base.css, and below). ---------- */
+.fd-tile,.fd-chip{transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background-color .15s var(--ease)}
+@media (max-width:1023px){.fd-panel.is-arriving{animation:fd-sheet-in .2s var(--ease) both}}
+@keyframes fd-sheet-in{from{transform:translateY(100%)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.fd-tile,.fd-chip{transition:none}.fd-panel.is-arriving{animation:none}}

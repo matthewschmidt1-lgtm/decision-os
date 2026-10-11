@@ -139,7 +139,11 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
   return {
     el, update,
     get id() { return id; },
-    open(focus) { el.classList.add("is-open"); if (focus && narrow()) ui?.title.focus({ preventScroll: true }); },
+    // The sheet slides in only when it goes from closed to open; reduced motion turns the slide off in CSS.
+    open(focus, slide = true) {
+      if (slide && !el.classList.contains("is-open")) { el.classList.add("is-arriving"); el.addEventListener("animationend", () => el.classList.remove("is-arriving"), { once: true }); }
+      el.classList.add("is-open"); if (focus && narrow()) ui?.title.focus({ preventScroll: true });
+    },
     close() { el.classList.remove("is-open", "is-tall"); tall.setAttribute("aria-pressed", "false"); tall.textContent = "⌃"; },
     focusTitle() { ui?.title.focus({ preventScroll: true }); },
   };

@@ -135,7 +135,9 @@ export default function Portfolio() {
     };
 
     // The request as a briefing; js/portfolio/plan.js funds a paid option from the brands and refunds it on a change.
-    const pick = (o) => { P.pickAnswer(plan, st, o, state, qi, vi); stage.replaceChildren(decideView(state, prev)); };
+    // Rebuilding the view would drop keyboard focus, so it goes back to the same control in the new view.
+    const rebuild = (sel, i = 0) => { stage.replaceChildren(decideView(state, prev)); stage.querySelectorAll(sel)[i]?.focus({ preventScroll: true }); };
+    const pick = (o) => { P.pickAnswer(plan, st, o, state, qi, vi); rebuild(".fd-brief .opt", dil.options.indexOf(o)); };
     const brief = dil ? createBriefing({ dil, plan, st, state, qi, vi, prev, onPick: pick }) : null;
 
     // The map and the inspection panel (a bottom sheet under 1024px).
@@ -143,9 +145,9 @@ export default function Portfolio() {
     const map = createMap({ onSelect: (id) => open(id, true) });
     const panel = createPanel({ actions, extra: (slot, c) => funding.update(slot, { ...c, f: nums.f }), onSelect: (id) => { open(id, false); }, onClose: () => { sheetOpen = false; panel.close(); map.tile(selectedId).focus(); } });
     map.select(selectedId);
-    if (sheetOpen) panel.open(false);
+    if (sheetOpen) panel.open(false, false); // a re-render keeps the sheet where it was, without sliding it in again
 
-    const setPlan = (p) => { st.draft = P.resetTo(plan, p); stage.replaceChildren(decideView(state, prev)); };
+    const setPlan = (p, i) => { st.draft = P.resetTo(plan, p); rebuild(".sim-go .starts .link", i); };
     const view = h("div", { class: "sim-flow" },
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
       (() => {
@@ -155,21 +157,22 @@ export default function Portfolio() {
       })(),
       h("div", { class: "fd-cockpit" }, map.el, panel.el),
       h("div", { class: "sim-go" }, h("div", { class: "starts" }, h("span", { class: "muted" }, "Reset to:"),
-        qi ? h("button", { type: "button", class: "link", onClick: () => setPlan({ ...st.plans[qi - 1], scout: [] }) }, `your ${S.QUARTERS[qi - 1].id} plan`) : null,
-        h("button", { type: "button", class: "link", onClick: () => setPlan(S.lastYearPlan()) }, "last year's plan")), go2));
+        qi ? h("button", { type: "button", class: "link", onClick: () => setPlan({ ...st.plans[qi - 1], scout: [] }, 0) }, `your ${S.QUARTERS[qi - 1].id} plan`) : null,
+        h("button", { type: "button", class: "link", onClick: () => setPlan(S.lastYearPlan(), qi ? 1 : 0) }, "last year's plan")), go2));
     refresh();
     return view;
   }
 
   // ---------- How to play, a disclosure under the deck ----------
   function howTo() {
+    const later = st.plans.length === 3 ? "next year" : "next quarter"; // in Q4, what lands later lands next year
     return h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
       h("li", {}, h("b", {}, "The goal: "), "end the year ahead of what last year's plan would have made. Your score counts gross profit after trade."),
       h("li", {}, h("b", {}, "Trade: "), "open a brand and drag its throttle, or press − and +, in $10K steps. Money you take off goes to free trade; you can't overspend, and you don't have to spend it all."),
       h("li", {}, h("b", {}, "Next $10K: "), "what the team expects the next $10K to bring back in gross profit, with the on-premise and off-premise figures underneath. $1 back per $1 breaks even; less loses money. A range means the team isn't sure."),
-      h("li", {}, h("b", {}, "Where it goes: "), "Both splits a brand's money in its usual on/off-premise mix, shown in the brand's panel. On-premise work pays 40% of its return next quarter."),
+      h("li", {}, h("b", {}, "Where it goes: "), `Both splits a brand's money in its usual on/off-premise mix, shown in the brand's panel. On-premise work pays 40% of its return ${later}.`),
       h("li", {}, h("b", {}, "Scouts: "), "two a year. A rep finds out how a brand really responds, and reports back after the quarter."),
-      h("li", {}, h("b", {}, "Channels (from Q2): "), "choose whether a brand's support goes off-premise (stores), on-premise (bars and restaurants), or both. On-premise builds menus and placements, so part of it pays next quarter."),
+      h("li", {}, h("b", {}, "Channels (from Q2): "), `choose whether a brand's support goes off-premise (stores), on-premise (bars and restaurants), or both. On-premise builds menus and placements, so part of it pays ${later}.`),
       h("li", {}, h("b", {}, "Field days (from Q3): "), "your team's time. It's worth more on some brands than others."),
     ));
   }
