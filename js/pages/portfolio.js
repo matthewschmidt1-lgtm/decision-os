@@ -5,6 +5,7 @@ import { lessonBySlug } from "../lessons/index.js";
 import * as S from "../sim.js";
 import { $k, signed$, pts, per$, delta, tone, reduced } from "../portfolio/fmt.js";
 import { createDeck } from "../portfolio/deck.js";
+import { createMap } from "../portfolio/map.js";
 
 // Portfolio: run eight brands for a year, on-premise and off-premise. Decide → run the quarter → results → reallocate → review.
 // The goal is a score against last year's plan. The hints are there to use or ignore; the ideas behind them are named at the end.
@@ -32,6 +33,7 @@ export default function Portfolio() {
   const toTop = () => deckTop.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
   const persist = () => save(st);
   let flight = null; // the banked path for the horizon, rebuilt on every render
+  let selectedId = "A"; // the brand open in the panel: view state only, never saved
 
   const render = ({ scroll = false } = {}) => {
     const year = S.replay(st.plans, st.vi);
@@ -100,6 +102,7 @@ export default function Portfolio() {
         "Ready when you are. Run the quarter to see what actually happens.");
       deck.horizon({ ...flight, draft: { v: soFar + proj, air: projNext, last: qi === 3 } });
       f.rows.forEach((r) => cards[r.id]?.update(r, free, freeDays, scoutsLeft));
+      map.update({ brands, rows: f.rows, plan, state, prev, qi, vi, canFocus, canDays });
       persist();
       if (why) announce(`${why} Free trade ${$k(free)}. This quarter ≈ ${signed$(proj)} against last year's plan.`);
     };
@@ -210,12 +213,19 @@ export default function Portfolio() {
       return box;
     })() : null;
 
+    // The map, and the selected brand's card in the panel slot.
+    brands.forEach(brandCard);
+    const slot = h("div", { class: "fd-slot" });
+    const show = (id) => { selectedId = id; slot.replaceChildren(cards[id]); };
+    const map = createMap({ onSelect: show });
+    map.select(selectedId); show(selectedId);
+
     const setPlan = (p) => { st.draft = { ...S.clonePlan(p), answer: plan.answer }; stage.replaceChildren(decideView(state, prev)); };
     const view = h("div", { class: "sim-flow" },
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
       request,
       (() => { const reads = S.marketRead(vi, qi); return reads.length ? h("div", { class: "sim-market" }, eyebrow("The market this quarter"), ...reads.map((m) => h("p", {}, m.text, " ", h("b", {}, m.answer)))) : null; })(),
-      h("div", { class: "sim-brands" }, brands.map(brandCard)),
+      h("div", { class: "fd-cockpit" }, map.el, slot),
       h("div", { class: "sim-go" }, h("div", { class: "starts" }, h("span", { class: "muted" }, "Reset to:"),
         qi ? h("button", { type: "button", class: "link", onClick: () => setPlan({ ...st.plans[qi - 1], scout: [] }) }, `your ${S.QUARTERS[qi - 1].id} plan`) : null,
         h("button", { type: "button", class: "link", onClick: () => setPlan(S.lastYearPlan()) }, "last year's plan")), go2));
