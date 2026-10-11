@@ -74,15 +74,6 @@
 .sim-goal{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:var(--fs-small);color:var(--ink-2)}
 .tier{padding:2px 10px;border-radius:var(--r-pill);font-size:var(--fs-micro);font-weight:600;background:var(--bg-sunk)}
 .t-bronze{color:var(--tier-bronze)}.t-silver{color:var(--tier-silver)}.t-gold{color:var(--tier-gold)}
-.sim-track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:relative}
-.sim-track::before{content:"";position:absolute;left:8%;right:8%;top:7px;height:2px;background:var(--line-strong)}
-.sim-node{display:grid;justify-items:center;gap:6px;position:relative;text-align:center}
-.sim-node .dot{width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--line-strong);z-index:1}
-.sim-node.is-done .dot{background:var(--ink);border-color:var(--ink)}
-.sim-node.is-now .dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px var(--accent-soft)}
-.sim-node .lbl{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.sim-node.is-now .lbl,.sim-node.is-done .lbl{color:var(--ink)}
-.sim-node .val{font-size:var(--fs-micro);font-variant-numeric:tabular-nums;color:var(--muted)}
 .sim-stage{scroll-margin-top:96px}
 .sim-request{border:1px solid var(--accent);background:var(--accent-soft);border-radius:var(--r-lg);padding:18px 20px;display:grid;gap:10px}
 .sim-request .who{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
@@ -92,15 +83,6 @@
 .sim-request .opt[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .sim-request .opt:disabled{opacity:.5;cursor:not-allowed}
 .sim-request .opt .why{font-size:11px;color:var(--muted)}
-.sim-bar{display:grid;gap:10px;position:sticky;top:64px;z-index:5;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line)}
-.sim-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:12px;align-items:center}
-.sim-board .cell{display:grid;gap:1px;padding:8px 12px;border-radius:var(--r-md);background:var(--bg-sunk);min-width:0}
-.sim-board .cell.has{background:var(--accent-soft)}
-.sim-board .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.sim-board b{font-size:1.125rem;font-weight:600;white-space:nowrap}
-.sim-board .s{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sim-run{padding:12px 20px}
-.sim-coach{font-size:var(--fs-small);color:var(--ink-2)}
 .sim-howto{font-size:var(--fs-small);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px;background:var(--bg-elev)}
 .sim-howto summary{cursor:pointer;font-weight:500}
 .sim-howto ul{margin:10px 0 0;padding-left:1.1em;display:grid;gap:6px;color:var(--ink-2)}
@@ -246,13 +228,6 @@
 .sim-algo .next{margin:4px 0 6px;font-size:var(--fs-small);color:var(--accent)}
 .sim-note-input{width:100%;font:inherit;padding:12px 14px;border:1px solid var(--line-strong);border-radius:var(--r-md);background:var(--bg-elev);color:var(--ink);resize:vertical}
 @media (max-width:760px){
-  .sim-track .val{display:none}
-  .sim-bar{top:116px}
-  .sim-bar{padding:8px 0}
-  .sim-board{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-  .sim-board .cell{padding:5px 7px}.sim-board b{font-size:.9375rem}.sim-board .k{font-size:10px;letter-spacing:0}
-  .sim-board .s{display:none}
-  .sim-board .sim-run{grid-column:1 / -1;justify-content:center;padding:10px 16px}
   .sim-brands,.sim-chains,.sim-ach{grid-template-columns:1fr}
   .sim-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sim-scorecard{grid-template-columns:1fr 1fr}.sim-scorecard .sim-tierbar{grid-column:1 / -1}

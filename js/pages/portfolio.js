@@ -3,6 +3,8 @@ import { setMeta } from "../app.js";
 import { money, pct } from "../models.js";
 import { lessonBySlug } from "../lessons/index.js";
 import * as S from "../sim.js";
+import { $k, signed$, pts, per$, delta, tone, reduced } from "../portfolio/fmt.js";
+import { createDeck } from "../portfolio/deck.js";
 
 // Portfolio: run eight brands for a year, on-premise and off-premise. Decide → run the quarter → results → reallocate → review.
 // The goal is a score against last year's plan. The hints are there to use or ignore; the ideas behind them are named at the end.
@@ -12,44 +14,57 @@ const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY)); if (
 const save = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} };
 const fresh = (vi = 0) => ({ vi, plans: [], draft: S.lastYearPlan(), phase: "decide", note: "", nextScout: null });
 
-const $k = (v) => money(v * 1000);
-const signed$ = (v) => `${v >= 0 ? "+" : "−"}${$k(Math.abs(v))}`;
-const pts = (v) => (Math.abs(v) < 0.5 ? "0%" : pct(v, 0));
-const per$ = (v) => `$${v.toFixed(2)}`;
-const delta = (v) => (Math.abs(v) < 0.5 ? "0" : `${v > 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}`);
-const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-const tone = (v) => (v > 0.5 ? "good" : v < -0.5 ? "bad" : "");
 const tile = (label, value, sub, cls = "") => h("div", { class: "ev-tile" }, h("span", { class: "k" }, label), h("span", { class: `v ${cls}` }, value), sub ? h("span", { class: "sim-sub" }, sub) : null);
 const unlocked = (qi, what) => S.QUARTERS.slice(0, qi + 1).some((q) => q.unlock === what);
 
 export default function Portfolio() {
   setMeta({ title: "Portfolio", description: "Run eight brands for a year, on-premise and off-premise. Beat last year's plan." });
   let st = load() || fresh(0);
-  const stage = h("div", { class: "sim-stage" });
-  const track = h("ol", { class: "sim-track", "aria-label": "Your year" });
+  // The stage changes often; main is a polite live region, so the stage opts out and one status line speaks for it.
+  const stage = h("div", { class: "sim-stage", "aria-live": "off" });
   const goal = h("p", { class: "sim-goal" });
+  const deck = createDeck({ onRun: () => runQuarter() });
+  const deckTop = h("div", { class: "fd-anchor", "aria-hidden": "true" }); // a static point to scroll to: the deck itself may be stuck
+  const under = h("div", { class: "fd-under" });
+  const status = h("p", { class: "sr-only", role: "status" });
+  let statusTimer;
+  const announce = (t) => { clearTimeout(statusTimer); statusTimer = setTimeout(() => { status.textContent = t; }, 700); };
+  const toTop = () => deckTop.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
   const persist = () => save(st);
+  let flight = null; // the banked path for the horizon, rebuilt on every render
 
   const render = ({ scroll = false } = {}) => {
     const year = S.replay(st.plans, st.vi);
-    drawTrack(year);
     const T = S.tiers(st.vi);
     goal.replaceChildren(h("b", {}, "Your goal: "), `beat last year's plan. `, ...T.map((t) => h("span", { class: `tier t-${t.name.toLowerCase()}` }, `${t.name} ${signed$(t.at)}`)), ...(st.vi ? [h("span", { class: "muted" }, ` · ${S.VARIANTS[st.vi].name}: new answers`)] : []));
-    if (st.phase === "review" && st.plans.length === 4) stage.replaceChildren(reviewView());
-    else if (st.phase === "results" && st.plans.length) stage.replaceChildren(resultsView(year.quarters.at(-1)));
-    else { st.phase = "decide"; if (!st.draft) st.draft = S.lastYearPlan(); stage.replaceChildren(decideView(year.state, year.quarters.at(-1))); }
-    if (scroll) stage.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
+    const R = st.phase === "review" && st.plans.length === 4 ? S.review(st.plans, st.vi) : null;
+    if (!R && !(st.phase === "results" && st.plans.length)) { st.phase = "decide"; if (!st.draft) st.draft = S.lastYearPlan(); }
+    flight = flightOf(year, R, T);
+    deck.setLive(st.phase === "decide");
+    if (st.phase === "decide") {
+      under.replaceChildren(achPanel(), howTo());
+      stage.replaceChildren(decideView(year.state, year.quarters.at(-1)));
+    } else {
+      under.replaceChildren();
+      deck.instruments({ decide: false, soFar: flight.points.at(-1).v, final: R ? R.score : null });
+      deck.coach("");
+      deck.horizon(flight);
+      stage.replaceChildren(R ? reviewView(R) : resultsView(year.quarters.at(-1)));
+    }
+    if (scroll) toTop();
   };
 
-  function drawTrack(year) {
-    const at = st.phase === "review" ? 5 : st.phase === "results" ? st.plans.length : st.plans.length + 1;
+  // The horizon's flown path: the banked score after each played quarter (the same sum as scoreSoFar), with any real event marked.
+  function flightOf(year, R, T) {
     const habit = S.replay(S.habitPlans(st.vi).slice(0, year.quarters.length), st.vi).quarters;
-    track.replaceChildren(...["Start", ...S.QUARTERS.map((q) => q.id), "Review"].map((label, i) => {
-      const q = year.quarters[i - 1], state = i < at ? "done" : i === at ? "now" : "next";
-      const d = q ? q.gp - habit[i - 1].gp : null;
-      return h("li", { class: `sim-node is-${state}`, "aria-current": state === "now" ? "step" : null },
-        h("span", { class: "dot", "aria-hidden": "true" }), h("span", { class: "lbl" }, label), q ? h("span", { class: `val ${tone(d / 10)}` }, signed$(d)) : null);
-    }));
+    let acc = 0;
+    const points = [{ v: 0 }, ...year.quarters.map((q, i) => {
+      acc += q.gp - habit[i].gp;
+      const unwind = q.rows.some((r) => r.unwind > 0);
+      return { v: acc, note: q.insight, mark: q.insight ? { kind: unwind ? "bad" : "warn", label: unwind ? "Unwind" : q.answer?.load ? "Load-in" : "Event" } : null };
+    })];
+    const at = st.phase === "review" ? 5 : st.phase === "results" ? year.quarters.length : year.quarters.length + 1;
+    return { points, tiers: T, at, final: R ? R.score : null };
   }
 
   // ---------- Decide ----------
@@ -62,37 +77,31 @@ export default function Portfolio() {
     if (st.nextScout && !plan.scout.includes(st.nextScout) && state.scouted[st.nextScout] === undefined && state.scoutsLeft > plan.scout.length) plan.scout.push(st.nextScout);
     st.nextScout = null;
 
-    const board = h("div", { class: "sim-board" });
-    const coach = h("p", { class: "sim-coach" });
-    const go = h("button", { type: "button", class: "btn sim-run", onClick: () => runQuarter() });
     const go2 = h("button", { type: "button", class: "btn btn-lg", onClick: () => runQuarter() });
     const cards = {};
-    const soFar = S.scoreSoFar(st.plans, vi);
+    const soFar = flight.points.at(-1).v; // banked so far: the same sum as S.scoreSoFar
 
-    const refresh = () => {
+    const refresh = (why) => {
       const t = S.planTotals(plan, qi, vi), f = S.forecastQuarter(state, plan, qi);
       const habitPlan = { ...S.lastYearPlan(), answer: qi === 2 ? "menu-A" : "pass" }, hf = S.forecastQuarter(state, habitPlan, qi);
       const proj = f.gp - hf.gp, projNext = f.carryNext - hf.carryNext;
       const free = S.BUDGET.trade - t.trade, freeDays = S.BUDGET.days - t.days;
       const scoutsLeft = state.scoutsLeft - plan.scout.length;
-      board.replaceChildren(
-        h("div", { class: "cell" }, h("span", { class: "k" }, "Score"), h("b", { class: `num ${tone(soFar / 10)}` }, signed$(soFar)), h("span", { class: "s" }, `year so far · this quarter ≈ ${signed$(proj)}${Math.abs(projNext) >= 1 ? ` · ${signed$(projNext)} lands next quarter` : ""}`)),
-        h("div", { class: `cell ${free > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Free trade"), h("b", { class: "num" }, $k(free)), h("span", { class: "s" }, free ? `place it, or keep it: ${signed$(free)} to the score` : "all placed")),
-        h("div", { class: `cell ${canDays && freeDays > 0 ? "has" : ""}` }, h("span", { class: "k" }, "Field days"), h("b", { class: "num" }, canDays ? `${freeDays} free` : "locked"), h("span", { class: "s" }, canDays ? `of ${S.BUDGET.days}` : "unlocks in Q3")),
-        h("div", { class: "cell" }, h("span", { class: "k" }, "Scouts"), h("b", { class: "num", "aria-label": `${scoutsLeft} scouts left` }, "●".repeat(Math.max(0, scoutsLeft)) + "○".repeat(Math.max(0, S.SCOUTS - scoutsLeft))), h("span", { class: "s" }, "for the year")),
-        go);
       const needAnswer = dil && !plan.answer;
-      go.disabled = go2.disabled = needAnswer;
-      go.textContent = go2.textContent = `▶ Run ${Q.id}`;
+      deck.instruments({ decide: true, soFar, proj, air: projNext, free, freeDays, canDays, days: S.BUDGET.days, scoutsLeft, scouts: S.SCOUTS, qi, qid: Q.id, needAnswer });
+      go2.disabled = needAnswer;
+      go2.textContent = `▶ Run ${Q.id}`;
       const worst = f.rows.filter((r) => plan.trade[r.id] > 0 && r.conf !== "Low").sort((a, b) => a.next - b.next)[0]; // never steer toward a brand the team can't read
       const bestR = [...f.rows].sort((a, b) => b.next - a.next)[0];
-      coach.textContent = needAnswer ? "First, answer the request above." :
+      deck.coach(needAnswer ? "First, answer this quarter's request." :
         free >= 10 ? `You have ${$k(free)} to place. Put it where the next $10K returns the most (${bestR ? `right now: Brand ${bestR.id}, about ${per$(bestR.next)} back` : ""}), or keep it: unspent trade stays in the P&L.` :
         qi === 0 && worst && worst.next < 1 ? `Every dollar is spent. Brand ${worst.id}'s next $10K returns about ${per$(worst.next)}, so it loses money. Try pulling $10K off a brand like that.` :
         canDays && freeDays > 0 ? `You have ${freeDays} field days to place. Put them where the next day earns the most.` :
-        "Ready when you are. Run the quarter to see what actually happens.";
+        "Ready when you are. Run the quarter to see what actually happens.");
+      deck.horizon({ ...flight, draft: { v: soFar + proj, air: projNext, last: qi === 3 } });
       f.rows.forEach((r) => cards[r.id]?.update(r, free, freeDays, scoutsLeft));
       persist();
+      if (why) announce(`${why} Free trade ${$k(free)}. This quarter ≈ ${signed$(proj)} against last year's plan.`);
     };
 
     const brandCard = (b) => {
@@ -103,14 +112,14 @@ export default function Portfolio() {
       const next = h("div", { class: "next" }), gauge = h("div", { class: "gauge", "aria-hidden": "true" }, h("i"), h("b"));
       const chan = h("div", { class: "sim-chan" }), splitLine = h("p", { class: "sim-split" });
       const lastQ = last ? h("p", { class: "sim-lastq" }, `${S.QUARTERS[qi - 1].id}: `, ...[["off-premise", last.mOffLast, last.xOff < last.floor], ["on-premise", last.mOnLast, false]].filter(([, m]) => m != null).flatMap(([ch, m, under], i) => [i ? " · " : "", `${ch} `, h("b", { class: verdictOf(m, under).cls }, verdictOf(m, under).text.toLowerCase())])) : null;
-      const minus = h("button", { type: "button", "aria-label": `Take $10K from ${b.name}`, onClick: () => { plan.trade[b.id] = Math.max(0, plan.trade[b.id] - S.STEP.trade); refresh(); } }, "−");
-      const plus = h("button", { type: "button", "aria-label": `Give $10K to ${b.name}`, onClick: () => { plan.trade[b.id] += S.STEP.trade; refresh(); } }, "+");
+      const minus = h("button", { type: "button", "aria-label": `Take $10K from ${b.name}`, onClick: () => { plan.trade[b.id] = Math.max(0, plan.trade[b.id] - S.STEP.trade); refresh(`${b.name} ${$k(plan.trade[b.id])}.`); } }, "−");
+      const plus = h("button", { type: "button", "aria-label": `Give $10K to ${b.name}`, onClick: () => { plan.trade[b.id] += S.STEP.trade; refresh(`${b.name} ${$k(plan.trade[b.id])}.`); } }, "+");
       const dOut = h("output", { class: "num" }), dHint = h("span", { class: "hint" });
-      const dMinus = h("button", { type: "button", "aria-label": `One fewer field day for ${b.name}`, onClick: () => { plan.days[b.id] = Math.max(0, plan.days[b.id] - 1); refresh(); } }, "−");
-      const dPlus = h("button", { type: "button", "aria-label": `One more field day for ${b.name}`, onClick: () => { plan.days[b.id] += 1; refresh(); } }, "+");
+      const dMinus = h("button", { type: "button", "aria-label": `One fewer field day for ${b.name}`, onClick: () => { plan.days[b.id] = Math.max(0, plan.days[b.id] - 1); refresh(`${b.name} ${plan.days[b.id]} field days.`); } }, "−");
+      const dPlus = h("button", { type: "button", "aria-label": `One more field day for ${b.name}`, onClick: () => { plan.days[b.id] += 1; refresh(`${b.name} ${plan.days[b.id]} field days.`); } }, "+");
       const floorWarn = h("p", { class: "floor-warn", hidden: true });
-      const scout = h("button", { type: "button", class: "sim-scout", disabled: scouted, onClick: () => { const i = plan.scout.indexOf(b.id); if (i >= 0) plan.scout.splice(i, 1); else plan.scout.push(b.id); refresh(); } });
-      const focusBtns = Object.entries(S.FOCUS).map(([k, label]) => h("button", { type: "button", "aria-pressed": String(plan.focus[b.id] === k), onClick: () => { plan.focus[b.id] = k; focusBtns.forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.k === k))); refresh(); }, dataset: { k } }, label));
+      const scout = h("button", { type: "button", class: "sim-scout", disabled: scouted, onClick: () => { const i = plan.scout.indexOf(b.id); if (i >= 0) plan.scout.splice(i, 1); else plan.scout.push(b.id); refresh(`${b.name}: ${i >= 0 ? "scout removed" : "scout sent"}.`); } });
+      const focusBtns = Object.entries(S.FOCUS).map(([k, label]) => h("button", { type: "button", "aria-pressed": String(plan.focus[b.id] === k), onClick: () => { plan.focus[b.id] = k; focusBtns.forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.k === k))); refresh(`${b.name}: ${label}.`); }, dataset: { k } }, label));
       const lastLine = last && last.x ? `Last quarter: ${per$(last.perDollar)} back per $1 on ${$k(last.x)}${last.onReturn && last.offReturn ? ` (on-premise ${per$(last.onReturn)}, off-premise ${per$(last.offReturn)})` : ""}.` : null;
       const card = h("div", { class: `sim-brand ${scouted ? "is-scouted" : ""}` },
         h("div", { class: "sim-brand-head" }, h("h3", {}, b.name), h("span", { class: "chip" }, b.role)),
@@ -206,22 +215,25 @@ export default function Portfolio() {
       h("div", {}, eyebrow(`${Q.id} · ${Q.theme}`), h("h2", { style: { marginTop: "10px" } }, qi ? "What do you do now?" : "Where do your first dollars go?"), h("p", { class: "muted", style: { marginTop: "8px", maxWidth: "var(--measure)" } }, Q.line)),
       request,
       (() => { const reads = S.marketRead(vi, qi); return reads.length ? h("div", { class: "sim-market" }, eyebrow("The market this quarter"), ...reads.map((m) => h("p", {}, m.text, " ", h("b", {}, m.answer)))) : null; })(),
-      h("div", { class: "sim-bar" }, board), coach,
-      achPanel(),
-      h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
-        h("li", {}, h("b", {}, "The goal: "), "end the year ahead of what last year's plan would have made. Your score counts gross profit after trade."),
-        h("li", {}, h("b", {}, "Trade: "), "press − to take $10K off a brand into your free trade, + to give it to another. You can't overspend, and you don't have to spend it all."),
-        h("li", {}, h("b", {}, "Next $10K: "), "what the team expects the next $10K to bring back in gross profit, with the on-premise and off-premise figures underneath. $1 back per $1 breaks even; less loses money. A range means the team isn't sure."),
-        h("li", {}, h("b", {}, "Where it goes: "), "Both splits a brand's money in its usual on/off-premise mix, shown on the card. On-premise work pays 40% of its return next quarter."),
-        h("li", {}, h("b", {}, "Scouts: "), "two a year. A rep finds out how a brand really responds, and reports back after the quarter."),
-        h("li", {}, h("b", {}, "Channels (from Q2): "), "choose whether a brand's support goes off-premise (stores), on-premise (bars and restaurants), or both. On-premise builds menus and placements, so part of it pays next quarter."),
-        h("li", {}, h("b", {}, "Field days (from Q3): "), "your team's time. It's worth more on some brands than others."))),
       h("div", { class: "sim-brands" }, brands.map(brandCard)),
       h("div", { class: "sim-go" }, h("div", { class: "starts" }, h("span", { class: "muted" }, "Reset to:"),
         qi ? h("button", { type: "button", class: "link", onClick: () => setPlan({ ...st.plans[qi - 1], scout: [] }) }, `your ${S.QUARTERS[qi - 1].id} plan`) : null,
         h("button", { type: "button", class: "link", onClick: () => setPlan(S.lastYearPlan()) }, "last year's plan")), go2));
     refresh();
     return view;
+  }
+
+  // ---------- How to play, a disclosure under the deck ----------
+  function howTo() {
+    return h("details", { class: "sim-howto" }, h("summary", {}, "How to play"), h("ul", {},
+      h("li", {}, h("b", {}, "The goal: "), "end the year ahead of what last year's plan would have made. Your score counts gross profit after trade."),
+      h("li", {}, h("b", {}, "Trade: "), "press − to take $10K off a brand into your free trade, + to give it to another. You can't overspend, and you don't have to spend it all."),
+      h("li", {}, h("b", {}, "Next $10K: "), "what the team expects the next $10K to bring back in gross profit, with the on-premise and off-premise figures underneath. $1 back per $1 breaks even; less loses money. A range means the team isn't sure."),
+      h("li", {}, h("b", {}, "Where it goes: "), "Both splits a brand's money in its usual on/off-premise mix, shown on the card. On-premise work pays 40% of its return next quarter."),
+      h("li", {}, h("b", {}, "Scouts: "), "two a year. A rep finds out how a brand really responds, and reports back after the quarter."),
+      h("li", {}, h("b", {}, "Channels (from Q2): "), "choose whether a brand's support goes off-premise (stores), on-premise (bars and restaurants), or both. On-premise builds menus and placements, so part of it pays next quarter."),
+      h("li", {}, h("b", {}, "Field days (from Q3): "), "your team's time. It's worth more on some brands than others."),
+    ));
   }
 
   // ---------- Achievements, visible all year ----------
@@ -241,6 +253,7 @@ export default function Portfolio() {
     let done = false;
     const finish = () => { if (done) return; done = true; st.plans.push(plan); st.phase = "results"; st.draft = null; persist(); render({ scroll: true }); };
     if (reduced()) return finish();
+    deck.setLive(false); deck.run.disabled = true;
     const DUR = 3500;
     const fill = h("div", { class: "fill" }), feed = h("ol", { class: "sim-feed", "aria-live": "polite" });
     const revOut = h("b", { class: "num v" }), gpOut = h("b", { class: "num v" });
@@ -249,7 +262,7 @@ export default function Portfolio() {
       h("div", { class: "sim-clock" }, h("div", { class: "months" }, Q.months.map((m) => h("span", {}, m))), h("div", { class: "track" }, fill)),
       h("div", { class: "ev-tiles" }, h("div", { class: "ev-tile" }, h("span", { class: "k" }, "Revenue so far"), revOut), h("div", { class: "ev-tile" }, h("span", { class: "k" }, "Gross profit after trade so far"), gpOut)),
       feed, h("button", { type: "button", class: "link", style: { justifySelf: "start" }, onClick: finish }, "Skip to results")));
-    stage.scrollIntoView({ behavior: "smooth", block: "start" });
+    toTop();
     const t0 = performance.now(); let shown = 0;
     const tick = (t) => {
       if (done) return;
@@ -452,8 +465,8 @@ export default function Portfolio() {
   }
 
   // ---------- Year-end review ----------
-  function reviewView() {
-    const vi = st.vi, R = S.review(st.plans, vi);
+  function reviewView(R) {
+    const vi = st.vi;
     const scale = Math.max(Math.abs(R.score), Math.abs(R.bestScore), 1);
     const cmp = (label, g, cls) => h("div", { class: "sim-cmp-row" }, h("span", { class: "lbl" }, label), h("div", { class: "track" }, h("div", { class: `fill ${g < 0 ? "bad" : cls}`, style: { width: `${(Math.abs(g) / scale) * 100}%` } })), h("b", { class: "num" }, signed$(g)));
     const brandMax = Math.max(...R.quarters.flatMap((q) => Object.values(q.plan.trade)), 1);
@@ -496,10 +509,11 @@ export default function Portfolio() {
   }
 
   render();
-  return h("div", {},
+  return h("div", { class: "fd" },
     h("section", { class: "reveal" }, eyebrow("Portfolio"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Run the business for a year."),
       h("p", { class: "hero-sub" }, `Eight brands, two channels, four quarters. ${$k(S.BUDGET.trade)} of trade a quarter, a team with limited time, and a request on your desk every quarter. You can't do everything.`),
       goal),
-    h("section", { class: "section reveal", style: { marginTop: "36px" } }, track),
-    h("section", { style: { marginTop: "28px" } }, stage));
+    deckTop, deck.el, under,
+    h("section", { class: "fd-stagewrap" }, stage),
+    status);
 }

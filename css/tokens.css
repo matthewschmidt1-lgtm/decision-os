@@ -2,6 +2,14 @@
   color-scheme: light;
   --gold: #b8962e; --gold-line: #d8c27a; --gold-soft: #fbf6e6;
   --tier-bronze: #8a5a2b; --tier-silver: #5d6470; --tier-gold: #9a7400;
+  /* Flight Deck (Portfolio cockpit): one midnight set, the same in both schemes. css/flightdeck.css maps these onto the house tokens. */
+  --fd-sky: #0E1726; --fd-panel: #151E2E; --fd-sunk: #0A111D; --fd-border: transparent;
+  --fd-ivory: #ECE7DA; --fd-ivory-2: #C9C4B8; --fd-muted: #8E9AAB;
+  --fd-line: rgba(236, 231, 218, 0.14); --fd-line-strong: rgba(236, 231, 218, 0.26);
+  --fd-terrain: #4F6B57; --fd-terrain-text: #8DB596; --fd-terrain-soft: rgba(141, 181, 150, 0.16);
+  --fd-cyan: #6CC4D8; --fd-cyan-soft: rgba(108, 196, 216, 0.16);
+  --fd-amber: #E0A84A; --fd-amber-soft: rgba(224, 168, 74, 0.16);
+  --fd-red: #E8776E; --fd-red-soft: rgba(232, 119, 110, 0.16);
   --bg: #F5F5F0;
   --bg-elev: #FBFBF8;
   --bg-sunk: #EDEDE7;
@@ -70,6 +78,7 @@
   --bad-soft: rgba(229, 113, 105, 0.16);
   --gold: #D9B64A; --gold-line: rgba(217, 182, 74, 0.45); --gold-soft: rgba(217, 182, 74, 0.12);
   --tier-bronze: #C98F5A; --tier-silver: #A9B0BC; --tier-gold: #D9B64A;
+  --fd-sky: #0B1320; --fd-border: rgba(236, 231, 218, 0.10);
   --shadow-1: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
   --shadow-2: 0 2px 6px rgba(0,0,0,0.4), 0 18px 50px rgba(0,0,0,0.5);
 }
@@ -95,6 +104,7 @@
   --bad-soft: rgba(229, 113, 105, 0.16);
   --gold: #D9B64A; --gold-line: rgba(217, 182, 74, 0.45); --gold-soft: rgba(217, 182, 74, 0.12);
   --tier-bronze: #C98F5A; --tier-silver: #A9B0BC; --tier-gold: #D9B64A;
+  --fd-sky: #0B1320; --fd-border: rgba(236, 231, 218, 0.10);
   --shadow-1: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
   --shadow-2: 0 2px 6px rgba(0,0,0,0.4), 0 18px 50px rgba(0,0,0,0.5);
   }

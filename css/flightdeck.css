@@ -1,0 +1,67 @@
+/* Flight Deck: the Portfolio cockpit. Everything is scoped under .fd.
+   Only the cockpit (deck, map, panel) is midnight; prose (briefing, results, review) stays on the house background.
+   Inside the cockpit the house tokens are re-declared, so reused chips, buttons, segmented controls and ranges render dark.
+   Signals: cyan = your inputs and the team's forecast; amber = caution or uncertain; red = loses money; terrain green = earns.
+   Colour is never the only cue: every signal also has a glyph, a word or a texture. */
+.fd{--fd-top:64px;--fd-deck-h:0px}
+.fd-deck,.fd-map,.fd-panel,.fd-sheet{
+  color-scheme:dark;
+  --bg:var(--fd-sky);--bg-elev:var(--fd-panel);--bg-sunk:var(--fd-sunk);
+  --ink:var(--fd-ivory);--ink-2:var(--fd-ivory-2);--muted:var(--fd-muted);
+  --line:var(--fd-line);--line-strong:var(--fd-line-strong);
+  --accent:var(--fd-cyan);--accent-ink:var(--fd-sunk);--accent-soft:var(--fd-cyan-soft);
+  --good:var(--fd-terrain-text);--good-soft:var(--fd-terrain-soft);
+  --warn:var(--fd-amber);--warn-soft:var(--fd-amber-soft);
+  --bad:var(--fd-red);--bad-soft:var(--fd-red-soft);
+  color:var(--ink);
+}
+.fd-deck :focus-visible,.fd-map :focus-visible,.fd-panel :focus-visible{outline:2px solid var(--fd-cyan);outline-offset:2px}
+
+/* ---------- Deck: horizon, coach, instruments ---------- */
+.fd-anchor{height:0;scroll-margin-top:calc(var(--fd-top) + 12px)}
+.fd-deck{margin-top:32px;background:var(--bg);border:1px solid var(--fd-border);border-radius:var(--r-lg);padding:12px 16px 14px;display:grid;gap:10px;min-width:0}
+.fd-deck.is-live{position:sticky;top:var(--fd-stick,64px);z-index:6;box-shadow:0 10px 24px -18px rgba(0,0,0,.6)}
+.fd-horizon{order:0;min-width:0;height:116px;overflow:hidden}
+.fd-instruments{order:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:stretch}
+.fd-coach{order:2;margin:0;font-size:var(--fs-small);color:var(--ink-2)}
+.fd-hz{display:block}
+.fd-hz .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.04em;fill:var(--muted)}
+.fd-hz .stop.now{fill:var(--accent);font-weight:500}
+.fd-hz .terrain{fill:url(#fd-hatch)}
+.fd-hz .hatch{stroke:var(--fd-terrain);stroke-width:1.2}
+.fd-hz .ground{stroke:var(--fd-terrain);stroke-width:1.5}
+.fd-hz .ground-t{fill:var(--good)}
+.fd-hz .contour{stroke:var(--line-strong);stroke-width:1;stroke-dasharray:2 4}
+.fd-hz .flown{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.fd-hz .pt{fill:var(--ink)}
+.fd-hz .draft{stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4;stroke-linecap:round}
+.fd-hz .draft-pt{fill:var(--accent)}
+.fd-hz .air{fill:var(--bg);stroke:var(--accent);stroke-width:1.5}
+.fd-hz .air-link{stroke:var(--accent);stroke-width:1;stroke-dasharray:1 3}
+.fd-hz .dip path{fill:var(--warn)}.fd-hz .dip text{fill:var(--warn)}
+.fd-hz .dip.bad path{fill:var(--bad)}.fd-hz .dip.bad text{fill:var(--bad)}
+.fd-inst{display:grid;gap:1px;align-content:center;padding:8px 12px;border-radius:var(--r-md);background:var(--bg-sunk);border:1px solid transparent;min-width:0}
+.fd-inst.has{border-color:var(--accent)}
+.fd-inst.over{border-color:var(--bad)}
+.fd-inst .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd-inst b{font-family:var(--mono);font-size:1.125rem;font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fd-inst .s{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd-inst .ks{display:none}
+.fd-pipwrap{display:flex;align-items:center;height:1.55em}
+.fd-pips .on{fill:var(--accent)}.fd-pips .off{fill:none;stroke:var(--muted);stroke-width:1.2}
+.fd-run{align-self:center;padding:12px 20px;border-radius:var(--r-pill);background:var(--accent);color:var(--accent-ink);font-weight:600;white-space:nowrap;min-height:44px}
+.fd-run:disabled{background:var(--bg-sunk);color:var(--muted);cursor:not-allowed}
+.fd-under{display:grid;gap:10px;margin-top:16px}
+.fd-stagewrap{margin-top:28px}
+@media (max-width:759px){
+  .fd-deck{margin-top:24px;padding:8px 10px 10px;gap:6px;border-radius:var(--r-md)}
+  .fd-horizon{height:90px}
+  .fd-coach{order:1;font-size:var(--fs-micro)}
+  .fd-instruments{order:2;grid-template-columns:repeat(4,minmax(0,auto)) minmax(0,1fr);gap:5px}
+  .fd-inst .kl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.fd-inst .ks{display:inline}
+  .fd-inst{padding:5px 7px}
+  .fd-inst .s{display:none}
+  .fd-inst .k{font-size:9px;letter-spacing:0}
+  .fd-inst b{font-size:.875rem}
+  .fd-run{padding:8px 10px;font-size:var(--fs-micro)}
+}

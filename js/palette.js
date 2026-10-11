@@ -9,7 +9,7 @@ import { closeModal } from "./modal.js";
 
 const canned = [
   { t: "Where are we overspending?", s: "Brand B holds 32% of trade for 15% of revenue.", k: "decision", href: "/decisions/shift-brand-b" },
-  { t: "Run the portfolio for a year", s: "Eight brands, four quarters, $500K and 100 hours a quarter.", k: "portfolio", href: "/portfolio" },
+  { t: "Run the portfolio for a year", s: "Eight brands, four quarters, $500K of trade and 40 field days a quarter.", k: "portfolio", href: "/portfolio" },
   { t: "Is the distributor's growth real?", s: "Shipments are up 14%. Check depletions first.", k: "decision", href: "/decisions/investigate-cascade" },
   { t: "Which accounts should I visit?", s: "Ranked by expected value, not size.", k: "accounts", href: "/accounts?sort=ev" },
   { t: "Show me opportunities with >20% expected ROI", s: `${roi20} accounts qualify.`, k: "accounts", href: "/accounts?roi=20" },
