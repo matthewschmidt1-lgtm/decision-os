@@ -214,3 +214,27 @@
 .fd-move-btn:hover:not(:disabled){background:var(--accent-soft)}
 .fd-move-btn:disabled{border-color:var(--line);color:var(--muted);cursor:not-allowed}
 @media (max-width:759px){.fd-move-out{grid-template-columns:1fr}.fd-move-out dd{margin-bottom:4px}}
+
+/* ---------- Reconnaissance: what the team doesn't know, per channel, and the scout ---------- */
+.fd-ranges{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;margin:2px 0 0;align-items:center}
+.fd-ranges dt{font-size:var(--fs-micro);color:var(--ink-2)}
+.fd-ranges dd{margin:0;display:grid;grid-template-columns:minmax(48px,1fr) auto auto;gap:8px;align-items:center;font-size:var(--fs-micro);color:var(--ink-2)}
+.fd-ranges .num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fd-ranges .cw{font-size:11px;color:var(--muted)}.fd-ranges .cw.conf-Low{color:var(--warn)}
+.fd-range{position:relative;display:block;height:10px;border-bottom:1px solid var(--line-strong)}
+.fd-range i{position:absolute;display:block}
+.fd-range .band{top:2px;height:6px;border:1.5px solid var(--ink-2);border-radius:2px}
+.fd-range.conf-Low .band{border-color:var(--warn);background-image:repeating-linear-gradient(135deg,var(--warn-soft) 0 1px,transparent 1px 4px)}
+.fd-range.conf-High .band{border-color:var(--accent)}
+.fd-range .mid{top:0;bottom:0;width:1.5px;margin-left:-.75px;background:var(--ink)}
+.fd-range .even{top:-2px;bottom:-2px;width:0;border-left:1px dashed var(--muted)}
+.fd-scoutrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fd-scout-sub{margin:0;font-size:var(--fs-micro);color:var(--ink-2)}
+.fd-scout-sub.muted{color:var(--muted)}
+@media (max-width:759px){.fd-ranges{grid-template-columns:1fr}.fd-ranges dt{margin-top:2px}}
+/* The debrief's before → after ranges sit on the house background. */
+.fd-shift{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:6px 0 0;font-size:var(--fs-small)}
+.fd-shift dt{color:var(--muted)}.fd-shift dd{margin:0;font-variant-numeric:tabular-nums}
+.fd-shift .was{color:var(--muted)}
+.fd-shift b{font-weight:600}
+.sim-report .fd-k{margin-top:10px}

@@ -215,6 +215,12 @@ export function onRead(state, id) {
   const bel = state.beliefs[id].on, conf = confidence(bel.w);
   return { b: bel.b, lo: Math.max(0, bel.b * (1 - SPREAD[conf])), hi: bel.b * (1 + SPREAD[conf]), conf };
 }
+// The same read for any channel: "on", "off" or "days" (field days, in $K for the first day). Read-only; used by the
+// scout panel and the debrief to show the team's range before and after a scout.
+export function channelRead(state, id, ch) {
+  const bel = state.beliefs[id][ch === "days" ? "d" : ch], conf = confidence(bel.w);
+  return { b: bel.b, lo: Math.max(0, bel.b * (1 - SPREAD[conf])), hi: bel.b * (1 + SPREAD[conf]), conf };
+}
 const marginal = (f, x, step = 10) => (f(x + step) - f(x)) / step;
 const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
 

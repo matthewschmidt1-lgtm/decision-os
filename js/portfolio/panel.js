@@ -1,10 +1,11 @@
 // The inspection panel: everything about one brand, and its controls. On desktop it sits beside the map, sticky under
 // the deck. Under 1024px it is a non-modal bottom sheet with a mini-map rail, prev/next, expand, and Esc to close.
 // It never edits the plan itself: every control calls an action the page provides.
-import { h } from "../ui.js";
+import { h, s as svg } from "../ui.js";
 import * as S from "../sim.js";
 import { money } from "../models.js";
 import { $k, per$, pts, tone, verdictOf, gainOf } from "./fmt.js";
+import { CHANNELS, readOf, rangeText, rangeBar, confWord, requestScoutNote } from "./recon.js";
 
 const IDS = S.brandIds;
 const put = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false)); // replaceChildren would print "null"
@@ -49,18 +50,23 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     u.dMinus = h("button", { type: "button", "aria-label": `One fewer field day for ${b.name}`, onClick: () => actions.days(b.id, -1) }, "−");
     u.dPlus = h("button", { type: "button", "aria-label": `One more field day for ${b.name}`, onClick: () => actions.days(b.id, 1) }, "+");
     u.scout = h("button", { type: "button", class: "sim-scout", onClick: () => actions.scout(b.id) });
+    u.reconK = h("p", { class: "fd-k" });
+    u.ranges = h("dl", { class: "fd-ranges" });
+    u.pips = h("span", { class: "fd-pipwrap" });
+    u.scoutSub = h("p", { class: "fd-scout-sub" });
+    u.reqNote = h("p", { class: "fd-scout-sub muted", hidden: true });
     u.details = h("dl", {});
     u.lastLine = h("p", { class: "muted", hidden: true });
     u.extra = h("div", { class: "fd-extra" }); // the funding instrument (stage 4) mounts here
     put(body, 
       h("div", { class: "fd-id" }, u.title, q("fd-cat", b.category), h("span", { class: "chip" }, b.role)),
-      u.note, u.finding,
+      u.finding,
       h("div", { class: "fd-block" }, h("p", { class: "fd-k" }, "Next $10K · team forecast"), u.next, u.chan, u.lastQ),
       h("div", { class: "fd-block" }, h("p", { class: "fd-k" }, "Trade this quarter"), u.extra,
         h("div", { class: "sim-alloc fd-alloc" }, u.minus, h("div", { class: "mid" }, u.amt, u.was), u.plus), u.floorWarn, u.split),
       c.canFocus ? h("div", { class: "fd-block" }, h("p", { class: "fd-k", id: `fd-focus-${b.id}` }, "Where its support goes"), h("div", { class: "sim-focus", role: "group", "aria-labelledby": `fd-focus-${b.id}` }, ...u.focus)) : null,
       c.canDays ? h("div", { class: "fd-block sim-days" }, h("span", { class: "k" }, "Field days"), h("div", { class: "ctl" }, u.dMinus, u.dOut, u.dPlus), u.dHint) : null,
-      h("div", { class: "fd-block" }, u.scout),
+      h("div", { class: "fd-block fd-recon" }, u.reconK, u.note, u.ranges, h("div", { class: "fd-scoutrow" }, u.scout, u.pips), u.scoutSub, u.reqNote),
       h("details", { class: "fd-details" }, h("summary", {}, "Details"), u.details, u.lastLine));
     return u;
   }
@@ -108,6 +114,18 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     ui.scout.setAttribute("aria-pressed", String(on));
     ui.scout.disabled = scouted || (!on && c.scoutsLeft <= 0);
     ui.scout.title = scouted ? "" : "A rep finds out how this brand really responds, in both channels. Two scouts a year.";
+    // What the team doesn't know: the team's range on each channel (belief ± spread, not a truth interval).
+    ui.reconK.textContent = scouted ? "What the team knows now" : "What the team doesn't know";
+    put(ui.ranges, ...CHANNELS.flatMap(([ch, label]) => {
+      const rd = readOf(state.beliefs[b.id], b.id, ch);
+      return [h("dt", {}, label), h("dd", {}, rangeBar(rd, ch), h("span", { class: "num" }, rangeText(rd, ch)), h("span", { class: `cw conf-${rd.conf}` }, confWord(rd.conf)))];
+    }));
+    ui.pips.replaceChildren(svg("svg", { class: "fd-pips", viewBox: `0 0 ${S.SCOUTS * 16 - 2} 12`, width: S.SCOUTS * 16 - 2, height: 12, role: "img", "aria-label": `${Math.max(0, c.scoutsLeft)} of ${S.SCOUTS} scouts left this year` },
+      ...Array.from({ length: S.SCOUTS }, (_, i) => svg("circle", { cx: 6 + i * 16, cy: 6, r: 4.5, class: i < c.scoutsLeft ? "on" : "off" }))));
+    ui.scoutSub.textContent = scouted ? "The ranges above are the team's read since the rep reported back."
+      : on ? "Scout sent. Reports back after the quarter." : c.scoutsLeft > 0 ? "Reports back after the quarter." : "No scouts left this year.";
+    ui.reqNote.hidden = !c.reqScout;
+    ui.reqNote.textContent = requestScoutNote(c.reqScout) || "";
     const bel = state.beliefs[b.id];
     const row = (k, v, cls) => h("div", {}, h("dt", {}, k), h("dd", { class: cls || null }, v));
     put(ui.details, row("Revenue", money(b.revenue)), row(last ? `Growth in ${S.QUARTERS[c.qi - 1].id}` : "Growth", pts(last ? last.growth : b.growth), tone(last ? last.growth : b.growth)),

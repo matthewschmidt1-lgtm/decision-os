@@ -9,6 +9,7 @@ import { createMap } from "../portfolio/map.js";
 import { createPanel } from "../portfolio/panel.js";
 import { createFunding } from "../portfolio/funding.js";
 import * as P from "../portfolio/plan.js";
+import { requestScout, rangeShift } from "../portfolio/recon.js";
 
 // Portfolio: run eight brands for a year, on-premise and off-premise. Decide → run the quarter → results → reallocate → review.
 // The goal is a score against last year's plan. The hints are there to use or ignore; the ideas behind them are named at the end.
@@ -126,7 +127,7 @@ export default function Portfolio() {
     const showPanel = () => {
       if (!nums) return;
       const b = brands.find((x) => x.id === selectedId);
-      panel.update({ b, r: nums.f.rows.find((x) => x.id === b.id), rows: nums.f.rows, plan, free: nums.free, freeDays: nums.freeDays, scoutsLeft: nums.scoutsLeft, state, last: prev?.rows.find((x) => x.id === b.id), qi, canFocus, canDays, finding: findingOf(b.id) });
+      panel.update({ b, r: nums.f.rows.find((x) => x.id === b.id), rows: nums.f.rows, plan, free: nums.free, freeDays: nums.freeDays, scoutsLeft: nums.scoutsLeft, state, last: prev?.rows.find((x) => x.id === b.id), qi, canFocus, canDays, finding: findingOf(b.id), reqScout: requestScout(plan, state, qi, vi) });
     };
 
     const request = dil ? (() => {
@@ -366,7 +367,8 @@ export default function Portfolio() {
           boardNote, board)),
       h("div", {}, eyebrow("Follow the chain"), h("div", { class: "sim-chains" }, ...[bigBet && bigBet.x ? bigBet : null, broken && broken.id !== bigBet?.id ? broken : null].filter(Boolean).map((r) => chainView(r, scoutsLeft)))),
     ];
-    if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding)))));
+    if (findings.length) blocks.push(h("div", {}, eyebrow("Your scout reports"), ...findings.map((r) => h("div", { class: "sim-report" }, h("b", {}, `Brand ${r.id}`), h("p", {}, r.finding),
+      h("p", { class: "fd-k" }, "The team's range, before → after the report"), rangeShift(r)))));
     if (learned.length) blocks.push(h("div", {}, eyebrow("What the team learned"), h("ul", { class: "sim-learned" }, learned.map(({ r, dOn, dOff }) => {
       const big = Math.abs(dOn) >= Math.abs(dOff) ? ["on-premise", r.before.on.b, r.after.on.b] : ["off-premise", r.before.off.b, r.after.off.b];
       return h("li", {}, h("b", {}, `Brand ${r.id}`), h("span", {}, `${big[0]}: ${per$(big[1])} → ${per$(big[2])} per $1`), h("span", { class: big[2] > big[1] ? "good" : "bad" }, big[2] > big[1] ? "better than we thought" : "worse than we thought"));
@@ -392,6 +394,7 @@ export default function Portfolio() {
       h("div", { class: "track" }, h("i", { class: score >= 0 ? "" : "neg", style: { width: x(Math.abs(score)) } }), ...T.map((t) => h("span", { class: `mark t-${t.name.toLowerCase()}`, style: { left: x(t.at) } }, t.name))));
   }
 
+  const scoutedBy = (id) => S.replay(st.plans, st.vi).state.scouted[id] !== undefined;
   function chainView(r, scoutsLeft) {
     const c = r.chainOff, on = r.chainOn, brk = c.kind === "break";
     const lane = (title, steps) => h("div", { class: "lane" }, h("p", { class: "lt" }, title), h("ol", {}, steps.map(([k, v, t]) => h("li", {}, h("span", { class: "k" }, k), h("span", { class: `v ${t}` }, v)))));
@@ -399,7 +402,7 @@ export default function Portfolio() {
       ? [["Trade", $k(r.xOff), ""], ["Shipments", pts(c.shipments), "good"], ["Distributor inventory", pts(c.inventory), "bad"], ["Depletion", pts(c.depletion), tone(c.depletion)], ["Sell-through", pts(c.sellThrough), tone(c.sellThrough)]]
       : [["Trade", $k(r.xOff), ""], ["Distribution (ACV)", `${c.acv >= 0 ? "+" : "−"}${Math.abs(c.acv).toFixed(1)} pts`, tone(c.acv * 2)], ["Velocity", pts(c.velocity), tone(c.velocity)], ["Promotion return", c.promoReturn ? `${per$(c.promoReturn)} per $1` : "none", c.promoReturn ? (c.promoReturn >= 1 ? "good" : "bad") : ""]];
     const onSteps = [["Trade", $k(r.xOn), ""], ["Placements this quarter", String(on.placements), on.placements ? "good" : ""], ["Pours", pts(on.pours), tone(on.pours)], ["30-day reorder rate", `${on.reorder}%`, on.reorder >= 60 ? "good" : ""]];
-    const canSend = brk && scoutsLeft > 0 && S.QUARTERS[st.plans.length];
+    const canSend = brk && scoutsLeft > 0 && S.QUARTERS[st.plans.length] && !scoutedBy(r.id); // a brand already scouted can't be scouted again
     return h("div", { class: `sim-chain ${brk ? "is-break" : ""}` },
       h("p", { class: "ttl" }, `Brand ${r.id} `, brk ? h("span", { class: "chip chip-warn" }, "the off-premise chain breaks here") : null),
       h("div", { class: "lanes" }, lane("Off-premise", offSteps), lane("On-premise", onSteps)),
