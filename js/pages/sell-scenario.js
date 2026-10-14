@@ -73,7 +73,7 @@ export default async function SellScenario({ id, params }) {
     const now = milestones(allResults2()); const newly = now.filter(m => m.earned && !earnedBefore.has(m.id));
     const others = s.options.filter(x => x !== o);
     const fixedNow = prior && prior.quality !== "best" && o.quality === "best";
-    feedback.replaceChildren(...[h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `You chose: ${o.label}`), h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
+    feedback.replaceChildren(...[h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
       habit ? h("div", { class: "layer layer-1" }, h("p", { class: "eyebrow" }, "The habit this reveals"), h("p", { style: { marginTop: "8px", fontWeight: 500 } }, habit.name), h("p", { class: "muted", style: { marginTop: "4px", fontSize: "var(--fs-small)" } }, habit.coach)) : null,
       o.cost ? h("p", { class: "muted drill-cost" }, h("b", {}, "What it cost: "), o.cost) : null,
       o.quality !== "best" ? h("p", { class: "sc-strongest" }, h("b", {}, "Strongest option: "), best.label) : null,
