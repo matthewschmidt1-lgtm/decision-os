@@ -56,7 +56,9 @@ export default async function SellScenario({ id, params }) {
   const show = (el) => {
     el.hidden = false; el.classList.add("reveal"); requestAnimationFrame(() => el.classList.add("in"));
     const heading = el.querySelector("h2"); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
-    landOn(el, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 14); // .reveal starts 14px low
+    // Land on the strongest move (its badge sits 9px above the card), so the answer stays in view with the verdict right under it.
+    const strongest = document.querySelector(".option.choice.preferred");
+    if (strongest) landOn(strongest, 12); else landOn(el, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 14); // .reveal starts 14px low
   };
   const best = s.options.find(o => o.quality === "best");
   let picked = null;
