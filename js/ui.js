@@ -86,6 +86,9 @@ export function factKind(value) {
   return s.length <= (FIGURE.test(s) ? 24 : 18) ? "short" : "long";
 }
 const lead = (text) => { const m = text.match(LEAD); return m ? [h("b", { class: "num" }, m[1]), text.slice(m[1].length)] : text; };
+// "yours 33%" → a quiet owner word and a bold figure, so a yours/theirs card reads like a table row.
+const WHO = /^(yours|theirs|ours|you|them)\s+(.+)$/i;
+const part = (text) => { const m = text.match(WHO); return m ? [h("span", { class: "who" }, m[1]), h("b", { class: "num" }, m[2])] : lead(text); };
 export function evidence(rows, { optionTones = true } = {}) {
   const facts = rows.map(([label, value, tone]) => ({ label, value, tone: inferTone(label, value, tone), kind: factKind(value) }));
   const compare = facts.filter(f => f.kind === "parts").length >= 2;
@@ -106,7 +109,7 @@ export function evidence(rows, { optionTones = true } = {}) {
   const card = (f) => {
     const tone = optionTones ? f.tone : "";
     return h("div", { class: `ev-card ${tone ? `is-${tone}` : ""}` }, h("p", { class: "k" }, f.label),
-      h("ul", {}, String(f.value).split(SEP).filter(Boolean).map(p => h("li", {}, lead(p)))));
+      h("ul", {}, String(f.value).split(SEP).filter(Boolean).map(p => { const li = h("li", {}, part(p)); if (WHO.test(p)) li.classList.add("pair"); return li; })));
   };
   const build = { tiles: (fs) => h("div", { class: "ev-tiles" }, fs.map(tile)), rows: (fs) => h("div", { class: "ev-rows" }, fs.map(row)), list: (fs) => h("div", { class: "ev-rows" }, fs.map(row)), cards: (fs) => h("div", { class: "ev-cards" }, fs.map(card)) };
   return h("div", { class: "evidence" }, order.map(g => build[g](facts.filter(f => group(f) === g))));
@@ -143,8 +146,8 @@ export function disclose(title, body, open = false) {
   return h("details", { class: "disclose", open }, h("summary", {}, h("span", {}, title), h("span", { class: "plus", "aria-hidden": "true" }, "+")), h("div", { class: "disclose-body" }, body));
 }
 
-export function says(text, tone = "") {
-  const el = h("p", { class: `says ${tone}`, role: "status" }, text);
+export function says(text, tone = "", { live = true } = {}) {
+  const el = h("p", { class: `says ${tone}`, ...(live ? { role: "status" } : {}) }, text);
   el.set = (t, tn = "") => { el.textContent = t; el.className = `says ${tn}`; };
   return el;
 }
@@ -190,4 +193,19 @@ export function pan(node, hint = "Swipe sideways to see the whole picture →") 
   addEventListener("resize", update);
   requestAnimationFrame(() => requestAnimationFrame(update));
   return wrap;
+}
+
+// The evidence the reasoning actually leans on, as one compact line. A row counts when a word from its label (or a figure from its value) appears in the text.
+const STOP = new Set(["what", "your", "yours", "this", "that", "with", "from", "than", "into", "about", "when", "where", "which", "there", "their", "them", "they", "have", "been", "were", "does", "will", "would", "could", "should", "last", "year", "week", "weeks", "store", "stores", "per"]);
+export function evidenceUsed(rows, text) {
+  const hay = ` ${String(text).toLowerCase()} `;
+  const hit = (label, value) => {
+    const words = String(label).toLowerCase().replace(/[^a-z\s]/g, " ").split(/\s+/).filter(w => w.length >= 4 && !STOP.has(w));
+    if (words.some(w => hay.includes(w.replace(/s$/, "")))) return true;
+    const figs = String(value).match(/[−\-+]?\$?\d[\d.,]*%?/g) || [];
+    return figs.some(f => f.replace(/^[+]/, "").length >= 2 && hay.includes(f.toLowerCase()));
+  };
+  const used = rows.filter(([k, v]) => hit(k, v));
+  if (!used.length) return null;
+  return h("ul", { class: "ev-used" }, used.map(([k, v]) => h("li", {}, h("span", { class: "k" }, k), " ", h("b", {}, String(v)))));
 }

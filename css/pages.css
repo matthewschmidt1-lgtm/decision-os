@@ -23,6 +23,19 @@
 .sc-facts{padding:clamp(16px,2.4vw,24px)}
 .sc-question{font-size:var(--fs-h2);line-height:1.2}
 @media (max-width:600px){.sc-step{margin-top:32px}}
+.sc-hint{margin-top:6px;font-size:var(--fs-small);color:var(--ink-3)}
+.sc-caveat{margin-top:12px;font-size:var(--fs-micro);color:var(--ink-3)}
+.sc-strongest{color:var(--ink-2)}.sc-strongest b{color:var(--ink);font-weight:600}
+.verdict .muted{color:var(--ink-3)}
+.verdict h2:focus{outline:none}.verdict h2:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:4px}
+/* Prose after the answer reads in short sweeps; option buttons stay full width */
+.practice .verdict p,.sell .verdict p,.practice .layer p,.sell .layer p,.sell .disclose-body p{max-width:68ch}
+.sc-others p{font-size:1rem}.sc-others .why{color:var(--ink-2)}
+/* Conversation pages: the buyer's words are the prompt, so they lead; the paraphrase steps back */
+.sell .says{font-size:1.25rem;font-weight:500;line-height:1.45;padding:18px 20px;letter-spacing:-0.01em}
+.sell .says::before{margin-top:11px}
+.sell.has-quote .sc-situation{font-size:clamp(1.25rem,1rem + 1.2vw,1.875rem);line-height:1.25}
+@media (max-width:600px){.sell .says{font-size:1.125rem;padding:16px 18px}.sell .says::before{margin-top:9px}.sell.has-quote .sc-situation{font-size:1.25rem}}
 
 /* Learning Principles: the Learning Loop as rising steps (a stacked list with a growing meter on phones) */
 .loop-steps{list-style:none;margin:24px 0 0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end}

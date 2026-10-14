@@ -1,4 +1,4 @@
-import { h, link, arrow, eyebrow, evidence } from "../ui.js";
+import { h, link, arrow, eyebrow, evidence, evidenceUsed } from "../ui.js";
 import { scenarios, scenarioById, skills, tracks, challengeIds, qualityScore } from "../scenarios.js";
 import { lessonBySlug } from "../lessons/index.js";
 import { recordResult, getResult, allResults } from "../store.js";
@@ -28,7 +28,13 @@ export default async function Scenario({ id, params }) {
   const principle = h("div", { hidden: true, class: "stack", style: { "--gap": "14px" } });
   const nextNav = h("nav", { hidden: true, "aria-label": "Next", class: "nav-stack" });
 
-  const show = (el) => { el.hidden = false; el.classList.add("reveal"); requestAnimationFrame(() => el.classList.add("in")); el.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
+  // Land the verdict just under the sticky header and move focus to its heading, so keyboard and screen-reader users arrive with the mouse users.
+  const landOn = (el, extra = 0) => { const header = document.querySelector(".topbar")?.offsetHeight || 0; scrollTo({ top: el.getBoundingClientRect().top + scrollY - header - 16 - extra, behavior: "smooth" }); };
+  const show = (el) => {
+    el.hidden = false; el.classList.add("reveal"); requestAnimationFrame(() => el.classList.add("in"));
+    const heading = el.querySelector("h2"); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    landOn(el, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 14); // .reveal starts 14px low
+  };
   const best = s.options.find(o => o.quality === "best");
 
   const choose = (o, el) => {
@@ -36,12 +42,13 @@ export default async function Scenario({ id, params }) {
     if (!prior) recordResult(s.id, { option: o.label, quality: o.quality, skill: s.skill });
     const head = o.quality === "best" ? "Good instinct. Here's why." : o.quality === "good" ? "Reasonable. A strong rep would also notice this." : "A common move. Here's what a strong rep would notice first.";
     feedback.replaceChildren(...[h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `You chose: ${o.label}`), h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
-      o.quality !== "best" ? h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `Strongest option: ${best.label}.`) : null].filter(Boolean));
+      o.quality !== "best" ? h("p", { class: "sc-strongest" }, h("b", {}, "Strongest option: "), `${best.label}.`) : null].filter(Boolean));
     show(feedback); whyBtn.hidden = false;
   };
   whyBtn.addEventListener("click", () => {
     const reasoningEl = h("div", { class: "layer layer-2" }, eyebrow("Reasoning"), h("p", { style: { whiteSpace: "pre-line" } }, s.reasoning), h("p", { style: { marginTop: "14px", paddingTop: "12px", borderTop: "1px solid var(--line)", fontSize: "var(--fs-small)", color: "color-mix(in srgb, var(--ink-2) 72%, var(--muted))" } }, `The thinking pattern here is what decision scientists call ${lesson.title.toLowerCase()}.`));
-    why.replaceChildren(h("div", { class: "layer layer-1" }, eyebrow("Evidence that matters"), h("div", { style: { marginTop: "12px" } }, evidence(s.evidence))), reasoningEl);
+    const used = evidenceUsed(s.evidence, `${s.reasoning} ${best.feedback}`);
+    why.replaceChildren(...(used ? [h("div", { class: "layer layer-1" }, eyebrow("Evidence used"), used)] : []), reasoningEl);
     whyBtn.hidden = true; why.hidden = false; why.classList.add("reveal", "in");
     principle.replaceChildren(h("div", { class: "card", style: { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } }, h("p", { class: "eyebrow", style: { color: "color-mix(in srgb, var(--bg) 60%, transparent)" } }, "The principle"), h("p", { style: { fontSize: "1.375rem", lineHeight: 1.35, marginTop: "8px", letterSpacing: "-0.01em" } }, s.principle)),
       h("div", { class: "layer layer-2" }, eyebrow("Your next move"), h("p", {}, s.nextMove)),
@@ -64,15 +71,15 @@ export default async function Scenario({ id, params }) {
   const optionEls = s.options.map((o, n) => h("button", { type: "button", class: "option choice", "aria-pressed": "false", onClick: e => choose(o, e.currentTarget) },
     h("span", { class: "choice-letter", "aria-hidden": "true" }, "ABCD"[n]), h("span", {}, o.label)));
 
-  return h("article", {},
+  return h("article", { class: "practice" },
     h("header", { class: "reveal" },
       h("div", { class: "facts" }, set ? h("span", {}, h("b", {}, `${i + 1} / ${set.list.length}`), set.title) : null, h("span", {}, "Customer", h("b", {}, s.customer)), h("span", {}, "Category", h("b", {}, s.category)), h("span", {}, "Skill", h("b", {}, skills[s.skill].name)), h("span", {}, "Goal", h("b", {}, s.level))),
       // Three steps with one rhythm: the story, the facts (grouped on a panel), then the question and choices.
       h("div", { class: "sc-step" }, eyebrow("The situation"), h("h1", { class: "sc-situation" }, s.situation))),
     h("section", { class: "sc-step reveal" }, eyebrow("What you know"),
       h("div", { class: "card card-sunk sc-facts" }, evidence(s.evidence, { optionTones: false }),
-        h("p", { class: "muted", style: { marginTop: "12px", fontSize: "var(--fs-micro)" } }, "Numbers are as messy as they are in the field. Some are lagged, some are estimates."))),
-    h("section", { class: "sc-step reveal" }, eyebrow("The decision"), h("h2", { class: "sc-question" }, s.question), h("p", { class: "muted", style: { marginTop: "6px", fontSize: "var(--fs-small)" } }, "Pick one. You'll see the reasoning either way."),
+        h("p", { class: "sc-caveat" }, "Numbers are as messy as they are in the field. Some are lagged, some are estimates."))),
+    h("section", { class: "sc-step reveal" }, eyebrow("The decision"), h("h2", { class: "sc-question" }, s.question), h("p", { class: "sc-hint" }, "Pick one. You'll see the reasoning either way."),
       h("div", { class: "choices", style: { marginTop: "18px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, `You've played this one before. Replays don't change your score.`) : null),
     h("section", { class: "section", style: { marginTop: "40px" } }, feedback, h("div", { style: { marginTop: "20px" } }, whyBtn)),
     h("section", { style: { marginTop: "24px" } }, why),

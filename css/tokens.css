@@ -17,14 +17,15 @@
   --ink: #171717;
   --ink-2: #4A4A46;
   --muted: #7B7B76;
+  --ink-3: #5F5F5A; /* small text that still carries meaning: metric labels, caveats, helper lines */
   --line: rgba(23, 23, 23, 0.10);
   --line-strong: rgba(23, 23, 23, 0.18);
   --accent: #2457D6;
   --accent-ink: #FFFFFF;
   --accent-soft: rgba(36, 87, 214, 0.10);
-  --good: #1E7F4F;
+  --good: #1B7347;
   --good-soft: rgba(30, 127, 79, 0.10);
-  --warn: #B7791F;
+  --warn: #8F5E12;
   --warn-soft: rgba(183, 121, 31, 0.12);
   --bad: #B3261E;
   --bad-soft: rgba(179, 38, 30, 0.10);
@@ -66,6 +67,7 @@
   --ink: #ECEAE4;
   --ink-2: #C6C4BC;
   --muted: #918F88;
+  --ink-3: #A5A39B;
   --line: rgba(236, 234, 228, 0.12);
   --line-strong: rgba(236, 234, 228, 0.22);
   --accent: #7BA2F4;
@@ -92,6 +94,7 @@
   --ink: #ECEAE4;
   --ink-2: #C6C4BC;
   --muted: #918F88;
+  --ink-3: #A5A39B;
   --line: rgba(236, 234, 228, 0.12);
   --line-strong: rgba(236, 234, 228, 0.22);
   --accent: #7BA2F4;
