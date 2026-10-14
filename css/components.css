@@ -350,7 +350,3 @@ tr.brand-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .ev-tile:last-child:nth-child(odd){grid-column:1/-1}
 }
 
-/* Appearance switch in the footer */
-.theme-switch{display:inline-flex;gap:2px;padding:3px;border-radius:var(--r-pill);background:var(--bg-sunk);order:3}
-.theme-switch button{padding:6px 12px;border-radius:var(--r-pill);font-size:var(--fs-micro);color:var(--muted);min-height:32px}
-.theme-switch button[aria-pressed="true"]{background:var(--bg-elev);color:var(--ink);box-shadow:var(--shadow-1)}

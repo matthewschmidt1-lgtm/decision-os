@@ -58,7 +58,7 @@
   --measure: 62ch;
 }
 
-/* Dark: warm charcoal and off-white, the ivory feel inverted. Chosen in the footer (data-theme), or follows the device when set to Auto. */
+/* Dark: warm charcoal and off-white, the ivory feel inverted. Chosen with the sun/moon button in the header (data-theme), or follows the device until it's pressed. */
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #1C1C1A;
