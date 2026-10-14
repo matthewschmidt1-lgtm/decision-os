@@ -43,7 +43,7 @@ export default async function Scenario({ id, params }) {
     optionEls.forEach(b => { b.disabled = true; b.setAttribute("aria-pressed", String(b === el)); b.classList.toggle("preferred", s.options[optionEls.indexOf(b)] === best); });
     if (!prior) recordResult(s.id, { option: o.label, quality: o.quality, skill: s.skill });
     const head = o.quality === "best" ? "Good instinct. Here's why." : o.quality === "good" ? "Reasonable. A strong rep would also notice this." : "A common move. Here's what a strong rep would notice first.";
-    feedback.replaceChildren(...[h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, `You chose: ${o.label}`), h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
+    feedback.replaceChildren(...[h("h2", { style: { fontSize: "var(--fs-h3)" } }, head), h("p", { class: "lede" }, o.feedback),
       o.quality !== "best" ? h("p", { class: "sc-strongest" }, h("b", {}, "Strongest option: "), `${best.label}.`) : null].filter(Boolean));
     show(feedback); whyBtn.hidden = false;
   };
