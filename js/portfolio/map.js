@@ -48,7 +48,6 @@ export function createMap({ onSelect }) {
       const dd = last ? Math.round(last.growth) - Math.round(last.growthF) : null;
       const trend = dd === null ? ["none", "–", "no read yet"] : Math.abs(dd) < NOISE ? ["even", "–", "on forecast"] : dd > 0 ? ["good", "▲", "beat forecast"] : ["bad", "▼", "missed forecast"];
       const change = x === base ? "same as last year" : `${x > base ? "+" : "−"}${$k(Math.abs(x - base))} vs last year`;
-      const mix = v.plan.focus[b.id] || "both";
       const pct = (k) => `${Math.min(100, (k / scale) * 100)}%`;
       const t = tiles[b.id];
       t.className = `fd-tile ${current === b.id ? "is-sel" : ""} ${under ? "is-under" : ""}`;
@@ -57,7 +56,7 @@ export function createMap({ onSelect }) {
         market ? "Market signal this quarter." : "", under ? `Below its shelf floor of ${$k(r.floor)} off-premise.` : "",
         scoutedAt !== undefined ? `Scouted in ${S.QUARTERS[scoutedAt].id}.` : "", last ? `Last quarter: ${trend[2]}.` : "",
         v.canDays ? `${v.plan.days[b.id]} field days.` : ""].filter(Boolean).join(" "));
-      t.replaceChildren(
+      t.replaceChildren(...[
         h("span", { class: "t-head" }, h("b", { class: "t-id" }, b.id), h("span", { class: "t-cat" }, b.category),
           h("span", { class: "t-sig" },
             market ? h("span", { class: "sig warn", title: "Market signal this quarter" }, s("svg", { viewBox: "0 0 12 11", width: 12, height: 11, "aria-hidden": "true" }, s("path", { d: "M6 0.8 L11.4 10.2 L0.6 10.2 Z" }), s("rect", { x: 5.4, y: 3.8, width: 1.2, height: 3.4, class: "cut" }), s("rect", { x: 5.4, y: 8, width: 1.2, height: 1.2, class: "cut" })), h("span", { class: "w" }, "Market")) : null,
@@ -67,14 +66,13 @@ export function createMap({ onSelect }) {
         h("span", { class: "t-bar", "aria-hidden": "true" },
           h("i", { class: "off", style: { width: pct(r.xOff) } }), h("i", { class: "on", style: { width: pct(r.xOn) } }),
           r.floor > 0 ? h("i", { class: `floor ${under ? "bad" : ""}`, style: { left: pct(r.floor) } }) : null),
-        h("span", { class: "t-mix" }, v.canFocus ? h("b", {}, S.FOCUS[mix]) : null, `off ${$k(r.xOff)} · on ${$k(r.xOn)}`),
-        h("span", { class: `t-next conf-${r.conf}` }, h("span", { class: "k" }, "Next $10K ≈"), h("b", { class: `num ${earn}` }, nextText),
-          h("span", { class: `t-earn ${earn}` }, earn === "good" ? "earns" : earn === "bad" ? "loses" : "breaks even"),
-          r.conf !== "High" ? h("span", { class: "t-conf" }, `${CONF_WORD[r.conf]}, the team's range`) : null),
-        h("span", { class: "t-foot" },
+        h("span", { class: "t-next" }, h("span", { class: "k" }, "Next $10K ≈"), h("b", { class: `num ${earn}` }, nextText),
+          h("span", { class: `t-earn ${earn}` }, earn === "good" ? "earns" : earn === "bad" ? "loses" : "breaks even")),
+        r.conf !== "High" ? h("span", { class: `t-conf conf-${r.conf}` }, `${CONF_WORD[r.conf]}, the team's range`) : null,
+        scoutedAt !== undefined || last || v.canDays ? h("span", { class: "t-foot" },
           scoutedAt !== undefined ? h("span", { class: "chip chip-good" }, `Scouted ${S.QUARTERS[scoutedAt].id}`) : null,
-          h("span", { class: `t-trend ${trend[0]}` }, h("span", { "aria-hidden": "true" }, trend[1]), ` ${trend[2]}`),
-          v.canDays ? h("span", { class: "t-days" }, `${v.plan.days[b.id]} field days`) : null));
+          last ? h("span", { class: `t-trend ${trend[0]}` }, h("span", { "aria-hidden": "true" }, trend[1]), ` ${trend[2]}`) : null,
+          v.canDays ? h("span", { class: "t-days" }, `${v.plan.days[b.id]} field days`) : null) : null].filter(Boolean));
     }
   }
   return { el, update, select, tile: (id) => tiles[id] };

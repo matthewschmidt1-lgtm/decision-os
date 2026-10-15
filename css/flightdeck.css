@@ -2,7 +2,7 @@
    Only the cockpit (deck, map, panel) is midnight; prose (briefing, results, review) stays on the house background.
    Inside the cockpit the house tokens are re-declared, so reused chips, buttons, segmented controls and ranges render dark.
    Signals: cyan = your inputs and the team's forecast; amber = caution or uncertain; red = loses money; terrain green = earns.
-   Colour is never the only cue: every signal also has a glyph, a word or a texture. */
+   Colour is never the only cue: every signal also has a glyph or a word. */
 .fd{--fd-top:64px;--fd-deck-h:0px}
 .fd-deck,.fd-map,.fd-panel,.fd-sheet{
   color-scheme:dark;
@@ -93,16 +93,13 @@
 .fd-tile .t-bar .on{background:var(--accent)}
 .fd-tile .t-bar .floor{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--warn);border-radius:1px}
 .fd-tile .t-bar .floor.bad{background:var(--bad)}
-.fd-tile .t-mix{color:var(--muted);flex-wrap:wrap}.fd-tile .t-mix b{font-weight:500;color:var(--ink-2)}
-.fd-tile .t-next{flex-wrap:wrap;padding:5px 7px;margin:0 -2px;border-radius:var(--r-sm)}
+.fd-tile .t-next{flex-wrap:wrap;margin-top:2px}
 .fd-tile .t-next .k{color:var(--muted)}
 .fd-tile .t-next b{font-family:var(--mono);font-weight:500;font-size:var(--fs-small)}
 .fd-tile .t-next b.good,.fd-tile .t-earn.good{color:var(--good)}.fd-tile .t-next b.bad,.fd-tile .t-earn.bad{color:var(--bad)}
 .fd-tile .t-earn{font-weight:600}
-.fd-tile .t-conf{flex-basis:100%;color:var(--warn);font-size:11px}
-/* Uncertainty as texture: none when the team is sure, light dots when it is rough, dense hatch when it is unsure. */
-.fd-tile .conf-Medium{background-image:radial-gradient(var(--fd-line-strong) 1px,transparent 1.2px);background-size:7px 7px}
-.fd-tile .conf-Low{background-image:repeating-linear-gradient(135deg,var(--fd-line-strong) 0 1px,transparent 1px 5px)}
+/* Uncertainty is a word under the read: muted when the team is rough, amber when it is unsure. The panel shows the range itself. */
+.fd-tile .t-conf{display:block;color:var(--muted);font-size:11px;margin-top:-3px}.fd-tile .t-conf.conf-Low{color:var(--warn)}
 .fd-tile .t-foot{flex-wrap:wrap;gap:4px 10px;align-items:center;color:var(--muted)}
 .fd-tile .t-foot .chip{padding:2px 8px;font-size:11px}
 .fd-tile .t-trend.good{color:var(--good)}.fd-tile .t-trend.bad{color:var(--bad)}
@@ -110,16 +107,15 @@
 @media (max-width:1023px){
   .fd-cockpit{grid-template-columns:1fr}
   .fd-map{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .fd-tile .t-role,.fd-tile .t-mix{display:none}
+  .fd-tile .t-role{display:none}
 }
 @media (max-width:759px){
   .fd-map{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:6px;border-radius:var(--r-md)}
   .fd-tile{padding:8px 9px;gap:5px 6px;min-height:84px;grid-template-columns:auto minmax(0,1fr);align-items:center}
   .fd-tile .t-fund{justify-content:flex-end}
-  .fd-tile .t-bar,.fd-tile .t-next{grid-column:1 / -1}
+  .fd-tile .t-bar,.fd-tile .t-next,.fd-tile .t-conf{grid-column:1 / -1}
   .fd-tile .t-sig{margin-left:6px}
   .fd-tile .t-cat,.fd-tile .t-chg,.fd-tile .t-earn,.fd-tile .t-conf,.fd-tile .t-foot,.fd-tile .sig .w,.fd-tile .t-next .k{display:none}
-  .fd-tile .t-next{padding:3px 5px}
   .fd-tile .t-next b{font-size:var(--fs-micro)}
 }
 
