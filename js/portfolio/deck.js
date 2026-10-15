@@ -49,8 +49,12 @@ export function createDeck({ onRun }) {
       const SHORT = { "Free trade": "Free", "Field days": "Days" };
       const cell = (key, value, sub, cls = "") => h("div", { class: `fd-inst ${cls}` },
         h("span", { class: "k" }, SHORT[key] ? [h("span", { class: "kl" }, key), h("span", { class: "ks", "aria-hidden": "true" }, SHORT[key])] : key), value, sub ? h("span", { class: "s" }, sub) : null);
+      // The score dial: a ring that fills from zero toward Gold, the biggest gauge on the dash.
+      const gold = v.gold || flight?.tiers?.at(-1)?.at || 0, frac = gold ? Math.max(0, Math.min(1, v.soFar / gold)) : 0, C = 2 * Math.PI * 11;
+      const dial = (value) => h("span", { class: "fd-dial" }, s("svg", { viewBox: "0 0 28 28", width: 28, height: 28, "aria-hidden": "true" },
+        s("circle", { class: "track", cx: 14, cy: 14, r: 11 }), s("circle", { class: `fill ${v.soFar < 0 ? "bad" : ""}`, cx: 14, cy: 14, r: 11, "stroke-dasharray": `${(C * frac).toFixed(2)} ${C.toFixed(2)}`, transform: "rotate(-90 14 14)" })), value);
       if (!v.decide) {
-        inst.replaceChildren(...[cell("Score", h("b", { class: `num ${tone(v.soFar / 10)}` }, signed$(v.soFar)), "banked against last year's plan"),
+        inst.replaceChildren(...[cell("Score", dial(h("b", { class: `num ${tone(v.soFar / 10)}` }, signed$(v.soFar))), "banked against last year's plan"),
           v.final != null ? cell("Year end", h("b", { class: `num ${tone(v.final / 10)}` }, signed$(v.final)), "counting what carries into next year") : null].filter(Boolean));
         measure(); return;
       }
@@ -61,7 +65,7 @@ export function createDeck({ onRun }) {
       run.disabled = !!v.needAnswer;
       run.title = v.needAnswer ? "Answer the request first" : "";
       inst.replaceChildren(
-        cell("Score", h("b", { class: `num ${tone(v.soFar / 10)}` }, signed$(v.soFar)), `banked · this quarter ≈ ${signed$(v.proj)}${air}`),
+        cell("Score", dial(h("b", { class: `num ${tone(v.soFar / 10)}` }, signed$(v.soFar))), `banked · this quarter ≈ ${signed$(v.proj)}${air}`),
         cell("Free trade", h("b", { class: "num" }, $k(v.free)), v.free > 0 ? `keep it: ${signed$(v.free)} to the score` : v.free < 0 ? "over budget" : "all placed", v.free > 0 ? "has" : v.free < 0 ? "over" : ""),
         cell("Field days", h("b", { class: "num" }, v.canDays ? `${v.freeDays} free` : "locked"), v.canDays ? `of ${v.days}` : "unlocks in Q3", v.canDays && v.freeDays > 0 ? "has" : ""),
         cell("Scouts", h("b", { class: "num fd-pipwrap" }, pips, h("span", { class: "sr-only" }, `${v.scoutsLeft} left`)), "for the year"),

@@ -459,6 +459,7 @@
 .sim-rt td.good{color:var(--good);font-weight:600}.sim-rt td.bad{color:var(--bad);font-weight:600}
 /* On phones the return table drops the quarter-on-quarter arrow and tightens its cells so all six brands fit without a sideways scroll */
 .sim-rt .rt-short{display:none}
+.sim-rt th.num,.sim-rt td.num{padding-right:18px}
 @media (max-width:600px){.sim-rt .rt-full{display:none}.sim-rt .rt-short{display:inline}.sim-rt td{white-space:nowrap}.sim-rt .chip{white-space:normal}.sim-rt th:nth-child(5),.sim-rt td:nth-child(5){display:none}.sim-rt th,.sim-rt td{padding-right:8px}.sim-rt td.num,.sim-rt th.num{padding-right:8px}.sim-rt th{font-size:11px;letter-spacing:.03em}.sim-rt td{padding-top:10px;padding-bottom:10px;font-size:var(--fs-small)}.sim-rt .chip{padding:2px 7px;font-size:11px}}
 .sim-diff{margin:8px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:var(--fs-small);color:var(--ink-2)}
 

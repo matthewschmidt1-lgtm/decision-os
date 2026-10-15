@@ -56,7 +56,7 @@ export default function Portfolio() {
       stage.replaceChildren(decideView(year.state, year.quarters.at(-1)));
     } else {
       under.replaceChildren();
-      deck.instruments({ decide: false, soFar: flight.points.at(-1).v, final: R ? R.score : null });
+      deck.instruments({ decide: false, soFar: flight.points.at(-1).v, final: R ? R.score : null, gold: T.at(-1).at });
       deck.coach(R ? `Solid line: your year, ending ${signed$(R.score)}. Dashed: Scout early, then follow the forecast, ending ${signed$(R.bestScore)}. Both count what carries into next year.` : "");
       deck.horizon(flight);
       stage.replaceChildren(R ? reviewView(R) : resultsView(year.quarters.at(-1)));
@@ -98,7 +98,7 @@ export default function Portfolio() {
       const free = S.BUDGET.trade - t.trade, freeDays = S.BUDGET.days - t.days;
       const scoutsLeft = state.scoutsLeft - plan.scout.length;
       const needAnswer = dil && !plan.answer;
-      deck.instruments({ decide: true, soFar, proj, air: projNext, free, freeDays, canDays, days: S.BUDGET.days, scoutsLeft, scouts: S.SCOUTS, qi, qid: Q.id, needAnswer });
+      deck.instruments({ decide: true, soFar, proj, air: projNext, free, freeDays, canDays, days: S.BUDGET.days, scoutsLeft, scouts: S.SCOUTS, qi, qid: Q.id, needAnswer, gold: S.tiers(vi).at(-1).at });
       go2.disabled = needAnswer;
       go2.textContent = `▶ Run ${Q.id}`;
       const worst = f.rows.filter((r) => plan.trade[r.id] > 0 && r.conf !== "Low").sort((a, b) => a.next - b.next)[0]; // never steer toward a brand the team can't read
@@ -203,7 +203,7 @@ export default function Portfolio() {
     const habitQ = S.replay(S.habitPlans(st.vi).slice(0, qi + 1), st.vi).quarters[qi];
     const v = flight.points.at(-1).v + q.gp - habitQ.gp, base = { ...flight, at: qi + 1 };
     deck.setLive(false); under.replaceChildren(); // the feed sits right under the horizon while the quarter runs
-    deck.instruments({ decide: false, soFar: flight.points.at(-1).v });
+    deck.instruments({ decide: false, soFar: flight.points.at(-1).v, gold: S.tiers(st.vi).at(-1).at });
     deck.coach(`Running ${Q.id}. The line draws the quarter as it closes.`);
     const DUR = 3000;
     const feed = h("ol", { class: "sim-feed", "aria-live": "polite" });
@@ -250,7 +250,7 @@ export default function Portfolio() {
     const mark = { yes: ["✓", "Used", "good"], partly: ["△", "Partly", "warn"], no: ["○", "Not yet", "muted"] };
     const onShare = R.you.revOn / (R.you.revOn + R.you.revOff), onShareLY = R.habit.revOn / (R.habit.revOn + R.habit.revOff);
     const other = st.vi ? 0 : 1;
-    return h("div", { class: "sim-flow", style: { gap: "34px" } },
+    return h("div", { class: "sim-flow" },
       h("div", {}, eyebrow(`Year-end review · ${R.variant.name}`), h("h2", { style: { marginTop: "10px" } }, R.tier ? `${R.tier.name}. ${signed$(R.score)} against last year's plan.` : `${signed$(R.score)} against last year's plan.`),
         h("p", { class: "lede", style: { marginTop: "10px" } }, R.tier ? (R.tier.name === "Gold" ? "You ran the portfolio on evidence, not habit." : `Next tier: ${R.tiers.find((t) => t.at > R.score)?.name ?? ""} at ${signed$(R.tiers.find((t) => t.at > R.score)?.at ?? 0)}.`) : `Bronze starts at ${signed$(R.tiers[0].at)}. The ideas below show where the value was.`),
         h("div", { style: { marginTop: "14px" } }, tierBar(R.score, R.tiers))),
