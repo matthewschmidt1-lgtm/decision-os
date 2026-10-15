@@ -7,7 +7,7 @@ export const pts = (v) => (Math.abs(v) < 0.5 ? "0%" : pct(v, 0));
 export const per$ = (v) => `$${v.toFixed(2)}`;
 export const delta = (v) => (Math.abs(v) < 0.5 ? "0" : `${v > 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}`);
 export const tone = (v) => (v > 0.5 ? "good" : v < -0.5 ? "bad" : "");
-export const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+export const reduced = () => document.documentElement.dataset.motion === "reduce" || matchMedia("(prefers-reduced-motion: reduce)").matches;
 // A plain verdict on a channel's last $10K: room to add, near the top, or past it (and whether it was still covering the shelf).
 export const verdictOf = (m, underFloor) => underFloor ? { text: "Below the shelf floor", cls: "bad" } : m == null ? { text: "Nothing spent", cls: "muted" } : m >= 1.1 ? { text: "Room to add", cls: "good" } : m >= 0.95 ? { text: "Near the top", cls: "" } : { text: "Past the top: move it", cls: "bad" };
 // What the next $10K earns or loses after its own cost, to the nearest $100.

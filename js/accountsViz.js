@@ -1,7 +1,7 @@
 // Accounts intro. First the learner picks the rule that should decide where their visits go (commit first). Then 84
 // scattered dots (the raw data) come together, first as the two inputs of expected value, then as one ranked line with
 // the summary underneath, the chosen rule's visits ringed throughout.
-import { h, s } from "./ui.js";
+import { h, s, reducedMotion } from "./ui.js";
 import { rankByEV, money } from "./models.js";
 import { navigate } from "./app.js";
 
@@ -13,7 +13,7 @@ const STEPS = [
 
 export function accountsViz(accounts, { mine = [] } = {}) {
   const rows = rankByEV(accounts), n = rows.length;
-  const narrow = matchMedia("(max-width: 720px)").matches, still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const narrow = matchMedia("(max-width: 720px)").matches, still = reducedMotion();
   const W = narrow ? 400 : 1000, H = narrow ? 300 : 320, R = narrow ? 4 : 5.5, P = { l: narrow ? 20 : 40, r: narrow ? 20 : 40, t: 44, b: 40 };
   const total = rows.reduce((a, r) => a + Math.max(0, r.ev), 0);
   const avg = (k) => rows.reduce((a, r) => a + r[k], 0) / n;
@@ -144,7 +144,7 @@ export function ruleChallenge(accounts, { onDone, skipped = false } = {}) {
   const scored = scoreRules(accounts), best = scored.find((r) => r.id === "ev"), host = h("div", { class: "visits" });
   // Weighted pipeline (chance × value, ignoring cost) isn't offered; it's named in the answer as the near miss.
   const pipeline = [...rankByEV(accounts)].sort((a, b) => b.probability * b.value - a.probability * a.value).slice(0, VISITS).reduce((a, x) => a + x.ev, 0);
-  const smooth = () => (matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+  const smooth = () => (reducedMotion() ? "auto" : "smooth");
 
   // The animation starts when it scrolls into view, so nobody misses it below the fold.
   const viz = (mine) => {

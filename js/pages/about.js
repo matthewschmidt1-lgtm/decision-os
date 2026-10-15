@@ -1,4 +1,4 @@
-import { h, s, eyebrow, link, arrow } from "../ui.js";
+import { h, s, eyebrow, link, arrow, reducedMotion } from "../ui.js";
 import { setMeta } from "../app.js";
 
 const principles = [
@@ -40,7 +40,7 @@ const LOOP_STAGGER_MS = 400, LOOP_FADE_MS = 400, LOOP_DRAW_MS = 1300; // keep th
 // with a pulse back along the arrow, on repeat. The cycle runs only while the section is on screen;
 // under reduced motion everything shows at once and stays still with step 06 lit.
 function playLoop(wrap, ol, steps, arc) {
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduce = reducedMotion();
   let at = -1, timer = null, hold = false;
   const show = (i) => { at = i; wrap.dataset.active = String(i); steps.forEach((el, j) => el.classList.toggle("on", j === i)); };
   const stop = () => { clearInterval(timer); timer = null; };

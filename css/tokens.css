@@ -53,6 +53,7 @@
   --dur: 480ms;
   --dur-fast: 200ms;
 
+  --text-scale: 1; /* set inline by the Display panel: 0.9–1.4 */
   --gutter: clamp(16px, 4vw, 48px);
   --max: 1120px;
   --measure: 62ch;
@@ -112,4 +113,11 @@
   --shadow-1: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
   --shadow-2: 0 2px 6px rgba(0,0,0,0.4), 0 18px 50px rgba(0,0,0,0.5);
   }
+}
+
+/* Higher contrast (Display panel): darker secondary text and stronger rules, in both schemes. */
+:root[data-contrast="high"] { --ink-2: #2E2E2B; --ink-3: #3D3D39; --muted: #4A4A46; --line: rgba(23, 23, 23, 0.28); --line-strong: rgba(23, 23, 23, 0.46); }
+:root[data-theme="dark"][data-contrast="high"] { --ink-2: #E2E0D9; --ink-3: #D3D1C9; --muted: #C4C2BA; --line: rgba(236, 234, 228, 0.3); --line-strong: rgba(236, 234, 228, 0.5); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-contrast="high"] { --ink-2: #E2E0D9; --ink-3: #D3D1C9; --muted: #C4C2BA; --line: rgba(236, 234, 228, 0.3); --line-strong: rgba(236, 234, 228, 0.5); }
 }

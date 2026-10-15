@@ -67,6 +67,21 @@
       <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>
       <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>
     </button>
+    <div class="display-wrap">
+      <button class="theme-toggle display-trigger" id="display-trigger" type="button" aria-label="Display and accessibility" title="Display and accessibility" aria-expanded="false" aria-controls="display-panel">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor" stroke="none"/><path d="M7.5 10.2c3 .8 6 .8 9 0M12 11v3.2M12 14.2 10 18M12 14.2l2 3.8"/></svg>
+      </button>
+      <div class="display-panel" id="display-panel" role="dialog" aria-label="Display and accessibility" hidden>
+        <p class="display-cap">Display and accessibility</p>
+        <div class="display-row">
+          <span class="display-text"><span class="display-label">Text size</span><span class="display-help" id="display-scale">100%</span></span>
+          <span class="display-buttons"><button type="button" class="btn btn-ghost btn-sm" data-scale="-1" aria-label="Smaller text">A−</button><button type="button" class="btn btn-ghost btn-sm" data-scale="1" aria-label="Larger text">A+</button></span>
+        </div>
+        <label class="display-row"><span class="display-text"><span class="display-label">Night reading</span><span class="display-help">A dark version of the same page.</span></span><span class="switch"><input type="checkbox" data-setting="theme"><span class="switch-track"></span></span></label>
+        <label class="display-row"><span class="display-text"><span class="display-label">Reduce motion</span><span class="display-help">Stops ambient animation. Demonstrations still step when you ask.</span></span><span class="switch"><input type="checkbox" data-setting="motion"><span class="switch-track"></span></span></label>
+        <label class="display-row"><span class="display-text"><span class="display-label">Higher contrast</span><span class="display-help">Darker secondary text and stronger rules.</span></span><span class="switch"><input type="checkbox" data-setting="contrast"><span class="switch-track"></span></span></label>
+      </div>
+    </div>
   </header>
 
   <main id="main" class="page" tabindex="-1" aria-live="polite"></main>

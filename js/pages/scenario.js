@@ -1,4 +1,4 @@
-import { h, link, arrow, eyebrow, evidence, evidenceUsed } from "../ui.js";
+import { h, link, arrow, eyebrow, evidence, evidenceUsed, reducedMotion } from "../ui.js";
 import { scenarios, scenarioById, skills, tracks, challengeIds, qualityScore } from "../scenarios.js";
 import { lessonBySlug } from "../lessons/index.js";
 import { recordResult, getResult, allResults } from "../store.js";
@@ -35,7 +35,7 @@ export default async function Scenario({ id, params }) {
     const heading = el.querySelector("h2"); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
     // Land on the strongest move (its badge sits 9px above the card), so the answer stays in view with the verdict right under it.
     const strongest = document.querySelector(".option.choice.preferred");
-    if (strongest) landOn(strongest, 12); else landOn(el, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 14); // .reveal starts 14px low
+    if (strongest) landOn(strongest, 12); else landOn(el, reducedMotion() ? 0 : 14); // .reveal starts 14px low
   };
   const best = s.options.find(o => o.quality === "best");
 

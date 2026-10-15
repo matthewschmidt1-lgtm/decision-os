@@ -89,6 +89,9 @@ const lead = (text) => { const m = text.match(LEAD); return m ? [h("b", { class:
 // "yours 33%" → a quiet owner word and a bold figure, so a yours/theirs card reads like a table row.
 const WHO = /^(yours|theirs|ours|you|them)\s+(.+)$/i;
 const part = (text) => { const m = text.match(WHO); return m ? [h("span", { class: "who" }, m[1]), h("b", { class: "num" }, m[2])] : lead(text); };
+// True when the device asks for less motion or the Display panel's "Reduce motion" is on.
+export const reducedMotion = () => document.documentElement.dataset.motion === "reduce" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 export function evidence(rows, { optionTones = true } = {}) {
   const facts = rows.map(([label, value, tone]) => ({ label, value, tone: inferTone(label, value, tone), kind: factKind(value) }));
   const compare = facts.filter(f => f.kind === "parts").length >= 2;
@@ -154,7 +157,7 @@ export function says(text, tone = "", { live = true } = {}) {
 
 // Animate a number in a text node
 export function tween(el, from, to, format, dur = 500) {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = format(to); return; }
+  if (reducedMotion()) { el.textContent = format(to); return; }
   const t0 = performance.now();
   const step = (t) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - k, 3); el.textContent = format(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); };
   requestAnimationFrame(step);
