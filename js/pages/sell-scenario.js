@@ -79,8 +79,7 @@ export default async function SellScenario({ id, params }) {
       o.quality !== "best" ? h("p", { class: "sc-strongest" }, h("b", {}, "Strongest option: "), best.label) : null,
       fixedNow ? h("p", { class: "sell-fixed" }, "Fixed on replay. Your first try stays the score; this one counts as a rehearsal.") : null,
       ...newly.map(m => h("ul", { class: "sim-achnews" }, h("li", { class: "got" }, h("span", { class: "ic", "aria-hidden": "true" }, "★"), h("span", {}, h("b", {}, `Milestone: ${m.name}`), ` ${m.copy}`)))),
-      // Open once an answer is in: the comparison is what a learner wants right after a miss.
-      disclose("Why the other options were weaker", h("div", { class: "stack sc-others", style: { "--gap": "12px" } }, ...others.map(x => h("p", {}, h("b", {}, x === best ? "Strongest: " : `${x.quality === "good" ? "Close: " : "Weak: "}`), x.label, " ", h("span", { class: "why" }, x.feedback)))), true)].filter(Boolean));
+      disclose("Why the other options were weaker", h("div", { class: "stack sc-others", style: { "--gap": "12px" } }, ...others.map(x => h("p", {}, h("b", {}, x === best ? "Strongest: " : `${x.quality === "good" ? "Close: " : "Weak: "}`), x.label, " ", h("span", { class: "why" }, x.feedback))))))].filter(Boolean));
     show(feedback); whyBtn.hidden = false;
   };
   whyBtn.addEventListener("click", () => {
