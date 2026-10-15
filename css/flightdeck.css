@@ -111,11 +111,13 @@
 }
 @media (max-width:759px){
   .fd-map{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:6px;border-radius:var(--r-md)}
-  .fd-tile{padding:8px 9px;gap:5px 6px;min-height:84px;grid-template-columns:auto minmax(0,1fr);align-items:center}
+  .fd-tile{padding:8px 9px;gap:5px 6px;min-height:84px;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+  .fd-tile .t-head{min-width:0}
   .fd-tile .t-fund{justify-content:flex-end}
   .fd-tile .t-bar,.fd-tile .t-next,.fd-tile .t-conf{grid-column:1 / -1}
   .fd-tile .t-sig{margin-left:6px}
-  .fd-tile .t-cat,.fd-tile .t-chg,.fd-tile .t-earn,.fd-tile .t-conf,.fd-tile .t-foot,.fd-tile .sig .w,.fd-tile .t-next .k{display:none}
+  .fd-tile .t-chg,.fd-tile .t-earn,.fd-tile .t-conf,.fd-tile .t-foot,.fd-tile .sig .w,.fd-tile .t-next .k{display:none}
+  .fd-tile .t-cat{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
   .fd-tile .t-next b{font-size:var(--fs-micro)}
 }
 
@@ -151,9 +153,11 @@
 .fd-details dt{font-size:var(--fs-micro);color:var(--muted)}.fd-details dd{margin:1px 0 0;font-weight:500}
 .fd-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:var(--r-sm);border:1px solid var(--line);font-size:11px;color:var(--ink-2);white-space:nowrap;min-height:32px}
 .fd-chip b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.fd-chip .cat{color:var(--muted);max-width:7ch;overflow:hidden;text-overflow:ellipsis}
 .fd-chip[aria-current="true"]{border-color:var(--accent);color:var(--ink)}
 .fd-chip .dot{font-size:9px}.fd-chip .dot.good{color:var(--good)}.fd-chip .dot.bad{color:var(--bad)}.fd-chip .dot.even{color:var(--muted)}
 .fd-ctl{width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--line);font-size:1.125rem;line-height:1;color:var(--ink)}
+.fd-ctl.fd-ctl-text{width:auto;padding:0 10px;font-size:var(--fs-micro);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
 .fd-ctl:hover{background:var(--bg-sunk)}
 @media (max-width:1023px){
   .fd-panel{position:fixed;z-index:40;left:max(8px,calc((100vw - var(--max)) / 2));right:max(8px,calc((100vw - var(--max)) / 2));bottom:0;top:auto;
@@ -176,7 +180,7 @@
 
 /* ---------- Funding instrument: throttle, return curve, delta, keep or spend, move $10K ---------- */
 .fd-funding{display:grid;gap:8px}
-.fd-fund-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fd-fund-head{display:grid;gap:2px}
 .fd-amt{font-family:var(--mono);font-size:1.5rem;font-weight:500;color:var(--accent)}
 .fd-curve{min-width:0;overflow:hidden}
 .fd-curve-svg{display:block}

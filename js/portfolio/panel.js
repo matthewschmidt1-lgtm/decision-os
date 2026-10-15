@@ -6,6 +6,8 @@ import * as S from "../sim.js";
 import { money } from "../models.js";
 import { $k, per$, pts, tone, verdictOf, gainOf } from "./fmt.js";
 import { CHANNELS, readOf, rangeText, rangeBar, confWord, requestScoutNote } from "./recon.js";
+// Category by brand letter, for the rail chips (the same in both years).
+const CATS = Object.fromEntries(S.simBrands(0).map((b) => [b.id, b.category]));
 
 const IDS = S.brandIds;
 const put = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false)); // replaceChildren would print "null"
@@ -17,7 +19,7 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
   rail.append(...Object.values(chips));
   const prevB = h("button", { type: "button", class: "fd-ctl", "aria-label": "Previous brand", onClick: () => step(-1) }, "‹");
   const nextB = h("button", { type: "button", class: "fd-ctl", "aria-label": "Next brand", onClick: () => step(1) }, "›");
-  const tall = h("button", { type: "button", class: "fd-ctl", "aria-label": "Expand", "aria-pressed": "false", onClick: () => { const on = !el.classList.contains("is-tall"); el.classList.toggle("is-tall", on); tall.setAttribute("aria-pressed", String(on)); tall.textContent = on ? "⌄" : "⌃"; } }, "⌃");
+  const tall = h("button", { type: "button", class: "fd-ctl fd-ctl-text", "aria-label": "Expand the panel", "aria-pressed": "false", onClick: () => { const on = !el.classList.contains("is-tall"); el.classList.toggle("is-tall", on); tall.setAttribute("aria-pressed", String(on)); tall.textContent = on ? "Shrink" : "Expand"; tall.setAttribute("aria-label", on ? "Shrink the panel" : "Expand the panel"); } }, "Expand");
   const close = h("button", { type: "button", class: "fd-ctl", "aria-label": "Close", onClick: () => onClose() }, "×");
   const body = h("div", { class: "fd-panel-body" });
   const el = h("section", { class: "fd-panel fd-sheet", id: "fd-panel", role: "region", "aria-label": "Brand details" },
@@ -78,8 +80,8 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     // Rail: every brand's letter, a Next $10K mark (shape and colour) and its funding, so the world stays in view.
     for (const row of c.rows) {
       const ch = chips[row.id], g = row.next >= 1.02 ? ["good", "▲", "earns"] : row.next <= 0.98 ? ["bad", "▼", "loses"] : ["even", "–", "breaks even"];
-      ch.replaceChildren(h("b", {}, row.id), h("span", { class: `dot ${g[0]}`, "aria-hidden": "true" }, g[1]), h("span", { class: "num" }, $k(plan.trade[row.id] || 0)));
-      ch.setAttribute("aria-label", `Brand ${row.id}, ${$k(plan.trade[row.id] || 0)}, next $10K ${g[2]}`);
+      ch.replaceChildren(h("b", {}, row.id), h("span", { class: "cat" }, CATS[row.id]), h("span", { class: `dot ${g[0]}`, "aria-hidden": "true" }, g[1]), h("span", { class: "num" }, $k(plan.trade[row.id] || 0)));
+      ch.setAttribute("aria-label", `Brand ${row.id}, ${CATS[row.id]}, ${$k(plan.trade[row.id] || 0)}, next $10K ${g[2]}`);
       ch.setAttribute("aria-current", String(row.id === b.id));
     }
     const scouted = state.scouted[b.id] !== undefined;
@@ -144,7 +146,7 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
       if (slide && !el.classList.contains("is-open")) { el.classList.add("is-arriving"); el.addEventListener("animationend", () => el.classList.remove("is-arriving"), { once: true }); }
       el.classList.add("is-open"); if (focus && narrow()) ui?.title.focus({ preventScroll: true });
     },
-    close() { el.classList.remove("is-open", "is-tall"); tall.setAttribute("aria-pressed", "false"); tall.textContent = "⌃"; },
+    close() { el.classList.remove("is-open", "is-tall"); tall.setAttribute("aria-pressed", "false"); tall.textContent = "Expand"; tall.setAttribute("aria-label", "Expand the panel"); },
     focusTitle() { ui?.title.focus({ preventScroll: true }); },
   };
 }

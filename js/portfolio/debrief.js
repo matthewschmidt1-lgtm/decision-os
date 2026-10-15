@@ -135,9 +135,9 @@ function returnTable(q, prev) {
   }).sort((a, b) => (b.m ?? 0) - (a.m ?? 0));
   const trend = (m, pm) => (m == null || pm == null ? "" : m - pm > 0.05 ? "▲" : pm - m > 0.05 ? "▼" : "–");
   return h("div", { class: "table-wrap" }, h("table", { class: "table sim-rt" },
-    h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Channel"), h("th", { class: "num" }, "Spent"), h("th", { class: "num" }, "Last $10K returned"), h("th", { class: "num" }, "vs last Q"), h("th", {}, "Read"))),
-    h("tbody", {}, rows.map((x) => h("tr", {}, h("td", {}, h("b", { style: { fontWeight: 500 } }, `Brand ${x.id}`)), h("td", { class: "muted" }, x.label), h("td", { class: "num" }, $k(x.x)),
-      h("td", { class: `num ${x.v.cls}` }, x.m == null ? "—" : `${per$(x.m)} per $1`), h("td", { class: "num muted" }, trend(x.m, x.pm)), h("td", {}, h("span", { class: `chip ${x.v.cls === "good" ? "chip-good" : x.v.cls === "bad" ? "chip-warn" : ""}` }, x.v.text)))))));
+    h("thead", {}, h("tr", {}, h("th", {}, "Brand"), h("th", {}, "Channel"), h("th", { class: "num" }, "Spent"), h("th", { class: "num" }, h("span", { class: "rt-full" }, "Last $10K returned"), h("span", { class: "rt-short" }, "Returned")), h("th", { class: "num" }, "vs last Q"), h("th", {}, "Read"))),
+    h("tbody", {}, rows.map((x) => h("tr", {}, h("td", {}, h("b", { style: { fontWeight: 500 } }, h("span", { class: "rt-full" }, "Brand "), x.id)), h("td", { class: "muted" }, h("span", { class: "rt-full" }, x.label), h("span", { class: "rt-short" }, x.ch === "off" ? "Off" : "On")), h("td", { class: "num" }, $k(x.x)),
+      h("td", { class: `num ${x.v.cls}` }, x.m == null ? "—" : [per$(x.m), h("span", { class: "rt-full" }, " per $1")]), h("td", { class: "num muted" }, trend(x.m, x.pm)), h("td", {}, h("span", { class: `chip ${x.v.cls === "good" ? "chip-good" : x.v.cls === "bad" ? "chip-warn" : ""}` }, x.v.text)))))));
 }
 
 function chainView(r, q, c) {
