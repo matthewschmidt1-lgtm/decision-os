@@ -43,7 +43,7 @@ export default function Practice() {
   const challengeList = challengeIds.map(id => scenarios.find(s => s.id === id));
 
   return h("div", {},
-    h("section", { class: "reveal" }, eyebrow("Practice"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Practice the decisions you make in the field."),
+    h("section", { class: "reveal" }, eyebrow("Practice · Module 1 · Commercial Judgment"), h("h1", { class: "hero", style: { marginTop: "16px" } }, "Practice the decisions you make in the field."),
       h("p", { class: "hero-sub" }, "Short cases with real, imperfect numbers. Two answers usually look right. You choose, then see the reasoning, the principle, and what to do on your next call.")),
 
     h("section", { class: "section reveal" },

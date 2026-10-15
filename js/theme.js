@@ -56,6 +56,7 @@
       if (yes) { var first = panel.querySelector("button:not(:disabled), input"); if (first) first.focus(); }
     };
     trigger.addEventListener("click", function () { open(panel.hidden); });
+    panel.querySelectorAll(".display-nav a").forEach(function (a) { a.addEventListener("click", function () { open(false); }); });
     document.addEventListener("click", function (e) { if (!panel.hidden && !panel.contains(e.target) && !trigger.contains(e.target)) open(false); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) { open(false); trigger.focus(); } });
     panel.querySelectorAll("[data-scale]").forEach(function (b) {
