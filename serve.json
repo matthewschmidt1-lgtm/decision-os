@@ -2,6 +2,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/docs/module3-proposal-v3",
+      "destination": "/docs/module3-proposal-v3.html"
+    },
+    {
       "source": "**",
       "destination": "/index.html"
     }
