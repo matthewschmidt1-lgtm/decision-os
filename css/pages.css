@@ -470,3 +470,19 @@
 .drill-cost{font-size:var(--fs-small)}.drill-cost b{font-weight:600;color:var(--ink-2)}
 .card.is-clean{border-color:var(--gold-line);background:var(--gold-soft)}
 .tag.good{color:var(--good)}
+
+/* Module 3 · Manage: the pause before the pick, the picture after it, the values panel */
+.manage .option.preferred::before{content:"Strongest"}
+.m3-pause{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:0 var(--r-md) var(--r-md) 0;font-size:var(--fs-body);color:var(--ink)}
+.m3-pause .k{flex:none;font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:4px}
+.m3-pic{margin:0;padding:14px 16px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg-elev);max-width:none}
+.m3-pic figcaption{margin-top:8px;font-size:var(--fs-small);color:var(--ink-2)}
+.m3-svg{width:100%;height:auto}
+.m3-leans{font-size:var(--fs-small);color:var(--ink-2)}.m3-leans b{color:var(--ink);font-weight:600}
+.m3-lessons{display:grid;gap:8px}.m3-lessons p{margin:0;font-size:var(--fs-small);color:var(--ink-2)}.m3-lessons b{color:var(--ink);font-weight:600}
+.m3-values{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.m3-values li{display:grid;grid-template-columns:minmax(90px,140px) 1fr auto;gap:10px;align-items:center;font-size:var(--fs-small)}
+.m3-values .track{height:8px;border-radius:4px;background:var(--bg-sunk);overflow:hidden}.m3-values .track i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.m3-values .n{font-family:var(--mono);font-size:var(--fs-micro);color:var(--ink-3);white-space:nowrap}
+.m3-note{font-size:var(--fs-small);color:var(--ink-3)}
+@media (max-width:620px){.m3-pic{padding:10px 10px 8px}.m3-pause{padding:12px 14px}}

@@ -5,7 +5,7 @@ const PASSWORD = "1530";
 const KEY = "decision-os:unlocked";
 let pending = null;
 
-export const isGated = (pathname) => /^\/accounts(\/|$)/.test(pathname) || /^\/learn\/?$/.test(pathname); // the library page, not the lessons
+export const isGated = (pathname) => /^\/accounts(\/|$)/.test(pathname) || /^\/learn\/?$/.test(pathname) || /^\/manage(\/|$)/.test(pathname); // the Learn library page (not the lessons) and all of Module 3
 const unlocked = () => { try { return sessionStorage.getItem(KEY) === "1"; } catch { return false; } };
 const remember = () => { try { sessionStorage.setItem(KEY, "1"); } catch { /* private mode: asked again next click */ } };
 

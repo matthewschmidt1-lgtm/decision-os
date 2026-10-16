@@ -2,4 +2,3 @@ node_modules
 .DS_Store
 dist
 docs/*.html
-!docs/module3-proposal-v3.html
