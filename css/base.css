@@ -93,10 +93,6 @@ label.display-row{cursor:pointer}
 .footer a:hover{color:var(--ink)}
 .made-by{font-size:var(--fs-micro);font-weight:300;color:var(--muted);opacity:.7;letter-spacing:.01em;transition:opacity var(--dur-fast)}
 .made-by:hover{opacity:1}
-/* A quiet M in the footer's bottom-right corner: the Module 3 proposal, for the author */
-.foot-m{order:4;margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--mono);font-size:var(--fs-micro);color:var(--muted);transition:color var(--dur-fast),border-color var(--dur-fast)}
-.foot-m:hover{color:var(--ink);border-color:var(--line-strong)}
-@media (max-width:600px){.foot-m{order:4;align-self:flex-end;margin-left:0}}
 
 /* Reveal on scroll */
 .reveal{opacity:0;transform:translateY(14px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
