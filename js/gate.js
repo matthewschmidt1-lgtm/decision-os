@@ -1,7 +1,7 @@
 import { h, disclose } from "./ui.js";
 // Password gate for /accounts, /accounts/:id, the /learn library page (lessons stay open) and the Practice "All scenarios" list. This is a soft gate: the site is static, so the check runs in the
 // browser and the password ships with the code. It keeps casual visitors out; it is not real security.
-const PASSWORD = "1530";
+const PASSWORD = "2001";
 const KEY = "decision-os:unlocked";
 let pending = null;
 
