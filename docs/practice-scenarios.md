@@ -1,0 +1,1806 @@
+# Decision OS — Practice scenarios and the rules behind them
+Exported 2026-10-07 from the live scenario data. 42 scenarios.
+
+## How practice works (the rules that apply to every scenario)
+
+**Format.** Each scenario is a short CPG case with imperfect data: a situation, a panel of evidence (some lagged, some estimates), one question, and four options. You pick one and see the feedback for the option you chose, then the reasoning, the principle, your next move, and a link to the algorithm it trains.
+
+**Scoring.** Every option has a quality: best, good, or weak. Scores: best = 1.0, good = 0.7, weak = 0.3. Your skill score is the average quality of your first answer in each scenario, shown as a percentage. Replays never change your score; only the first pick is recorded.
+
+**Feedback headings.** best → “Good instinct. Here’s why.” · good → “Reasonable. A strong rep would also notice this.” · weak → “A common move. Here’s what a strong rep would notice first.” If you didn’t pick the strongest option, it is named under your feedback.
+
+**Option order.** The strongest answer is placed so that its letter (A/B/C/D) is balanced across scenarios; position is never a tell. Options below are listed in the order shown on the site.
+
+**Goals (levels).** Recognize → Diagnose → Prioritize → Act → Defend → Lead.
+
+**Skills.**
+- Diagnosis: Separate what is happening from why.
+- Prioritization: Decide what to learn or do first.
+- Customer strategy: Make the case a buyer will accept.
+- Trade economics: Know what volume costs.
+
+**Tracks.**
+- Diagnose what's really happening (5): The top line says one thing. The numbers underneath say another.
+- Practice a customer meeting (4): A buyer pushes back. What do you say?
+- Handle a pricing or promotion issue (4): Volume is easy to buy. Margin isn't.
+- Decide where to focus (4): Limited hours, many accounts, not enough supply.
+- Win on-premise (8): Bars, restaurants and hotels: menus, back bars, staff and what you're allowed to offer.
+- Win back a lost account (3): No order in six months. Find out why before you chase it.
+- Sell the value (9): When the answer is 'too expensive', the product's value is the reply.
+- Turn around a declining account (3): Sales are down. Find out why before you spend a dollar.
+- Analyze a sales opportunity (2): Is it worth pursuing, and how?
+
+**5-minute challenge.** Kroger — What do you investigate first?; Publix — What do you propose?; Cascade Beverage (distributor) — What do you do before quarter-end?; Safeway — What do you say?; Your territory — Where do you go?.
+
+**Results summary.** After a set, the site names how many of your choices were the strongest option and repeats the principle from your weakest answer as “one thing to remember.”
+
+## The nine algorithm rules (from Learn)
+
+### Expected Value
+*Is this opportunity worth pursuing?*
+- Rule: Chance × prize − the cost of chasing it. Rank your visits by that number.
+- Flip point: The big account wins once your odds of landing it pass about 23%.
+- Monday: Write a % next to every visit before you plan the week.
+
+### Bayesian Updating
+*Prior belief → new evidence → updated belief.*
+- Rule: Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+- Flip point: It would take a clue three times likelier under 'no' than 'yes' to pull you back under 50%.
+- Monday: Before a call, write your prior. After it, write what changed and by how much.
+
+### Decision Trees
+*Map the branches before you pick one.*
+- Rule: Lay out the branches, weigh each one by its odds, roll the value back to today. Then compare that number with what pursuing costs.
+- Flip point: Walk away once the chance of high velocity drops below about 30%, or the cost of pursuing passes about $17K.
+- Monday: Sketch the two biggest uncertainties for one key account and put rough odds on them.
+
+### Multi-Armed Bandits
+*You have 10 hours. 15 brands. Where do you invest?*
+- Rule: Put hours where the expected return per hour is highest, and give uncertain brands a little extra, because hours there also buy information.
+- Flip point: D would need about 19 more hours at $0.70K before its 38-hour average fell below Brand A's $0.95K.
+- Monday: Track return per hour by brand, so a hunch about a brand turns into evidence.
+
+### Value of Information
+*What should you learn before you decide?*
+- Rule: Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+- Flip point: The store visit breaks even at a $1.5K cost. Get it for $1K and it's worth running, behind the report and the distributor call.
+- Monday: List the possible causes and what you’d do for each one, before you look at the data.
+
+### Utility & Trade-offs
+*What are you optimizing: volume, revenue, or margin?*
+- Rule: State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+- Flip point: Cut overtakes Rebalance once margin carries about 76% of the weight.
+- Monday: Write the objective at the top of the page before you list the options.
+
+### Optimization & Marginal Analysis
+*What does the next dollar buy?*
+- Rule: Keep spending while the next dollar returns more than a dollar. Stop when the next dollar returns less than a dollar. Judge the last increment, not the total.
+- Flip point: Brand A's promotion stops paying for itself at about $47K. Past that, every dollar loses.
+- Monday: Ask what the last $10K bought, not what the whole budget did.
+
+### Prediction vs. Decision
+*A forecast is not a plan.*
+- Rule: A forecast tells you what might happen. A decision tells you what to do about it.
+
+Break headline numbers into the drivers you can act on. Then judge those drivers against the objective.
+- Flip point: Plan 1 wins only if a point of sales growth is worth more than about 1.4 points of margin to you: it buys 4.3 extra points of growth for 5.9 points of margin, and 5.9 ÷ 4.3 ≈ 1.4.
+- Monday: When someone shares a forecast, ask which decision it changes, and what each driver does to margin.
+
+### Exploration vs. Exploitation
+*Spend where you know, or learn where you don't?*
+- Rule: Spend most of your time where you know it pays. Keep a slice for what you don't understand, sized by how long you'll be around to use the answer.
+- Flip point: The eight-hour test pays back as long as you have at least one more month to use what it finds.
+- Monday: Make exploration a budget line this month: which brand, how many hours, what you'd need to see.
+
+## The scenarios
+
+### 1. Kroger: What do you investigate first?
+
+- Id: kroger-decline
+- Category: Sparkling water · Channel: off-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Value of Information
+- Track: Diagnose what's really happening · 5-minute challenge
+- Tags: distribution, velocity
+
+**The situation.** Your Kroger business is down 8% versus last year. Your manager wants a plan by Friday. The buyer has hinted she'd entertain another promotion.
+
+**What you know.**
+- Sales: −8%
+- Distribution (ACV): −3 pts
+- Velocity ($/pt of ACV): −5%
+- Promo weeks: −2 vs LY
+- Category: +4%
+- Shelf audit: not done since Q1 (warn)
+
+**The decision.** What do you investigate first?
+
+**Options.**
+- A. Ask for more promotion weeks — *weak*
+  Understandable: promo weeks are down and the buyer is open to it. But you don't yet know whether the loss is stores or shoppers. Promotion on a shrinking footprint buys expensive volume.
+- B. Propose a price reduction — *weak*
+  Nothing in the evidence points at price. The category is growing at +4%, so shoppers aren't leaving the aisle. Cutting price treats a symptom you haven't confirmed.
+- C. Investigate the distribution losses — *best*
+  Good instinct. Distribution fell 3 points, and velocity fell too. Before asking for promotion, find out whether the lost stores are the same ones dragging velocity. If they are, this is a distribution problem wearing a demand costume.
+- D. Increase merchandising and displays — *good*
+  Reasonable, and it may be part of the answer. But displays lift velocity where you're already on shelf; they don't recover the 3 points of ACV you lost. Diagnose the distribution first.
+
+**Reasoning.** Distribution and velocity fell together. That pattern usually means one of two things: you lost your best stores, which drags the average velocity down, or something changed on shelf across the banner. Either way, the highest-value next step is information, not a promotion request. A store-level distribution report costs you an hour. A promotion costs you margin.
+
+**The principle.** Separate distribution problems from velocity problems before prescribing a promotional solution.
+
+**Your next move.** Pull store-level ACV and velocity for the last 13 weeks. Rank the lost stores by their velocity last year. Walk into Friday with that list, not a promo ask.
+
+**The algorithm rule (Value of Information).** Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+
+---
+
+### 2. Albertsons: What is actually happening?
+
+- Id: flat-sales-hidden-loss
+- Category: Better-for-you snacks · Channel: off-premise
+- Skill: Diagnosis · Goal: Recognize
+- Algorithm: Prediction vs. Decision
+- Track: Diagnose what's really happening
+- Tags: distribution, velocity
+
+**The situation.** Albertsons is flat year over year, and nobody is worried about it. You just picked up a new distribution win in 40 stores last quarter.
+
+**What you know.**
+- Sales: 0%
+- Distribution (ACV): 68% → 74%
+- Velocity: −8%
+- Category: +2%
+- New-store sales: in line with plan (good)
+
+**The decision.** What is actually happening?
+
+**Options.**
+- A. New distribution is masking a velocity decline in existing stores — *best*
+  Exactly. The 40 new stores are hitting plan, so they're pulling the average up, which means the original stores are down by more than the blended −8%. Flat sales are hiding a real problem, and it's in your core stores.
+- B. The business is healthy. Flat in a +2% category is fine. — *weak*
+  That's how it looks on the top line, which is why nobody is worried. But you added 6 points of distribution and sales didn't move. Something offset the gain.
+- C. The new stores are underperforming — *weak*
+  The evidence says the opposite: new-store sales are in line with plan. The weakness is in the stores you already had.
+- D. The category is slowing — *weak*
+  The category is up 2%. This is a brand issue, not an aisle issue.
+
+**Reasoning.** Sales = distribution × velocity. When one goes up and the other goes down by a similar amount, the total looks calm while the business is changing underneath. A rep who reads only the sales line will miss it until the new-store bump laps and the decline shows up bare.
+
+**The principle.** Always decompose sales into distribution and velocity. Flat can be two problems cancelling out.
+
+**Your next move.** Split the banner into legacy stores and new stores. Report velocity for each. Take the legacy-store decline to the buyer as the story, with the distribution win as proof the brand works when it's on shelf.
+
+**The algorithm rule (Prediction vs. Decision).** A forecast tells you what might happen. A decision tells you what to do about it. Break headline numbers into the drivers you can act on. Then judge those drivers against the objective.
+
+---
+
+### 3. H-E-B: What most likely explains the bad week after?
+
+- Id: display-hangover
+- Category: Salty snacks · Channel: off-premise
+- Skill: Trade economics · Goal: Diagnose
+- Algorithm: Optimization & Marginal Analysis
+- Track: Handle a pricing or promotion issue
+- Tags: promo, oos
+
+**The situation.** You ran a big end-cap display with a price feature five weeks ago. The promo week was a record. The buyer is asking why the week after was so bad.
+
+**What you know.**
+- Week before, vs. a normal week: −3%
+- Promo week, vs. normal: +31%
+- Week after, vs. normal: −14%
+- Two weeks after, vs. normal: −2%
+- On-shelf availability, promo week: 84% (bad)
+- On-shelf availability, week after: 89% (warn)
+- Competitor feature: none recorded
+- Store-level data: 2-week lag (warn)
+
+**The decision.** What most likely explains the bad week after?
+
+**Options.**
+- A. A competitor must have promoted the following week — *weak*
+  Possible, but there's no competitor feature recorded and you'd be guessing. The stock-up pattern explains it without inventing an event.
+- B. The feature price trained shoppers to wait for deals — *good*
+  That happens over many cycles of deep features. It's a real long-term risk, but it doesn't explain a single −14% week as cleanly as pantry loading plus out-of-stocks.
+- C. The display was in a poor location — *weak*
+  A poor location would have produced a weak promo week, not a record one.
+- D. Shoppers stocked up during the promotion and out-of-stocks cost you the tail — *best*
+  Right. Pantry loading pulls next week's purchases forward, and 84% availability means you missed sales during the peak too. The 'bad' week is the promotion's shadow, not a new problem.
+
+**Reasoning.** Promotional lift is not incremental volume. Some of it is borrowed from the weeks around it. Add out-of-stocks at 84% availability and you paid for demand you couldn't serve. Against a normal week, −3, +31, −14 and −2 add up to +12% of one normal week's sales over four weeks: about +3% a week on average, not +31%. And you haven't yet subtracted whatever the feature stole from your other pack sizes on the same shelf.
+
+**The principle.** Judge a promotion over the full window, including the weeks after. Lift is not incrementality.
+
+**Your next move.** Show the buyer the four-week view. Then propose fixing availability before the next feature: a bigger display build with a replenishment plan agreed with the stores, built earlier in the week, is worth more than a deeper price.
+
+**The algorithm rule (Optimization & Marginal Analysis).** Keep spending while the next dollar returns more than a dollar. Stop when the next dollar returns less than a dollar. Judge the last increment, not the total.
+
+---
+
+### 4. Publix: What do you propose?
+
+- Id: promo-request
+- Category: Refrigerated juice · Channel: off-premise
+- Skill: Trade economics · Goal: Act
+- Algorithm: Optimization & Marginal Analysis
+- Track: Handle a pricing or promotion issue · 5-minute challenge
+- Tags: promo
+
+**The situation.** The Publix buyer asks for an extra 2-for-$6 event next month to 'hit his number.' You have the history for the last six events.
+
+**What you know.**
+- Regular price: $3.99
+- Average lift on 2-for-$6: 1.4×
+- Estimated incremental share of lift: ~35%
+- Your margin during events: −11 pts
+- Baseline trend, 26 wk: −4% (bad)
+- Buyer's category target: 2% behind (warn)
+- Display support last 3 events: 1 of 3 (warn)
+
+**The decision.** What do you propose?
+
+**Options.**
+- A. Agree. The buyer needs it and the relationship matters. — *weak*
+  The relationship does matter, which is exactly why you shouldn't hand over margin for volume that mostly would have sold anyway. Only about a third of the lift is incremental, and the baseline is eroding under repeated events.
+- B. Counter with a display and a shallower price, like 2 for $7 — *best*
+  Strong. Display drives most of the visibility, and a shallower price keeps some lift without training shoppers to wait for $6. The buyer gets activity and a story for his number; you keep most of the margin. Two of the last three events ran without display, so there's real upside.
+- C. Decline politely and explain the margin math — *good*
+  Honest, and the math is on your side. But a flat no leaves the buyer with a problem and no help from you. Offer him a way to hit the number that doesn't cost 11 points.
+- D. Offer a deeper 2-for-$5 to make it count — *weak*
+  Deeper price means more borrowed volume, more margin lost and a lower reference price. This is the fastest way to make the baseline decline worse.
+
+**Reasoning.** The marginal return on this promotion is falling: six events in, lift is modest, most of it is subsidised volume, and the baseline is sliding. Two things the headline lift never shows: how much of it came out of your other pack sizes on the same shelf, and how much the retailer bought forward at the deal price to sell later at full. The buyer's real need is activity he can point to. Display satisfies that need at a fraction of the cost.
+
+**The principle.** When a buyer asks for price, ask what they actually need. Usually it's a result, and price is just the first lever they thought of.
+
+**Your next move.** Bring the six-event history to the meeting. Lead with 'here's what I can do to help you hit the number,' then show the display plan with an expected lift and the margin you both keep.
+
+**The algorithm rule (Optimization & Marginal Analysis).** Keep spending while the next dollar returns more than a dollar. Stop when the next dollar returns less than a dollar. Judge the last increment, not the total.
+
+---
+
+### 5. Target: What do you ask for?
+
+- Id: new-item-acv
+- Category: Protein bars · Channel: off-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Multi-Armed Bandits
+- Track: Analyze a sales opportunity
+- Tags: launch, distribution, opportunity
+
+**The situation.** Your new item launched at Target eight weeks ago. The buyer's review is in three weeks. You get one ask.
+
+**What you know.**
+- ACV distribution: 41%
+- Velocity where stocked: top quartile of the set (good)
+- Repeat rate: 34% (n small) (warn)
+- Promo to date: none
+- Stores not yet set: planogram compliance issue (warn)
+- Buyer's stated priority: innovation velocity
+
+**The decision.** What do you ask for?
+
+**Options.**
+- A. A launch promotion to accelerate trial — *weak*
+  Trial isn't the issue; the item is top quartile where stocked. Promotion on 41% ACV spends money on the stores that already work and does nothing for the stores that aren't set.
+- B. A better shelf position — *good*
+  Worth raising, but it's a smaller lever than distribution. Top-quartile velocity from the current position says the shelf spot isn't holding it back.
+- C. Pull back and wait for the review — *weak*
+  Three weeks is enough to move compliance. Walking into the review at 41% ACV with a compliance excuse is a weaker position than walking in at 70%.
+- D. Fix compliance to get the remaining stores set — *best*
+  Yes. The item already wins where it's on shelf. The cheapest growth available is the 59% of stores where it isn't, and compliance is the buyer's problem to solve as much as yours. Velocity is your proof.
+
+**Reasoning.** Expected return per unit of effort is highest where a proven item is missing distribution. Every store you add gets the top-quartile velocity you've already demonstrated. Promotion and shelf moves are worth less because they only act on the stores you already have.
+
+**The principle.** Chase distribution for items that already win on velocity. Chase velocity for items that already have distribution.
+
+**Your next move.** Send the buyer the store list that isn't set, the velocity in stores that are, and the revenue at full compliance. Ask for a compliance push before the review, and offer to help the merchandising team execute.
+
+**The algorithm rule (Multi-Armed Bandits).** Put hours where the expected return per hour is highest, and give uncertain brands a little extra, because hours there also buy information.
+
+---
+
+### 6. Walmart: What's the most likely cause?
+
+- Id: price-gap
+- Category: Household cleaners · Channel: off-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Diagnose what's really happening
+- Tags: pricing, competition
+
+**The situation.** Velocity at Walmart dropped 9% over six weeks. Every other retailer is flat. The buyer says the item 'just isn't resonating any more.'
+
+**What you know.**
+- Walmart velocity: −9%
+- All other retailers: 0 to +1%
+- Your shelf price at Walmart: $4.63, unchanged
+- Main competitor price at Walmart: $4.29 → $3.93 (EDLP) (bad)
+- Your price above the competitor's: 8% → 18%
+- Category at Walmart: +1%
+
+**The decision.** What's the most likely cause?
+
+**Options.**
+- A. The brand is losing relevance with shoppers — *weak*
+  If shoppers were tiring of the brand, the other retailers would show it. They're flat. This is local to Walmart and coincides with a competitor price move.
+- B. The competitor's new everyday price opened an 18% gap — *best*
+  Yes. One retailer, one time window, one competitor price move. Your price didn't change, theirs dropped 36 cents, and an 18% gap is past what this category usually tolerates. 'Not resonating' would show up everywhere, and it doesn't.
+- C. Walmart moved your shelf position — *good*
+  A fair hypothesis, and worth a store check. But you have direct evidence of a price change and only a guess about the shelf. Weigh evidence you have over evidence you imagine.
+- D. Seasonality — *weak*
+  Seasonality would hit the category and other retailers too. Neither moved.
+
+**Reasoning.** Start with your prior: velocity drops are usually caused by distribution, price, shelf, or demand. Then update on the evidence. 'Only at Walmart' rules out demand and seasonality. 'Your price unchanged, competitor down 8%, gap now 18%' strongly favours price gap. That's Bayesian reasoning in plain clothes.
+
+**The principle.** When a problem is local to one retailer, look for what changed at that retailer. Buyer narratives about 'relevance' deserve a lower weight than a price scan.
+
+**Your next move.** Bring the price-gap chart to the buyer. Don't ask to match $3.93. Ask what gap the category tolerates, and propose closing it to about 10% (around $4.32 on shelf) through pack architecture or a lower everyday cost Walmart can pass through, with Walmart setting the retail and an expected velocity recovery. A temporary rollback won't answer a permanent everyday price. Keep the conversation on your own price and pack; never on what the competitor should charge.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 7. Cascade Beverage (distributor): What do you do before quarter-end?
+
+- Id: distributor-load
+- Category: Craft spirits · Channel: on-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Value of Information
+- Track: Decide where to focus · 5-minute challenge
+- Tags: distributor, inventory
+
+**The situation.** Your distributor's shipments are up 14% this quarter and your VP is thrilled. You've noticed their inventory is up 19%. Quarter-end is in ten days.
+
+**What you know.**
+- Shipments to distributor: +14%
+- Distributor inventory: +19% (warn)
+- Days of inventory: 61 → 74 (warn)
+- Account depletions: +1%
+- Depletion report: 2-week lag (warn)
+- Distributor incentive: quarterly volume bonus
+
+**The decision.** What do you do before quarter-end?
+
+**Options.**
+- A. Ship more. The distributor is asking and the quarter looks great. — *weak*
+  This is how good quarters become bad halves. Inventory at 74 days means the distributor won't reorder next quarter no matter what you do at accounts.
+- B. Offer the distributor a further incentive to push it through — *weak*
+  You'd be paying twice for the same cases: once to ship them and again to move them. Fix the information problem first.
+- C. Pull account-level depletion data and verify sell-in against depletions — *best*
+  Right. Depletion is flat while shipments surged; the distributor is loading against a volume bonus. A depletion report costs nothing and tells you whether the 14% is real. Ship more on top of it and next quarter's hole gets deeper.
+- D. Run an account-level promotion to pull inventory through — *good*
+  Directionally right, because it acts on depletion rather than shipments. But you'd be spending before you know which accounts are actually slow. Verify first, then target.
+
+**Reasoning.** Company → Distributor → Account → Consumer. Growth can be manufactured at any link by pushing stock to the next one. When shipments and inventory rise together and depletion doesn't, the growth is sitting in a warehouse. The most valuable thing you can do is learn whether that's true, and the cheapest way is the report you already have access to. One more thing: in beverage alcohol, supplier-to-wholesaler volume incentives are regulated state by state. Check what the incentive actually is, and with whom, before you lean on it.
+
+**The principle.** Measure the chain at the link closest to the consumer that you can see. Shipments are a claim; depletions are evidence.
+
+**Your next move.** Pull depletions by account for the last eight weeks. If they're flat, tell your VP before quarter-end, not after, and propose a shipment plan that brings days of inventory back under 60.
+
+**The algorithm rule (Value of Information).** Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+
+---
+
+### 8. Your territory: Where do you go?
+
+- Id: where-next-hour
+- Category: Portfolio · Channel: on-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Expected Value
+- Track: Decide where to focus · 5-minute challenge
+- Tags: opportunity, time
+
+**The situation.** It's Thursday afternoon. You have one visit left in you. Three options are on the table.
+
+**What you know.**
+- Regional chain HQ: $95K if won · ~15% chance · 3-hour round trip
+- Cedar Street Kitchen: $21K if won · ~84% chance · 20 min away (good)
+- The Lantern Room (existing): renewal at risk · $18K · ~60% you save it with a visit
+- Your gut: the chain is the big one
+
+**The decision.** Where do you go?
+
+**Options.**
+- A. Cedar Street Kitchen — *best*
+  Yes. About $18K of expected value for 20 minutes' drive, and you'll know the answer today. The chain is worth a well-prepared call, not a spontaneous drive.
+- B. The regional chain. Big prize, worth the drive. — *weak*
+  The gut answer. Expected value is roughly $14K, and the visit costs your whole afternoon. Big and unlikely loses to small and likely once you multiply.
+- C. The Lantern Room — *good*
+  Defensible: about $11K of expected value, and keeping a customer is cheaper than winning one. Cedar Street still wins unless the renewal is worth more than you think. At $30K or more, The Lantern Room moves ahead. Notice how the answer depends on the numbers you plug in.
+- D. Call it a day and prep for the chain tomorrow — *weak*
+  Prep is valuable, but you're forfeiting a likely $18K visit that takes 20 minutes. Do Cedar Street, then prep.
+
+**Reasoning.** Probability × value − cost. The chain: 0.15 × $95K = $14K, minus an afternoon. Cedar Street: 0.84 × $21K = $18K, minus 20 minutes. The Lantern Room: 0.6 × $18K = $11K. The ranking flips your instinct because instinct weights the prize and forgets the odds.
+
+**The principle.** Rank opportunities by expected value, not by size. Then check how sensitive the ranking is to your probability guesses.
+
+**Your next move.** Go to Cedar Street. Book the chain as a proper meeting with a prepared category story. Call The Lantern Room from the car.
+
+**The algorithm rule (Expected Value).** Chance × prize − the cost of chasing it. Rank your visits by that number.
+
+---
+
+### 9. Safeway: What do you say?
+
+- Id: facings-cut
+- Category: Yogurt · Channel: off-premise
+- Skill: Customer strategy · Goal: Defend
+- Algorithm: Bayesian Updating
+- Track: Practice a customer meeting · 5-minute challenge
+- Tags: oos, shelf, meeting
+
+**The situation.** The Safeway buyer opens the meeting with: 'Your item isn't moving. I'm cutting it from four facings to two at the next reset.'
+
+**What you know.**
+- Your velocity, Safeway: −12%
+- Your velocity, other banners: +3%
+- On-shelf availability, Safeway: 81% (bad)
+- Days out of stock last month: 9 of 30 (bad)
+- Category, Safeway: +2%
+- Facings: 4 (in line with share)
+
+**The decision.** What do you say?
+
+**Options.**
+- A. Accept the cut and ask to revisit in six months — *weak*
+  You'd be conceding to a story the data doesn't support. With two facings the out-of-stocks get worse, velocity falls further, and the next conversation is about delisting.
+- B. Show him the 9 days out of stock and fix supply first — *best*
+  Right. The item isn't failing to sell; it's failing to be there. Velocity elsewhere is up. Reframe the meeting from 'your item is weak' to 'we're both losing sales to empty shelf,' and offer a specific fix.
+- C. Offer a promotion to prove demand — *weak*
+  Promotion on a shelf that's empty a third of the time will produce more out-of-stocks and worse data. You'd be funding the buyer's argument.
+- D. Argue that four facings is fair share for the brand — *good*
+  True, and worth saying second. But fair share is an argument about entitlement; out-of-stocks are an argument about the buyer's own lost sales. Lead with his money.
+
+**Reasoning.** The buyer has a prior: weak velocity means weak demand. Your evidence should update it: velocity is up elsewhere and availability at Safeway is 81%. That combination makes 'out-of-stocks are suppressing sales' far more likely than 'shoppers stopped wanting it.' Defend with the buyer's interest, not yours.
+
+**The principle.** When challenged, change the question. Not 'is my item weak?' but 'what is causing this number, and who is losing because of it?'
+
+**Your next move.** Ask for four weeks at current facings with an availability fix: adjusted order points or a case-pack change. Agree on the velocity target that would justify the cut, so the next decision is made on evidence you both accepted.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 10. Two accounts: Which pitch do you make?
+
+- Id: on-premise-placement
+- Category: Premium tequila · Channel: on-premise
+- Skill: Customer strategy · Goal: Act
+- Algorithm: Expected Value
+- Track: Analyze a sales opportunity
+- Tags: opportunity, placement
+
+**The situation.** You can pitch one new cocktail placement this week. A high-profile hotel bar, or a busy neighbourhood restaurant that already carries two of your brands.
+
+**What you know.**
+- Hotel bar: $40K a year · ~20% chance · new menu in 6 months · influential
+- Neighbourhood restaurant: $14K a year · ~75% chance · menu reprint in 3 weeks · already carries two of your brands (good)
+- Distributor rep view: 'the hotel would be a trophy'
+- Your time: each pitch takes a full prep day
+
+**The decision.** Which pitch do you make?
+
+**Options.**
+- A. The hotel bar. Influence matters more than the number. — *good*
+  Influence is real value that expected-value math undercounts, so this isn't wrong. But the hotel's menu doesn't turn for six months, so even a yes doesn't pour until spring. Expected value is $8K against $10.5K, and the restaurant's answer comes in three weeks.
+- B. Both, with less prep each — *weak*
+  Half-prepared pitches at two accounts usually produce two nos. Prep is what makes the 75% a 75%.
+- C. Neither. Wait for the hotel's menu window. — *weak*
+  You'd forfeit a likely $14K placement to wait for an unlikely one.
+- D. The restaurant. Higher odds, sooner, and you're already in the building. — *best*
+  Yes. Higher expected value, a decision in three weeks, and an existing relationship that raises the odds further. Win it, then use the pour data to make the hotel pitch stronger later.
+
+**Reasoning.** Expected value handles most of this: 0.75 × $14K beats 0.2 × $40K. The timing tips it further, because a decision in three weeks lets you redeploy your time sooner. Influence is a legitimate reason to override the math, but only when you can say what it's worth.
+
+**The principle.** Prefer the likely, sooner win. Bank it, then use it as evidence for the bigger, later one.
+
+**Your next move.** Pitch the restaurant this week with a specific cocktail and a menu-reprint deadline. Put the hotel in your calendar for four months out, and bring the restaurant's pour data when you go.
+
+**The algorithm rule (Expected Value).** Chance × prize − the cost of chasing it. Rank your visits by that number.
+
+---
+
+### 11. Meijer: What do you recommend to the buyer?
+
+- Id: shelf-move
+- Category: Cereal · Channel: off-premise
+- Skill: Customer strategy · Goal: Act
+- Algorithm: Decision Trees
+- Track: Practice a customer meeting
+- Tags: shelf
+
+**The situation.** After the spring reset, your lead item moved from eye level to the bottom shelf. Velocity has fallen 14% in eight weeks.
+
+**What you know.**
+- Velocity since reset: −14%
+- Distribution: unchanged
+- Price: unchanged
+- Competitor now at eye level: velocity +11% (warn)
+- Category: flat
+- Next reset: in 5 months
+- Buyer's stated goal: grow category, not swap share
+
+**The decision.** What do you recommend to the buyer?
+
+**Options.**
+- A. Get a secondary placement now and build a reset case — *best*
+  Strong. It acts now rather than in five months, and it frames the reset ask in the buyer's language: category growth. You need a bridge and a case, not just a complaint.
+- B. Ask to be moved back to eye level at the next reset — *good*
+  Reasonable, but five months is a long time to bleed 14%, and 'move me back' is a share swap, which the buyer told you he doesn't want to hear.
+- C. Run a price promotion to recover velocity — *weak*
+  The cause is visibility, not price. Promotion buys temporary volume and leaves the shelf problem exactly where it is.
+- D. Accept it. Bottom shelf is still on shelf. — *weak*
+  A 14% decline that compounds for five months is a delisting risk at the next review.
+
+**Reasoning.** Map the branches. Do nothing: −14% for five months, then a weaker review. Promote: short lift, same shelf. Ask to move back: buyer hears share swap, low odds. Bridge now plus a category case: recovers some velocity immediately and raises the odds of the reset going your way. The tree favours the option that improves both the short and the long branch.
+
+**The principle.** When you can't fix the cause now, buy time on the short branch while building the case for the long one. And make every ask in the buyer's objective, not yours.
+
+**Your next move.** Ask for a shelf-strip or a secondary placement this month. Start building the reset case: category velocity at eye level versus bottom, and what the buyer's category gains if you're moved.
+
+**The algorithm rule (Decision Trees).** Lay out the branches, weigh each one by its odds, roll the value back to today. Then compare that number with what pursuing costs.
+
+---
+
+### 12. Wegmans: How would you describe this business?
+
+- Id: share-loss
+- Category: Hummus · Channel: off-premise
+- Skill: Diagnosis · Goal: Recognize
+- Algorithm: Prediction vs. Decision
+- Track: Diagnose what's really happening
+- Tags: category
+
+**The situation.** Your Wegmans review deck shows +3% growth. Your manager calls it 'solid.' You notice the category number at the bottom of the page.
+
+**What you know.**
+- Your sales: +3%
+- Category: +9% (warn)
+- Your share: 12.4% → 11.7%
+- Distribution: unchanged
+- New entrants: 2 brands added at reset
+- Your innovation: none in 18 months
+
+**The decision.** How would you describe this business?
+
+**Options.**
+- A. Growing. +3% is a good year. — *weak*
+  It feels that way, and the deck was built to make it feel that way. But the category grew three times faster. You gave up 0.7 points of share to two new entrants.
+- B. Flat, effectively — *good*
+  Closer than 'growing,' but it misses the point. You're not flat, you're losing ground while the tide rises. That's the sentence to put in front of your manager.
+- C. Losing share in a growing category — *best*
+  Yes. Absolute growth is hiding relative decline. The buyer sees the share table, and buyers allocate shelf on share trend. This is the year to bring innovation or a plan, not the year to say 'solid.'
+- D. Under threat from delisting — *weak*
+  Too far. Share loss of 0.7 points is a warning, not a crisis. Diagnose accurately before escalating.
+
+**Reasoning.** Prediction and decision are different jobs. The prediction 'you'll grow 3%' was accurate. The decision it should drive depends on context: 3% in a 9% category means you're the source of someone else's growth. Read every brand number against its category.
+
+**The principle.** Growth is relative. A brand number without its category number is half a sentence.
+
+**Your next move.** Rewrite the review page: 'Category +9%, us +3%, share −0.7 pts to new entrants.' Then bring a plan that addresses it, because the buyer already knows.
+
+**The algorithm rule (Prediction vs. Decision).** A forecast tells you what might happen. A decision tells you what to do about it. Break headline numbers into the drivers you can act on. Then judge those drivers against the objective.
+
+---
+
+### 13. Sprouts: What drove the sales growth?
+
+- Id: trade-efficiency
+- Category: Sparkling water · Channel: off-premise
+- Skill: Trade economics · Goal: Diagnose
+- Algorithm: Optimization & Marginal Analysis
+- Track: Handle a pricing or promotion issue
+- Tags: promo, margin
+
+**The situation.** Sprouts is your fastest-growing account. Finance just flagged it as your worst account on margin.
+
+**What you know.**
+- Sales: +11%
+- Volume: +14%
+- Net price per unit: −3%
+- Volume in non-promoted weeks: −2%
+- Trade spend: +21% (bad)
+- Gross margin: 34% → 30% (bad)
+- Promo frequency: every 3 weeks → every 2
+
+**The decision.** What drove the sales growth?
+
+**Options.**
+- A. Promotion frequency, funded by trade spend, at the cost of margin — *best*
+  Exactly. Volume +14% at a net price 3% lower, trade spend +21%, margin −4 pts, and full-price weeks are shrinking. The account is growing on the top line because you're paying it to. The economic fingerprint says this growth is bought, not earned.
+- B. Real demand growth. Volume is up 14%. — *weak*
+  Look at the weeks without a promotion: volume there is down 2%. Shoppers are buying more when it's on deal, not more often at full price. Demand didn't do this; the promo calendar did.
+- C. Shoppers stocking up on deals — *good*
+  Partly right. The dip in non-promoted weeks is the signature of shoppers buying ahead on deal. But that's a symptom of the extra promotions, not a separate cause. The driver is the promo calendar.
+- D. Better shelf execution — *weak*
+  Nothing in the evidence mentions shelf. Better execution would lift full-price weeks too, and volume in those fell 2%.
+
+**Reasoning.** Sales splits into volume and price: +14% volume at a 3% lower net price is the +11%. Volume is up but full-price weeks are shrinking, so this is promoted volume. Then ask what it cost: 21% more trade spend and 4 pts of margin, so gross profit is about 2% lower on 11% more sales. Each extra promo cycle returns less than the last: the marginal contribution of trade spend has turned negative while the sales line still looks good.
+
+**The principle.** Follow the sales number down to margin before you call it growth. Ask what the last dollar of trade spend bought.
+
+**Your next move.** Take the promo calendar back to every three weeks and redirect the freed spend to display on your highest-margin item. Show the buyer the plan as 'same activity, better mix.'
+
+**The algorithm rule (Optimization & Marginal Analysis).** Keep spending while the next dollar returns more than a dollar. Stop when the next dollar returns less than a dollar. Judge the last increment, not the total.
+
+---
+
+### 14. Fresh Thyme: How much should the rep's comment change your estimate?
+
+- Id: buyer-not-interested
+- Category: Kombucha · Channel: off-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Practice a customer meeting
+- Tags: opportunity, meeting
+
+**The situation.** You've been trying to get a second SKU into Fresh Thyme. The distributor rep tells you the buyer 'isn't interested, don't bother.'
+
+**What you know.**
+- Your first SKU velocity there: top third of the set (good)
+- Two nearby competitors of theirs: added your second SKU last quarter (good)
+- Buyer's last email: 'send me the data'
+- Distributor rep: carries 60 other brands (warn)
+- Your base rate for second-SKU adds: about 35%
+
+**The decision.** How much should the rep's comment change your estimate?
+
+**Options.**
+- A. A lot. The rep knows the buyer. Move on. — *weak*
+  The rep is one signal, and a noisy one: he carries 60 brands and 'don't bother' costs him nothing. Meanwhile you have three pieces of evidence pointing the other way.
+- B. Not at all. Ignore the distributor. — *good*
+  Tempting, but distributor reps do know things. Weak evidence still counts for something. Update a little, don't dismiss.
+- C. A little. The other evidence is stronger. — *best*
+  Right. Start at 35%. Top-third velocity, nearby competitor adds and 'send me the data' each raise the odds. The rep's comment lowers them, but it's weak evidence. You land above 50%, not below it.
+- D. Ask the rep to pitch it for you — *weak*
+  You'd be handing your best opportunity to the person who just told you it's dead, with 59 other brands competing for his attention.
+
+**Reasoning.** Prior belief, then evidence, then updated belief. Each piece of evidence should move you in proportion to how surprising it would be if you were wrong. A buyer who asks for data is rarely 'not interested.' A rep with 60 brands saying 'don't bother' is barely evidence at all.
+
+**The principle.** Weigh evidence by its reliability, not by who said it last or how confident they sounded.
+
+**Your next move.** Send the buyer the data she asked for: your SKU-one velocity in her stores and the second SKU's performance at the two nearby competitors. Ask for a 12-store test.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 15. Giant Eagle: What do you check first?
+
+- Id: what-to-check-first
+- Category: Frozen entrées · Channel: off-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Value of Information
+- Track: Decide where to focus
+- Tags: diagnosis
+
+**The situation.** Giant Eagle is underperforming and you don't know why. You have one afternoon before you need to tell your manager what's going on.
+
+**What you know.**
+- Possible causes: price · distribution · demand · execution · promotion · distributor inventory
+- Depletion report: free, 10 minutes
+- Store visit with price check: 90 minutes
+- Consumer panel pull: 3 days, costs a favour (warn)
+- Distributor call: 15 minutes
+- Your hunch: distributor inventory (they loaded last quarter)
+
+**The decision.** What do you check first?
+
+**Options.**
+- A. Do the store visit — *good*
+  Valuable, and you'll probably do it anyway. But it takes 90 minutes and it can't tell you about distributor inventory, which is your leading hypothesis. Do the ten-minute check first.
+- B. Pull the depletion report — *best*
+  Right. It's free, it's fast, and it resolves your most likely cause. If depletions are healthy, you've ruled out the biggest suspect in ten minutes and can spend the rest of the afternoon on the store visit.
+- C. Request the consumer panel — *weak*
+  Three days and a favour to test the cause you think is least likely. Expensive information about an unlikely hypothesis is the worst trade available.
+- D. Tell your manager it's probably distributor inventory — *weak*
+  It might be. But a ten-minute report turns 'probably' into 'confirmed' or 'ruled out.' Never guess when checking is nearly free.
+
+**Reasoning.** Value of information: the best next check is the one that most changes what you'd do, for the least cost. The depletion report is cheap and resolves your highest-probability cause. That's the top of the list by a wide margin.
+
+**The principle.** Before acting, ask what you should learn first. Prefer cheap checks that resolve likely causes.
+
+**Your next move.** Depletion report first. If flat, call the distributor. If healthy, go to the store with a price check and a shelf photo. Report what you ruled out, not just what you found.
+
+**The algorithm rule (Value of Information).** Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+
+---
+
+### 16. The Dockside (bar): What's the most likely cause?
+
+- Id: tavern-pour-decline
+- Category: Vodka · Channel: on-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Win on-premise
+- Tags: on-premise, decline
+
+**The situation.** The Dockside is one of your top ten bars, and your vodka depletions there are down 18% over three months. Nothing changed on your side.
+
+**What you know.**
+- Depletions to the account: −18%
+- Bar traffic (covers): −2%
+- New bar manager: started 3 months ago (warn)
+- Cocktail menu: reprinted in March · your signature drink dropped (bad)
+- Back-bar position: unchanged
+- Competitor: ran a bartender education night in April (warn)
+
+**The decision.** What's the most likely cause?
+
+**Options.**
+- A. The competitor's education night won over the bartenders — *good*
+  Plausible, and it may be making things worse. But it happened in April, after the decline began in March. It can't explain why your pours started falling.
+- B. Guests are drinking less vodka — *weak*
+  Covers are down 2% and your depletions are down 18%. The room didn't change nearly enough to explain this.
+- C. The distributor is under-delivering — *weak*
+  Depletions measure what the account ordered. If deliveries were short, you'd hear about empty shelves, not see a steady decline in orders.
+- D. The menu reprint dropped your signature cocktail — *best*
+  Yes. The timing lines up with the decline, and a menu cocktail is how most on-premise vodka gets ordered by name. Traffic barely moved, so guests are still coming in. They're just not being offered your drink.
+
+**Reasoning.** Start with the usual causes of an on-premise pour decline: menu, staff, or traffic. The numbers rule out traffic. The menu reprint and the new manager both arrived just as the decline began, which moves the odds sharply toward a lost menu placement. The competitor's education night came later, so at most it's making things worse.
+
+**The principle.** On-premise, the menu and the people behind the bar drive what gets ordered. When pours drop and traffic doesn't, look at what changed on the menu first.
+
+**Your next move.** Book time with the new bar manager this week. Bring the signature cocktail's past pour data and offer a staff tasting through your distributor. Ask what they want the menu to do, and pitch your drink as the answer.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 17. Bayside Hospitality (restaurant group): Which location do you work first?
+
+- Id: btg-winback
+- Category: Bourbon · Channel: on-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Expected Value
+- Track: Win on-premise
+- Tags: on-premise, decline, opportunity
+
+**The situation.** Bayside Hospitality dropped your bourbon's Old Fashioned from the cocktail menu at three of its seven restaurants. The group is down 22% for you this year. You have time to work one location properly this month.
+
+**What you know.**
+- Group depletions: −22% (bad)
+- Downtown: 400 covers a night · bar manager likes the replacement · ~20% chance · $30K a year
+- Waterfront: 250 covers a night · bar manager asked for staff training · ~70% chance · $18K a year (good)
+- Midtown: 150 covers a night · closed 6 weeks for a remodel · ~50% chance · $9K a year
+
+**The decision.** Which location do you work first?
+
+**Options.**
+- A. Downtown. Biggest room, biggest prize. — *weak*
+  Big room, low odds. About $6K of expected value, and the bar manager has just told you they like the replacement.
+- B. Midtown — *weak*
+  About $4.5K of expected value, and it's closed for six weeks. Come back to it before it reopens.
+- C. Waterfront — *best*
+  Right. About $12.6K of expected value, and the bar manager has told you exactly what would help. A win there also gives you a story for the other two.
+- D. Pitch all three at once to the group's beverage director — *good*
+  Worth doing eventually, but the group director just approved these changes. Win one location on the evidence first, then take the result to the group.
+
+**Reasoning.** Probability × value. Downtown: 0.2 × $30K = $6K. Waterfront: 0.7 × $18K = $12.6K. Midtown: 0.5 × $9K = $4.5K, and not this month. The largest room isn't the best use of your time right now.
+
+**The principle.** In a multi-unit account, win the location where the odds are best, then use the result to open the rest.
+
+**Your next move.** Schedule the staff training at Waterfront through your distributor. Track Old Fashioneds sold for four weeks, then bring those numbers to the group beverage director.
+
+**The algorithm rule (Expected Value).** Chance × prize − the cost of chasing it. Rank your visits by that number.
+
+---
+
+### 18. Tap & Barrel (bar): What do you do?
+
+- Id: happy-hour-ask
+- Category: Tequila · Channel: on-premise
+- Skill: Customer strategy · Goal: Act
+- Algorithm: Utility & Trade-offs
+- Track: Win on-premise
+- Tags: on-premise, compliance
+
+**The situation.** The owner of Tap & Barrel says he'll feature your tequila on the new happy hour menu if you 'help cover the discount.' He's a good account and a friend.
+
+**What you know.**
+- Your depletions there: +6% (good)
+- Happy hour share of his tequila sales: about 40%
+- State rules: suppliers can't pay retailers for placements or discounts (warn)
+- What you're allowed to offer: staff training · a consumer tasting · permitted menu materials
+- Competitor: rumoured to be 'helping' another bar (warn)
+
+**The decision.** What do you do?
+
+**Options.**
+- A. Decline the money and offer the support you're allowed to give — *best*
+  Right. You can't buy the feature, but you can make his happy hour better: a trained staff that sells the drink, a tasting night that brings guests in, and permitted menu materials. That's value he can use.
+- B. Find a quiet way to cover part of the discount — *weak*
+  That's a payment for placement, which the rules in this state don't allow, however it's routed. It puts your license, your distributor, and the account at risk.
+- C. Match whatever the competitor is doing — *weak*
+  A rumour isn't evidence. And if it's true, it's their risk, not your strategy.
+- D. Pass on the feature — *good*
+  Safe, but you're leaving value on the table. There's a legal way to say yes. Find it.
+
+**Reasoning.** Weigh each option against what matters: volume, the relationship, and compliance. Covering the discount scores on volume and relationship but fails compliance completely, and a failure there outweighs everything else. The permitted support scores well on all three.
+
+**The principle.** Some constraints aren't weights you trade off. They're limits. Find the best option inside them. In beverage alcohol, know what you're allowed to give before you decide what to give.
+
+**Your next move.** Tell the owner plainly what you can and can't do. Then book the staff training and a tasting night with your distributor, timed to the happy hour launch. Rules vary by state, so check yours.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 19. Northside Sports Bar: What do you say?
+
+- Id: featured-spots
+- Category: Tequila · Channel: on-premise
+- Skill: Customer strategy · Goal: Defend
+- Algorithm: Decision Trees
+- Track: Win on-premise
+- Tags: on-premise, decline, meeting
+
+**The situation.** The owner says he's moving to 'rotating features for variety.' Your tequila holds three of the bar's six featured spots: the house margarita, the shot special and the game-day pitcher. Next month it will lose two of them. The account is already down 12% this year.
+
+**What you know.**
+- Your house margarita: #2 cocktail by drinks sold last quarter (good)
+- Account depletions: −12%
+- Owner's goal: more variety for regulars
+- Your portfolio: a mezcal and a limited reposado the bar doesn't carry
+- Rotating features elsewhere: sales per featured spot usually fall 20–30% (warn)
+
+**The decision.** What do you say?
+
+**Options.**
+- A. Accept it and ask to be first in the rotation — *good*
+  Better than nothing, but you'd be trading a proven #2 cocktail for a turn in the queue.
+- B. Argue that the #2 cocktail shouldn't lose anything — *weak*
+  True, but it ignores what he's trying to do. Buyers don't reverse a decision because it's inconvenient for you.
+- C. Offer a discount to keep all three spots — *weak*
+  Money doesn't solve his problem, which is variety. And in most states, paying for menu placement isn't allowed.
+- D. Keep the house margarita permanent and offer your mezcal and reposado for the rotation — *best*
+  Right. He gets variety, you keep the drink that sells, and two more of your brands ride the rotation. You've turned his goal into your plan.
+
+**Reasoning.** Map the branches. If you argue, he most likely goes ahead and you lose two spots. If you accept, you keep one spot and hope for rotations. If you reframe around his goal, the likely outcome is a permanent house margarita plus rotating features for your mezcal and reposado. That keeps most of your volume and adds new brands, so it has the highest expected value.
+
+**The principle.** When a buyer changes the rules, don't fight the goal. Offer a version of it that keeps what you need.
+
+**Your next move.** Bring the drink sales data and a 12-week rotation calendar with your mezcal and reposado in it. Ask for the house margarita to stay as the anchor regulars expect.
+
+**The algorithm rule (Decision Trees).** Lay out the branches, weigh each one by its odds, roll the value back to today. Then compare that number with what pursuing costs.
+
+---
+
+### 20. Meridian Hotels (12 bars): Where do you put the test cases?
+
+- Id: hotel-rtd-test
+- Category: Canned cocktails · Channel: on-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Exploration vs. Exploitation
+- Track: Win on-premise
+- Tags: on-premise, launch
+
+**The situation.** You have 20 cases of a new canned cocktail to test across Meridian's 12 hotel bars. The chain decides on a full listing in eight weeks.
+
+**What you know.**
+- 3 downtown hotels: your spirits already sell well · strong managers (good)
+- 4 airport hotels: high traffic · no data on canned cocktails
+- 5 resort hotels: pool bars · seasonal · no data
+- Listing decision: based on rate of sale across the test
+- Cases available: 20
+
+**The decision.** Where do you put the test cases?
+
+**Options.**
+- A. All 20 in the three downtown hotels — *good*
+  You'd get a strong rate of sale, but you'd learn nothing about the airport and resort bars, which are 9 of the 12. The chain will ask how it performs across the whole estate.
+- B. Mostly downtown, plus one airport and one resort bar — *best*
+  Right. Put most cases where you know they'll sell, so the headline rate of sale is strong. Put enough in the other two formats to learn whether they work. That's the mix the listing decision needs.
+- C. Spread them evenly across all 12 — *weak*
+  It looks fair, but under two cases each isn't enough to read anything. And it ignores what you already know about downtown.
+- D. All 20 in the resort pool bars — *weak*
+  Maybe canned cocktails do best by the pool, but that's a guess with no data behind it, and those bars are seasonal. Betting the whole test on a hunch is exploring without a safety net.
+
+**Reasoning.** This is explore versus exploit. Downtown is the known winner. Airport and resort bars are unknowns, and they make up most of the chain. Putting everything on the winner maximises this month's number and leaves the bigger question unanswered. Spreading evenly learns a little about everything and proves nothing.
+
+**The principle.** When a test decides a bigger rollout, spend most of it where you're confident and enough where you're not to find out.
+
+**Your next move.** Put 12 cases downtown, 4 in the busiest airport bar, and 4 in the busiest resort bar. Agree on how the results will be read with the chain before the test starts.
+
+**The algorithm rule (Exploration vs. Exploitation).** Spend most of your time where you know it pays. Keep a slice for what you don't understand, sized by how long you'll be around to use the answer.
+
+---
+
+### 21. Your bourbon accounts: Where do the 20 hours go?
+
+- Id: placement-velocity
+- Category: Bourbon · Channel: on-premise
+- Skill: Trade economics · Goal: Diagnose
+- Algorithm: Optimization & Marginal Analysis
+- Track: Win on-premise
+- Tags: on-premise, velocity, distribution
+
+**The situation.** Your bourbon won 10 new on-premise placements last quarter and depletions are up 24%. Your manager wants ten more this quarter. You have about 20 hours to spend on bourbon.
+
+**What you know.**
+- Depletions: +24%
+- New placements: 10
+- 20 existing accounts: 2.0 cases a month each
+- 4 new menu placements: 1.8 cases a month each (good)
+- 6 new back-bar-only placements: 0.4 cases a month each (bad)
+- Chase a new placement: about 2 hours · most land on the back bar
+- Get a back-bar bottle into a menu cocktail: about 2 hours · works about half the time
+
+**The decision.** Where do the 20 hours go?
+
+**Options.**
+- A. Ten more placements, as asked — *good*
+  It adds volume, but most new placements land on the back bar at 0.4 cases a month. You'd be adding the weakest kind of distribution while six bottles you already placed sit still.
+- B. Pull the bottle from the six slow accounts — *weak*
+  They still sell, and the placement is already won. The problem isn't the account. It's that nobody is being offered the drink.
+- C. Split the hours evenly between new and existing accounts — *weak*
+  It feels balanced, but every hour on the lower-return option costs you volume. Compare the next hour, not the category.
+- D. Work the six back-bar accounts to get a menu cocktail or staff pour — *best*
+  Right. A menu cocktail sells about 1.4 cases a month more than a back-bar bottle. Even at a 50% hit rate, that's about 0.7 cases a month for two hours, compared with about 0.4 for a new back-bar placement.
+
+**Reasoning.** Compare what the next two hours buy. A new placement usually lands on the back bar: +0.4 cases a month. Converting a back-bar bottle to a menu cocktail adds about 1.4 cases a month (1.8 − 0.4), and it works about half the time, so the expected gain is about 0.7. The same hours return nearly twice as much on accounts you already have.
+
+**The principle.** Distribution without velocity is inventory on a shelf. Count what each placement sells, not how many you have, and spend the next hour where it adds the most.
+
+**Your next move.** Book time with the bar managers at the six back-bar accounts and pitch one simple bourbon cocktail each, with a staff tasting through your distributor. Report velocity per placement to your manager alongside the placement count.
+
+**The algorithm rule (Optimization & Marginal Analysis).** Keep spending while the next dollar returns more than a dollar. Stop when the next dollar returns less than a dollar. Judge the last increment, not the total.
+
+---
+
+### 22. Skyline Rooftop (bar): What does the 60% jump tell you?
+
+- Id: rooftop-season
+- Category: Aperitivo liqueur · Channel: on-premise
+- Skill: Diagnosis · Goal: Recognize
+- Algorithm: Prediction vs. Decision
+- Track: Win on-premise
+- Tags: on-premise, velocity, seasonality
+
+**The situation.** Your aperitivo spritz at Skyline Rooftop sold 60% more per week in June than in March. You trained the staff in April. Your manager wants to use Skyline as the proof to pitch five other rooftop bars.
+
+**What you know.**
+- Spritzes a week, March: 56
+- Spritzes a week, June: 90
+- Spritzes a week, last June: 86
+- Skyline covers, March to June: +48%
+- Rooftop bars, March to June: spritz sales usually rise 50–60%
+
+**The decision.** What does the 60% jump tell you?
+
+**Options.**
+- A. The spritz is taking off. Pitch it everywhere. — *weak*
+  Most of that jump is summer. Rooftop spritz sales rise 50–60% from March to June every year, and Skyline's covers rose 48%. Pitch this as growth and the first buyer who checks will stop trusting your numbers.
+- B. It's mostly season. Against last June, you're up about 5%. — *best*
+  Right. 90 against 86 last June is about +5%. That's a real but modest gain, and it's the honest number to build a pitch on.
+- C. The April staff training drove the increase — *good*
+  It may explain some of the small gain over last June, but not the 60%. The training happened in the same months as summer, so you can't separate them yet.
+- D. It tells you nothing. Ignore it. — *weak*
+  It tells you plenty once you compare like with like. Skyline sells about 90 a week in summer and is slightly ahead of last year. That's useful.
+
+**Reasoning.** A forecast or trend is not a decision until you know what's driving it. The March-to-June jump matches the seasonal pattern for rooftop bars almost exactly, so it predicts summer, not your brand. The comparison that isolates your brand is same month, last year: 90 against 86, about +5%.
+
+**The principle.** Compare like with like. Before you call a velocity jump growth, check it against the same period last year and against the season.
+
+**Your next move.** Pitch the five rooftops with Skyline's year-over-year gain and its summer rate of sale (about 90 a week), not the 60%. Ask Skyline to keep the staff pour going into autumn so you can see whether the training holds up when the season fades.
+
+**The algorithm rule (Prediction vs. Decision).** A forecast tells you what might happen. A decision tells you what to do about it. Break headline numbers into the drivers you can act on. Then judge those drivers against the objective.
+
+---
+
+### 23. La Brasa (restaurant): What do you recommend?
+
+- Id: mezcal-price-velocity
+- Category: Mezcal · Channel: on-premise
+- Skill: Trade economics · Goal: Act
+- Algorithm: Utility & Trade-offs
+- Track: Win on-premise
+- Tags: on-premise, velocity, pricing
+
+**The situation.** La Brasa raised its mezcal margarita from $14 to $17. Sales of the drink fell from 30 to 24 a week, and your depletions there are down 20%. The owner asks whether he should go back to $14.
+
+**What you know.**
+- Margaritas a week: 30 → 24
+- Price: $14 → $17
+- His cost per drink: about $3.50
+- His weekly profit on the drink: $315 → $324
+- Your depletions: −20%
+- His menu: no lower-priced mezcal drink
+
+**The decision.** What do you recommend?
+
+**Options.**
+- A. Go back to $14 to win back the volume — *weak*
+  That's good for your depletions and bad for his business. He makes $9 a week more at $17. Advice that costs the owner money won't be trusted twice.
+- B. Keep $17. It's his call, not yours. — *good*
+  Respectful, and he is right to keep the price. But you've left your 20% decline unsolved. There's a way to help both of you.
+- C. Keep $17, and add a lower-priced mezcal drink to the menu — *best*
+  Right. He keeps the better margin on the margarita, and a simpler drink at a lower price wins back guests who were priced out. His profit and your velocity can both go up.
+- D. Offer to cover the difference so he can drop the price — *weak*
+  Tied-house rules in nearly every state bar a supplier from paying a retailer to discount a drink. And it wouldn't be his best option anyway.
+
+**Reasoning.** Weigh what matters to each side. For him, profit on the drink: $315 a week at $14 against $324 at $17, so the higher price wins, by $9. It's a thin lead: one more lost drink a week would erase it. For you, velocity: 30 drinks against 24. Reverting the price trades his profit for your volume. Adding a lower-priced drink keeps his margin and gives price-sensitive guests a way back to your mezcal.
+
+**The principle.** Velocity isn't the only goal. Look for the option that improves the account's economics and yours at the same time. It's the only kind that lasts.
+
+**Your next move.** Show him the profit math, then suggest a mezcal paloma or highball at around $12. Offer a staff tasting, within your state's sampling rules, to launch it, and compare combined mezcal drinks a week after four weeks.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 24. Nine lapsed accounts: What do you do first?
+
+- Id: lapsed-accounts
+- Category: Spirits portfolio · Channel: on-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Value of Information
+- Track: Win back a lost account
+- Tags: on-premise, lapsed, decline
+
+**The situation.** Distributor data shows nine bars and restaurants that haven't ordered any of your spirits in six months. Together they bought $62K last year. Your manager wants a win-back plan by Friday.
+
+**What you know.**
+- Accounts with no order in 6 months: 9
+- Their sales last year: $62K
+- A visit: about half a day
+- Why last year's lapsed accounts stopped: 3 in 10 closed or changed owner · 2 in 10 on distributor credit hold · 5 in 10 switched brands
+- Distributor account status report: one email, back the same day
+
+**The decision.** What do you do first?
+
+**Options.**
+- A. Ask the distributor for each account's status, then plan the visits — *best*
+  Right. One email tells you which accounts are closed, under new ownership, or on credit hold. It costs almost nothing, and it's likely to change the plan for four or five of the nine.
+- B. Visit the three biggest this week — *good*
+  It's action, and size matters. But if last year is any guide, about half these accounts are closed, have a new owner, or can't order because of a credit hold. You could spend a day and a half visiting accounts you can't win.
+- C. Send all nine a win-back offer — *weak*
+  An offer doesn't help a closed account or one on credit hold, and it isn't the reason most accounts switch brands. You'd be solving the wrong problem for half the list.
+- D. Write them off and focus on new accounts — *weak*
+  Too soon. Half of them likely switched brands for a reason you can learn about, and they bought $62K last year. Find out which ones are winnable first.
+
+**Reasoning.** Before you spend 4½ days visiting nine accounts, ask what one cheap check would change. Last year, half of the lapsed accounts weren't brand decisions at all: they had closed, changed hands, or couldn't order. A same-day status report sorts the list into accounts to visit, accounts to hand to the distributor's credit team, and new owners to introduce yourself to.
+
+**The principle.** When a cheap piece of information could change most of the plan, get it first. Don't visit your way to an answer you could have looked up.
+
+**Your next move.** Email the distributor today for status and last-order details on all nine. Plan visits for the accounts that switched brands, ranked by last year's sales, and send the new-owner accounts an introduction.
+
+**The algorithm rule (Value of Information).** Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+
+---
+
+### 25. Oakline Steakhouse: What's the most likely explanation?
+
+- Id: silent-lapse
+- Category: Rye whiskey · Channel: on-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Win back a lost account
+- Tags: on-premise, lapsed
+
+**The situation.** Oakline Steakhouse hasn't ordered your rye in seven months, and the distributor has flagged it as lost. You walked past last week and your bottle was still on the back bar.
+
+**What you know.**
+- Usual order: 1 case every 2 months
+- Last order, in March: 4 cases on a distributor deal (warn)
+- Months since last order: 7
+- Menu: Manhattan still lists your rye (good)
+- Bar manager: same as last year
+- Distributor status: flagged 'lost' (bad)
+
+**The decision.** What's the most likely explanation?
+
+**Options.**
+- A. They switched to a competitor's rye — *weak*
+  Your rye is still named on the menu and still on the back bar, with the same bar manager. That isn't what a switch looks like.
+- B. They're still working through the four cases they bought in March — *best*
+  Right. At their usual pace, four cases lasts about eight months. Seven months with no order is exactly what you'd expect, and the menu and back bar confirm the brand is still in use.
+- C. Their rye sales have slowed — *good*
+  Possible, and worth checking. But the March load already explains the gap. Count the stock before you assume velocity fell.
+- D. The account is closing — *weak*
+  You saw it open last week, with your bottle on the back bar and the same manager. Nothing here points to a closure.
+
+**Reasoning.** Start with the distributor's flag: seven months with no order usually means lost. Then update on the evidence. The March load of four cases at a usual pace of half a case a month covers about eight months. The menu, the back bar and the unchanged manager all point to an account that's still pouring your rye. The odds move sharply toward 'overstocked', not 'lost'.
+
+**The principle.** No order doesn't always mean no sales. Before you call an account lost, check whether it's simply working through a load.
+
+**Your next move.** Stop by to count what's left and ask the bar manager when they expect to reorder. Ask the distributor to clear the 'lost' flag, and set a reminder to follow up in a month. Treat the next deal load with care: it borrows from future orders.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 26. The Copper Room (cocktail bar): What do you ask for?
+
+- Id: outage-winback
+- Category: Gin · Channel: on-premise
+- Skill: Customer strategy · Goal: Defend
+- Algorithm: Decision Trees
+- Track: Win back a lost account
+- Tags: on-premise, lapsed, meeting
+
+**The situation.** The Copper Room hasn't ordered your gin in eight months. It switched after you were out of stock for five weeks last year. The owner has agreed to a 15-minute meeting.
+
+**What you know.**
+- Lost sales: about $20K a year
+- Why they switched: 5-week out of stock last year (bad)
+- Supply today: distributor holds 10 weeks of stock (good)
+- Owner's view: 'I can't have a gap on my menu again'
+- Ask for the full account back: ~15% chance · $20K a year
+- Ask for one menu cocktail first: ~60% chance · $6K a year · ~40% chance of the rest a year later
+
+**The decision.** What do you ask for?
+
+**Options.**
+- A. The full account back, with a supply guarantee — *weak*
+  It's the biggest prize, but you're asking an owner who got burned to bet his whole gin program on your word. About a 15% chance: roughly $6K of expected value over two years.
+- B. Own the outage and ask to be considered at the next menu change — *good*
+  Owning the outage is right, and the menu change is the right moment. But it's a vague ask with no drink and no date. A small, specific ask can get a yes today.
+- C. Offer a free case to make up for the outage — *weak*
+  The instinct to make amends is good, but free product for placement isn't allowed in many states, and it doesn't answer his worry, which is supply.
+- D. One menu cocktail, and let the results earn the rest — *best*
+  Right. It's easy to say yes to, and it lets you prove supply before you ask for more. About $10.5K of expected value over two years, nearly twice the full ask.
+
+**Reasoning.** Map the branches over two years. Full ask: a 15% chance of $20K a year, about $6K over two years. Menu cocktail: a 60% chance of $6K in year one, worth $3.6K. If it works, there's a 40% chance of the full $20K in year two; otherwise the cocktail's $6K continues. That's 60% × (40% × $20K + 60% × $6K) ≈ $7K in year two, about $10.5K in total. The smaller ask wins because it answers his real concern and opens the next branch.
+
+**The principle.** When you've lost trust, ask for the smallest yes that lets you prove it. Then earn the rest.
+
+**Your next move.** Open by owning the outage. Show the distributor's 10 weeks of stock. Propose one gin cocktail for the next menu, with a check-in after 90 days to talk about the back bar and well.
+
+**The algorithm rule (Decision Trees).** Lay out the branches, weigh each one by its odds, roll the value back to today. Then compare that number with what pursuing costs.
+
+---
+
+### 27. Casey's: What's the most likely cause?
+
+- Id: cstore-decline
+- Category: Energy drinks · Channel: off-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Turn around a declining account
+- Tags: decline, oos
+
+**The situation.** Your energy drink is down 11% at Casey's over eight weeks while the category is up 6%. The buyer thinks a newer competitor is taking your shoppers.
+
+**What you know.**
+- Your sales: −11%
+- Category: +6%
+- Cooler out-of-stocks: 4% → 14% (bad)
+- Delivery frequency: twice a week → once a week (warn)
+- Cooler door position: moved from door 1 to door 3 at the reset (warn)
+- Price: unchanged
+
+**The decision.** What's the most likely cause?
+
+**Options.**
+- A. Fewer deliveries are leaving the cooler empty — *best*
+  Yes. Out-of-stocks went from 4% to 14% when deliveries were halved. Energy drinks sell fast in convenience stores, and one delivery a week can't keep the cooler full through the weekend.
+- B. The new competitor is taking share — *weak*
+  Maybe a little. But a growing category and out-of-stocks tripling point somewhere else. Shoppers can't pick you if you're not there.
+- C. The move to a less visible cooler door — *good*
+  It can hurt sales, and it's worth fixing. But door position doesn't explain out-of-stocks tripling. Fix the empty shelf first.
+- D. A price problem — *weak*
+  Price didn't change and the category is growing. Nothing here points at price.
+
+**Reasoning.** The buyer's starting belief is that the competitor is winning. The evidence should change it: out-of-stocks tripled when deliveries were halved, and the category kept growing. That combination makes supply far more likely than demand. The door move is real but explains less.
+
+**The principle.** Before you blame demand, check availability. A product that isn't on the shelf looks exactly like a product nobody wants.
+
+**Your next move.** Show the buyer weekly out-of-stocks against the date deliveries changed. Ask your distributor to restore the second delivery or raise the cooler's par level. Then work on the door position.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 28. Hy-Vee: How would you describe the launch?
+
+- Id: flavor-cannibal
+- Category: Sparkling water · Channel: off-premise
+- Skill: Trade economics · Goal: Recognize
+- Algorithm: Prediction vs. Decision
+- Track: Diagnose what's really happening
+- Tags: launch, cannibalization
+
+**The situation.** Your new flavour has sold $180K in its first 20 weeks at Hy-Vee. Your manager wants to call it a win in the quarterly review.
+
+**What you know.**
+- New flavour sales: $180K
+- Core flavours: −$150K (bad)
+- Brand total: +$30K
+- Slotting and launch trade: $45K (warn)
+- Facings: the new flavour took 2 from core
+- Category: +1%
+
+**The decision.** How would you describe the launch?
+
+**Options.**
+- A. A clear win: $180K of new sales — *weak*
+  That's the number on the launch slide, but $150K of it came out of your own core flavours. The shelf didn't grow. You rearranged it.
+- B. Too early to say anything — *good*
+  It is early, but you can already say something useful: so far it's mostly moving your own shoppers around. Saying that now is better than discovering it at the annual review.
+- C. Mostly cannibalization: +$30K for the brand against $45K of cost — *best*
+  Right. The brand gained about $30K against $45K of launch cost. The flavour may still be worth keeping, but it hasn't paid for itself yet.
+- D. A failure. Pull it. — *weak*
+  Too far. It's early, and it may be bringing in shoppers your core doesn't reach. The question is whether it becomes incremental, not whether to kill it today.
+
+**Reasoning.** The prediction, that the flavour would sell, came true. What it means depends on what those sales replaced. Most came out of the core, because the new flavour took core facings. Judge a launch by what the brand gained, net of cost.
+
+**The principle.** Judge a new item by what the brand gained, not by what the new item sold.
+
+**Your next move.** Report the launch as '+$30K for the brand, $45K cost, mostly cannibalization so far.' Propose giving one facing back to the best-selling core flavour and reviewing again in 12 weeks.
+
+**The algorithm rule (Prediction vs. Decision).** A forecast tells you what might happen. A decision tells you what to do about it. Break headline numbers into the drivers you can act on. Then judge those drivers against the objective.
+
+---
+
+### 29. Food Lion: How do you respond?
+
+- Id: private-label
+- Category: Granola · Channel: off-premise
+- Skill: Customer strategy · Goal: Defend
+- Algorithm: Utility & Trade-offs
+- Track: Practice a customer meeting
+- Tags: meeting, pricing, decline
+
+**The situation.** Food Lion launched a store brand next to your granola, priced 20% below yours. Eight weeks in, the buyer says you need to fund a deep promotion to 'stay competitive' or lose a facing.
+
+**What you know.**
+- Your velocity: −7%
+- Shelf price: yours $7.00, store brand $5.60
+- His margin per unit: yours about $2.10, store brand about $2.50
+- Your loyal buyers: stable, 48% of your sales (good)
+- If yours were gone: about 4 in 10 loyal buyers would buy granola at another store
+- Where the loss came from: mostly occasional, price-driven shoppers
+- Category dollars: +3%
+
+**The decision.** How do you respond?
+
+**Options.**
+- A. Make the case in his numbers: the loyal buyers he'd lose — *best*
+  Right. Per unit, the store brand earns him a bit more margin, so don't argue per unit. Argue the category: your loyal buyers are nearly half your sales, and about 4 in 10 would take that trip to another store. Offer targeted support, like a display on your best seller, rather than a price war.
+- B. Fund the deep promotion to close the gap — *weak*
+  You'd be paying to chase the shoppers most likely to switch anyway, and teaching loyal buyers to wait for a deal. The gap reopens the day the promotion ends.
+- C. Accept losing the facing — *good*
+  Sometimes a smaller, profitable shelf beats a bigger discounted one. But you haven't made your case yet. Try first.
+- D. Ask for more facings to fight back — *weak*
+  You're asking for more while he's asking you for less. Earn the conversation first.
+
+**Reasoning.** Weigh what each option does for velocity, margin, and the relationship. A deep promotion helps velocity briefly and costs margin for good. Giving up the facing protects margin but costs volume. Making the category case with a targeted display scores reasonably on all three, which is why it wins under most sensible weightings. Argue it in category dollars, not margin per unit: the store brand earns him more per unit, but losing your loyal buyers to another store costs him the whole basket.
+
+**The principle.** When a buyer frames it as a price problem, check whether it really is one. Defend with the buyer's economics, not your own.
+
+**Your next move.** Bring one page: category dollars, your loyal buyers, and what happens to them if yours goes. Offer a four-week display on your best seller and agree the velocity target that keeps the facing.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 30. Walmart.com: What do you look into first?
+
+- Id: ecommerce-rank
+- Category: Sparkling water · Channel: off-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Value of Information
+- Track: Turn around a declining account
+- Tags: ecommerce, decline
+
+**The situation.** Your online sales at Walmart.com are down 15% over two months, while in-store sales are flat. Your manager asks whether you should cut the online price.
+
+**What you know.**
+- Online sales: −15%
+- In-store sales: flat
+- Search rank for 'sparkling water': #2 → #9 (bad)
+- Product page: still shows the old pack (warn)
+- Ratings: 4.6, stable
+- Online availability: 91%, unchanged
+
+**The decision.** What do you look into first?
+
+**Options.**
+- A. Cut the online price — *weak*
+  Nothing suggests price. In-store is flat at the same price and ratings are steady. You'd give away margin to fix a visibility problem.
+- B. Update the product page with the new pack — *good*
+  Worth doing, and it may be one reason the rank slipped. But it's one input to search rank, not the whole answer. Start with the rank.
+- C. Why search rank fell, and how to get back on page one — *best*
+  Right. Falling from #2 to #9 pushes you off the first screen on a phone, where most online baskets are built. That explains the drop better than anything else here.
+- D. Push online availability above 95% — *weak*
+  91% isn't ideal, but it hasn't changed. It can't explain a new decline.
+
+**Reasoning.** Ask which single fact would most change what you'd do. Online, visibility comes before price, because shoppers mostly choose from the first few results. The rank fell sharply while everything else held steady, so understanding the rank is the most valuable thing to learn. Retail media, content, reviews, and sales history all feed it.
+
+**The principle.** Online, the first screen is the shelf. When online sales fall and in-store doesn't, check where you show up before you touch price.
+
+**Your next move.** Ask the retailer's e-commerce team or your agency what moved the rank. Fix the product page this week, and test sponsored search on your top two keywords for four weeks.
+
+**The algorithm rule (Value of Information).** Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+
+---
+
+### 31. Harris Teeter: How do you handle it?
+
+- Id: cost-increase
+- Category: Crackers · Channel: off-premise
+- Skill: Trade economics · Goal: Defend
+- Algorithm: Utility & Trade-offs
+- Track: Handle a pricing or promotion issue
+- Tags: pricing, meeting
+
+**The situation.** Your company is taking a 6% list price increase because ingredient costs rose. The Harris Teeter buyer says any increase will cost you a facing.
+
+**What you know.**
+- List price increase: +6%
+- Your cost increase: +9%, documented
+- Expected shelf price: $4.49 → $4.79, after his margin and rounding
+- Competitors: two have already increased 5–7% (good)
+- Your velocity: top third of the set (good)
+- Buyer's goal: hold category unit sales
+
+**The decision.** How do you handle it?
+
+**Options.**
+- A. Offer extra trade spend to offset the increase — *weak*
+  You'd be handing the increase straight back. The cost pressure hasn't gone away; you've just moved it from the shelf to your P&L.
+- B. Show the costs, the competitor moves, and a plan for his unit sales — *best*
+  Right. Documented costs make it fair, competitors moving first makes it normal, and a plan for his units, like a smaller pack costed to sell at the old price point, answers what he actually cares about.
+- C. Delay the increase at this account — *good*
+  Timing can matter, but delaying at one retailer creates price gaps across your other accounts, can raise price-discrimination (Robinson-Patman) issues unless competing accounts get the same terms, and only postpones the conversation.
+- D. Accept losing the facing — *weak*
+  Your velocity is top third. You have a strong case to make before you concede anything.
+
+**Reasoning.** Ask what each option costs you over the year. Offsetting with trade erases the increase. Delaying costs months of margin and creates inconsistency. Making the case with a plan for units keeps the increase and gives the buyer something for his goal. It's the only option that doesn't hand the value straight back.
+
+**The principle.** Never defend a price increase with price. Defend it with evidence and a plan for what the buyer cares about.
+
+**Your next move.** Bring the cost documentation, competitor shelf prices, and a pack proposal that keeps an entry price point. Ask what unit target he needs and build the plan around it. Discuss your own pricing only, never what competitors should charge.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 32. Your territory: How do you split the cases?
+
+- Id: allocation
+- Category: Hard seltzer · Channel: off-premise
+- Skill: Prioritization · Goal: Prioritize
+- Algorithm: Expected Value
+- Track: Decide where to focus
+- Tags: supply
+
+**The situation.** A can shortage means you'll get 60% of your normal cases for the next four weeks. You decide how they're split across your eight largest accounts.
+
+**What you know.**
+- Supply available: 60% of normal (warn)
+- Two accounts: charge penalties for missed deliveries (warn)
+- One account: reviewing your item for delisting next month (bad)
+- Three accounts: high velocity · no penalties
+- Two accounts: low velocity · plenty of backstock (good)
+
+**The decision.** How do you split the cases?
+
+**Options.**
+- A. Give everyone 60% of their usual order — *good*
+  Fair and easy to explain, but it treats a delisting risk the same as an account sitting on backstock.
+- B. Fill the biggest accounts in full first — *weak*
+  Size isn't the same as damage. A big account with backstock loses little. A mid-size account under review could drop you.
+- C. First come, first served — *weak*
+  That rewards whoever orders fastest, not whoever matters most.
+- D. Protect where running out costs most; cut where there's backstock — *best*
+  Right. Ask where a missing case does the most damage: the delisting review, then the penalty accounts, then velocity. The backstock accounts can ride it out.
+
+**Reasoning.** Think in expected loss: the chance something goes wrong times what it costs. Shorting the delisting account risks the whole item there. Penalty accounts cost money every time you miss. High-velocity accounts lose sales fast. Backstock accounts lose almost nothing for four weeks. Allocating to minimise expected loss beats allocating to be even.
+
+**The principle.** When supply is short, allocate to minimise damage, not to be even. Then tell every account before they find out.
+
+**Your next move.** Rank the eight accounts by the cost of running out. Fill the delisting account and the penalty accounts first, then the velocity leaders. Call every buyer this week with the plan and a date for full supply.
+
+**The algorithm rule (Expected Value).** Chance × prize − the cost of chasing it. Rank your visits by that number.
+
+---
+
+### 33. Corner Fresh (independent): What do you do?
+
+- Id: walk-away
+- Category: Snacks · Channel: off-premise
+- Skill: Trade economics · Goal: Act
+- Algorithm: Expected Value
+- Track: Turn around a declining account
+- Tags: decline
+
+**The situation.** Corner Fresh, a three-store independent, is down 30% this year. The owner wants free product and a new display every quarter to 'stay interested,' and each visit takes half a day every two weeks.
+
+**What you know.**
+- Annual sales: $14K
+- Trend: −30%
+- This year's asks: $3K free product · $2K displays (warn)
+- Your time: about 12 days a year
+- Distributor: already delivers there (good)
+- Prospects: 4 within 10 miles
+
+**The decision.** What do you do?
+
+**Options.**
+- A. Give him what he asks to win back the volume — *weak*
+  $5K a year to protect $14K of shrinking sales, plus 12 days of your time. It doesn't add up, and it won't reverse a 30% decline.
+- B. Visit more often to turn it around — *weak*
+  More time on your least valuable account means less time on everything else.
+- C. Hand service to the distributor and spend your time on prospects — *best*
+  Right. The distributor already delivers there. Your 12 days a year are worth more across four prospects than at one account that's shrinking and costs more than it returns.
+- D. Keep things as they are — *good*
+  Not harmful, but not a decision either. You're spending time and money by default.
+
+**Reasoning.** Expected value includes cost. Corner Fresh returns less each quarter while asking for more. Even if more visits held sales flat, the $5K of asks and 12 days of your time are worth more elsewhere. Sometimes the best move is to do less at an account.
+
+**The principle.** Not every account deserves more effort. Sometimes the best decision is to step back and spend your time where it returns more.
+
+**Your next move.** Tell the owner you're moving his service to the distributor rep, with a quarterly check-in call. Book visits at the two most promising prospects in the next two weeks.
+
+**The algorithm rule (Expected Value).** Chance × prize − the cost of chasing it. Rank your visits by that number.
+
+---
+
+### 34. The Fresh Market: What's really behind 'too expensive'?
+
+- Id: value-too-expensive
+- Category: Cold brew coffee · Channel: off-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Utility & Trade-offs
+- Track: Sell the value
+- Tags: pricing, value, meeting
+
+**The situation.** At your category review, the buyer says: 'Your cold brew is too expensive. My shoppers won't keep paying $7.99.' He's deciding shelf space for the spring reset.
+
+**What you know.**
+- Your shoppers new to the category: 38%
+- Pack size: same as the category average
+- His margin per store: about $31 a week at a ~35% margin, against $16 at the same rate
+- Your 4-pack: $7.99 · 11 units per store per week · 44% buy again
+- Category average: $6.49 · 7 units per store per week · 30% buy again
+- Buyer's goal this year: grow category dollars
+
+**The decision.** What's really behind 'too expensive'?
+
+**Options.**
+- A. He's judging it by its shelf price, not by what it earns him — *best*
+  Right. On his own goal, category dollars, it's one of his best items: twice the sales and margin per store, new shoppers, and strong repeat. 'Too expensive' is a value question you haven't answered yet.
+- B. The price is too high for his shoppers. Offer a lower price point. — *weak*
+  Shoppers pick it over cheaper options and come back. That's a brand they prefer, not a price they resent. A lower price would give away dollars and margin he's trying to grow.
+- C. He wants trade money, and this is how the negotiation opens — *good*
+  Often true at a reset review, so be ready for it. But even then the case you make is the same: what this item earns his category. Make it first, then talk about money.
+- D. Cold brew shoppers are trading down to cheaper brands this year — *weak*
+  Your shoppers buy again 44% of the time at $7.99. People trading down don't keep coming back at a premium.
+
+**Reasoning.** Weigh the item against what the buyer is trying to achieve, not against the shelf price next to it. At $7.99 and 11 a week, your item takes about $88 per store a week against about $45 for the average item, and at the same margin rate earns him about $31 against $16. It brings shoppers the category didn't have, and 44% come back. On his objective, it's one of his best items.
+
+**The principle.** 'Too expensive' usually means 'not worth it yet.' Your job is the 'worth it': what the product earns the shopper and the buyer.
+
+**Your next move.** Open with a question: 'Too expensive compared to what: for your shoppers, or for your margin?' Then rebuild the review around his goal: sales and margin per store, new shoppers and repeat, against the category average. Ask for the space the numbers justify.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 35. The Arden Hotel (bar): What's most likely holding it back?
+
+- Id: value-unseen-on-menu
+- Category: Gin · Channel: on-premise
+- Skill: Diagnosis · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Sell the value
+- Tags: pricing, value, on-premise
+
+**The situation.** The bar manager says your gin and tonic isn't selling because 'guests think $15 is too much.' He wants to drop it from the next menu.
+
+**What you know.**
+- Arden cocktail prices: most $16–19
+- The Arden: $15 · gin not named, no description · staff don't mention it · 18 a week, 4% of cocktails
+- Sister hotel downtown: $16 · gin named, with a short botanical note · staff have tasted it · 41 a week, 8% of cocktails
+
+**The decision.** What's most likely holding it back?
+
+**Options.**
+- A. Guests here won't pay $15 for a gin and tonic — *weak*
+  It's one of the cheapest cocktails on the Arden's menu, where most drinks are $16 to $19. Price isn't the barrier.
+- B. This crowd prefers other spirits, so gin will always be a small seller — *good*
+  Worth checking. But the sister hotel's guests are much the same, and gin and tonics are twice the share of their cocktails. Start with what's different between the two bars.
+- C. A $12 gin and tonic would sell better and still make money — *weak*
+  It might sell a few more, but it answers the wrong question and costs margin. Guests aren't rejecting the price. They're not being shown the value.
+- D. Guests can't see what they'd be paying for — *best*
+  Right. Here it's an anonymous gin and tonic, so guests compare it with the house pour. Downtown the gin is named, described and recommended, and it takes twice the share of cocktails at $1 more.
+
+**Reasoning.** The manager believes price is the problem. Update on the evidence. At $15, the drink is one of the cheapest cocktails on the Arden's menu. The sister hotel isn't a controlled test, but compared as a share of all cocktails, which adjusts for how busy each bar is, it sells twice as well at a higher price. What differs is how the value is presented.
+
+**The principle.** A price can't be judged apart from how the value is presented. If the guest can't see what makes it worth $15, it isn't worth $15 to them.
+
+**Your next move.** Ask for two changes before the menu is cut: name the gin with a one-line description, and run a short staff tasting through your distributor. Ask for the menu mention; never pay for it. Compare its share of cocktails after four weeks.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 36. Target: What's most likely happening?
+
+- Id: value-price-point
+- Category: Sparkling water (12-pack) · Channel: off-premise
+- Skill: Trade economics · Goal: Diagnose
+- Algorithm: Bayesian Updating
+- Track: Sell the value
+- Tags: pricing, value
+
+**The situation.** Since last spring's list price increase, your 12-pack has sold 18% less at Target. The category is flat. Your manager says the fix is a stronger value story at shelf.
+
+**What you know.**
+- Shelf price: $5.99 → $6.49
+- Velocity since: −18%
+- Category velocity: flat
+- Shelf position, display and messaging: unchanged
+- Heaviest 20% of your buyers: buying as often as before
+- Lighter buyers: buying about a third less often
+- Where most items in the category sit: $4.99 or $5.99
+
+**The decision.** What's most likely happening?
+
+**Options.**
+- A. Shoppers don't see the value. Strengthen the shelf story. — *weak*
+  Nothing about how the value is shown changed, and your heaviest buyers are as loyal as ever. The drop came when the price crossed $5.99.
+- B. The price crossed $5.99, a line lighter buyers won't cross — *best*
+  Right. Here the price really is the problem. Selling value doesn't mean never moving price: it means knowing when the price has gone past what the value can carry.
+- C. Lighter buyers are price-sensitive; heavy buyers aren't — *good*
+  True, and useful: it tells you who left. But it doesn't say why now. The trigger was crossing the $5.99 price point that most of the category sits under.
+- D. A competitor is winning these shoppers with a better product — *weak*
+  The category is flat and nothing changed on shelf. Your lighter buyers are buying less often, not switching to something better.
+
+**Reasoning.** This set trains you to suspect value before price, so start there, then update on the evidence. The shelf, display and messaging didn't change. Loyal buyers are unaffected. The drop is concentrated in lighter buyers, and it began when the price moved from $5.99, where much of the category sits, to $6.49. That pattern points to a price threshold, not a value gap.
+
+**The principle.** Selling value doesn't mean never moving price. When the price crosses a line the value can't carry, fix the price, ideally with the pack, not a discount.
+
+**Your next move.** Take the buyer a fix that protects the value: a 10-pack costed so Target can sell it at $5.99 at its normal margin. That brings the everyday price back to the line, and at about 60¢ a can against 54¢ today it protects your margin instead of cutting it. Check the unit price shoppers will see on the shelf tag. Track how often lighter buyers purchase.
+
+**The algorithm rule (Bayesian Updating).** Start from the base rate. Let each clue move you by how much likelier it is under 'yes' than 'no'. Strong clues move you a lot; cheap talk, a little. Update, don't jump to certainty.
+
+---
+
+### 37. Ember & Oak (steakhouse): What do you recommend?
+
+- Id: value-swap-request
+- Category: Bourbon · Channel: on-premise
+- Skill: Customer strategy · Goal: Act
+- Algorithm: Value of Information
+- Track: Sell the value
+- Tags: pricing, value, on-premise
+
+**The situation.** Food costs are up 9%. The owner wants to cut drink costs by swapping your bourbon out of the house Old Fashioned for a cheaper well bourbon. The menu names your brand.
+
+**What you know.**
+- Old Fashioneds a week: 60 at $16, his best seller
+- Swap to the well bourbon: $1.20 a pour · not named on the menu · saves about $54 a week
+- Keep yours, drink goes to $18: $2.10 a pour · named on the menu · adds about $120 a week, if sales hold
+- What the swap is worth a year: about $2,800
+- His food costs: about $9,000 a week, up about $750
+- Unknown: whether guests will pay $18 for the named drink (warn)
+
+**The decision.** What do you recommend?
+
+**Options.**
+- A. Accept the swap. It's his menu and his margin. — *weak*
+  Respectful, but you'd give up the named bourbon in his best seller for about $2,800 a year, about 7% of his $750-a-week rise in food costs.
+- B. Offer a cheaper bourbon from your own portfolio for the drink — *good*
+  It meets his cost need and keeps you in the glass. But it gives up the named premium that may be exactly what his guests are paying for.
+- C. Agree to the swap if he adds a named premium Old Fashioned at $20 — *good*
+  A real trade, and a two-tier menu can work. But you'd move his best seller to the well on a guess. Test the named drink at $18 first; the premium tier can come after.
+- D. Keep your bourbon named and test the drink at $18 for four weeks — *best*
+  Right. It meets his margin need with the value of the name instead of a cheaper pour, and the test shows whether guests will pay $18 for it. Judge it on the four-week average against 56 a week, so one slow week doesn't decide it.
+
+**Reasoning.** His need is margin, and there are two ways to get it: lower cost or higher value. The swap saves about $54 a week, around $2,800 a year, which covers about 7% of his $750-a-week food-cost rise. Keeping the named bourbon at $18 adds about $120 a week if sales hold, and still beats the swap unless the four-week average falls below about 56 a week (56 × $15.90 ≈ 60 × $14.80, price minus pour cost). What neither of you knows is whether guests will pay $18. A short test answers it.
+
+**The principle.** Cheaper cost or higher value both fix margin. Only one builds the brand, so test it before you trade it.
+
+**Your next move.** Before the test, ask the bartenders how often guests order it by name. Show the owner both paths side by side, agree the 56-a-week line up front, and support the launch with a staff tasting through your distributor. You can advise on menu and price, but the price is his call. Never pay or give anything of value for the placement or the menu mention: state tied-house laws broadly prohibit it, and federal law does when it pushes out competitors. Any price support has to be a distributor price that follows your state's rules, which in many states means posted and the same for every licensee.
+
+**The algorithm rule (Value of Information).** Before any check, ask which result would make you do something different, and what that's worth. If no result would, skip the check.
+
+---
+
+### 38. Raley's: What do you propose?
+
+- Id: value-delist-review
+- Category: Granola · Channel: off-premise
+- Skill: Customer strategy · Goal: Act
+- Algorithm: Exploration vs. Exploitation
+- Track: Sell the value
+- Tags: pricing, value, distribution
+
+**The situation.** Your premium granola is on the delist list for the next reset. The buyer says it's slow and priced $2 above the category, and offers to keep it if you fund a deeper promotion every other month.
+
+**What you know.**
+- Velocity: 15% below the category average
+- Where it sits: 40% of stores, bottom shelf
+- Its shoppers who buy no other granola here: 46%
+- Your granola's shoppers: 58% aged 25–40 · $62 basket
+- Average store shopper: 31% aged 25–40 · $41 basket
+- The chain's goal this year: attract younger households
+- Unknown: how it sells at eye level (warn)
+
+**The decision.** What do you propose?
+
+**Options.**
+- A. Fund the promotion to keep the item on the shelf — *weak*
+  It keeps the item for a quarter by lowering its price, not by showing its value. And a bottom-shelf item on deal still sits on the bottom shelf.
+- B. Trade a chain-wide promotion for a 20-store eye-level test — *best*
+  Right. You give him something, and you get the test in return. Run the promotion in every store so it lifts test and control alike, and agree the pass mark now: velocity and basket against 20 control stores over 8 weeks. If it misses, take the delist without a fight.
+- C. Offer a smaller pack at a lower shelf price — *good*
+  A real tool, and sometimes the right one. But it answers 'too expensive' before you've shown the buyer who this item keeps in his store.
+- D. Show him the shopper data and ask him to reconsider the delist — *good*
+  Lead with it: it's your strongest evidence. But he'll ask whether those shoppers would leave, and the velocity is still weak. A request with nothing in return is easy to turn down.
+
+**Reasoning.** A $62 basket alone doesn't prove the granola brings shoppers in: they might shop here anyway. The stronger point is loyalty: 46% of its shoppers buy no other granola here, so some of those baskets are at risk if it goes, and they're the younger households the chain wants. The weak velocity was measured on the bottom shelf in 40% of stores, so a controlled test tells both of you what it's really worth. Funding one chain-wide promotion, which lifts test and control stores alike, is a trade, not a concession.
+
+**The principle.** Sell the shoppers who'd leave with it, not the units it moves. When you give something, get something back.
+
+**Your next move.** Open with the 46% and the shopper profile, framed against the chain's goal. Propose the trade: one chain-wide promotion during an 8-week eye-level test in 20 stores, measured against 20 control stores, with the pass mark agreed before it starts.
+
+**The algorithm rule (Exploration vs. Exploitation).** Spend most of your time where you know it pays. Keep a slice for what you don't understand, sized by how long you'll be around to use the answer.
+
+---
+
+### 39. Kroger: What do you propose?
+
+- Id: value-margin-target
+- Category: Premium tortilla chips · Channel: off-premise
+- Skill: Trade economics · Goal: Act
+- Algorithm: Utility & Trade-offs
+- Track: Sell the value
+- Tags: pricing, value, meeting
+
+**The situation.** The Kroger buyer has a new rule: every item in the category must earn 38% margin by the next reset. Your chips sell fast but earn him 31%. He asks you to lower your price to him.
+
+**What you know.**
+- Your chips: $5.49 on shelf · 31% margin · 14 a week per store
+- Category average: $4.29 on shelf · 38% margin · 9 a week per store
+- His margin dollars per store: about $24 a week, against $15 for the average item
+- Your price to him: about $3.79 a bag
+- You can offer: a bag about 11% smaller, at the same price per ounce to Kroger
+
+**The decision.** What do you propose?
+
+**Options.**
+- A. Lower your price to him by about 10% to reach 38% — *weak*
+  It meets his rule by giving away about 10% of what you earn per ounce, on an item that already earns him more margin dollars than the average item ($24 against $15).
+- B. Show him the margin dollars and ask for an exception to the rule — *good*
+  Lead with it: it's the right argument. But a category-wide target often isn't the buyer's to waive. Come with a way to meet it too.
+- C. Show the margin dollars, then offer a smaller bag for $5.49 — *best*
+  Right. Margin dollars pay his bills; the 38% is a rule. A bag about 11% smaller costs him about $3.37, so he can keep $5.49 on shelf and make about 38.6%. Shoppers pay about 12% more per ounce, so agree how you'll watch velocity after the reset.
+- D. Hold your price and accept losing the item at Kroger — *weak*
+  Walking away is sometimes right, but not before you've shown him the margin dollars and offered a way to meet his rule without cutting your price.
+
+**Reasoning.** Buyers are judged on margin, but margin percent and margin dollars aren't the same goal. At 31% on $5.49 and 14 a week, your chips earn him about $24 per store a week, against about $15 for the average item at 38%. Lead with that. If the 38% is fixed, meet it without cutting your price: a bag about 11% smaller at the same price per ounce to Kroger costs him about $3.37, and at $5.49 on shelf that's about 38.6% margin. The trade-off is a higher price per ounce for shoppers, which is the risk to watch.
+
+**The principle.** Speak in the buyer's P&L. Margin dollars pay his bills; margin percent is a rule. Meet the rule with the pack and the price, not by cutting yours.
+
+**Your next move.** Walk in with both: the margin-dollar comparison, and the smaller bag as a way to meet the rule. Be open with shoppers about the size change on the pack, and check whether the smaller bag keeps its velocity after the reset.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 40. Your region (40 reps): What needs to change?
+
+- Id: value-lead-sells-on-price
+- Category: Portfolio · Channel: off-premise
+- Skill: Customer strategy · Goal: Lead
+- Algorithm: Utility & Trade-offs
+- Track: Sell the value
+- Tags: pricing, value, leadership
+
+**The situation.** You run a region of 40 reps. Placement wins are flat, and the price concessions reps give to win them keep growing. The CEO asks what you'll change.
+
+**What you know.**
+- Account plans that lead with a price or promotion: 70%
+- Win rate on new placements: 22%
+- Win rate when reps led with value and a business case: 7 of 17 pitches (41%), mostly by your strongest reps
+- What reps carry: a price list and a promo calendar, with no value story for any brand
+- Consumer research: owned by the brand team, and never reaches the field
+- Rep pay: case volume only
+
+**The decision.** What needs to change?
+
+**Options.**
+- A. Give reps value stories and coaching, then change pay — *best*
+  Right. Order matters: first a value story per brand from the consumer research and a business case per account, then managers coaching plans to the customer's need, then pay and the scorecard that reward price held.
+- B. Move rep pay from case volume to net revenue and price held — *good*
+  The right lever, in the wrong order. Pay reps to hold price before they have anything else to sell with, and they'll stop conceding and start losing placements.
+- C. Require approval for any price concession over 5% — *good*
+  It stops the worst give-aways, but it polices the symptom. Reps who can't concede and have nothing else to offer will simply lose the deal.
+- D. Put all 40 reps through a value-selling training program — *good*
+  The right instinct. But without the stories, the coaching and a scorecard that rewards value, training fades within a quarter and reps go back to the price list.
+
+**Reasoning.** Weigh what the organisation is actually optimising. Reps are paid on cases and carry only a price list, so leading with price is the rational thing for them to do. The 41% win rate is encouraging but biased: it comes from 17 pitches, mostly by your strongest reps. Every single lever here, pay, approvals or training, is reasonable on its own and fails on its own, because the other forces stay in place.
+
+**The principle.** If reps only carry a price list, they'll only sell on price. Give them the value story, coach to the customer's need, then pay for price held.
+
+**Your next move.** Ask the brand team for a one-page value story on your top five brands within a month. Have managers coach next quarter's top account plans on the customer's need first. Then move pay toward net revenue and price held, and put win rate on the scorecard next to cases.
+
+**The algorithm rule (Utility & Trade-offs).** State what you're optimizing for before you compare options. The best option is the best option for a stated objective.
+
+---
+
+### 41. Your region (top 20 accounts): How do you lead it?
+
+- Id: value-lead-price-increase
+- Category: Portfolio · Channel: off-premise
+- Skill: Customer strategy · Goal: Lead
+- Algorithm: Expected Value
+- Track: Sell the value
+- Tags: pricing, value, leadership
+
+**The situation.** The company is taking a 5% list price increase next quarter. Last year's increase mostly leaked back out through extra trade given to 'protect relationships.' As regional VP, you decide how your team takes this one to customers.
+
+**What you know.**
+- Last year's increase kept, after give-backs: about a third
+- Accounts where reps brought a category growth plan: kept about 85%, mostly your healthiest accounts
+- Accounts that got a letter and a new price list: kept about 30%
+- Items that will cross a shelf price point: about 1 in 4, like $7.99 → $8.39
+- Each point of price kept: about $1.2M of gross profit for the region
+
+**The decision.** How do you lead it?
+
+**Options.**
+- A. Hold the line: no trade give-backs allowed this year — *good*
+  Discipline matters, and it would stop the worst leakage. But it treats the customer as an opponent. Without a plan for their business, you'll win the argument and lose the relationship.
+- B. Bring each top account a plan for what the increase funds for them — *best*
+  Right. Buyers accept prices they can see paying off in their own business: category growth, and a pack or price fix wherever an item crosses a price point. Bring the cost backup inside the plan, rehearse the top 20 conversations, and track price kept.
+- C. Give each account a give-back budget, released only for displays or new items — *good*
+  Real trading discipline: every dollar buys something. But it still opens with money. Without a plan for the buyer's business, reps spend the budget and call it a trade.
+- D. Bring every buyer the cost data behind the increase — *good*
+  Buyers expect the cost backup, so bring it. But on its own it's a conversation about your business, and they'll ask what they get for it.
+
+**Reasoning.** Compare the expected result of each approach, allowing for bias. Plans kept about 85% of the increase and letters about 30%, but plans went mostly to your healthiest accounts, so the true gap is smaller. Even at half the gap, keeping 1.4 more points of a 5% increase is worth about $1.7M at $1.2M a point; the full gap is about $3.3M. Both assume every account gets a plan; for the top 20 alone, scale by their share of sales. And a quarter of your items will cross a price point, so the plan also has to say what happens at shelf.
+
+**The principle.** Never walk in with just a price. Walk in with a plan.
+
+**Your next move.** Before any letter goes out, have each rep draft a one-page plan per top account: what the product delivers for their shoppers, where the investment goes in their category, and a pack or price fix for items that cross a price point. Rehearse the top 20 with managers, and review price kept every month.
+
+**The algorithm rule (Expected Value).** Chance × prize − the cost of chasing it. Rank your visits by that number.
+
+---
+
+### 42. Greenbowl (400 restaurants): What do you decide?
+
+- Id: value-walk-away
+- Category: Kombucha · Channel: on-premise
+- Skill: Customer strategy · Goal: Lead
+- Algorithm: Decision Trees
+- Track: Sell the value
+- Tags: pricing, value, leadership
+
+**The situation.** Greenbowl, a 400-location fast-casual chain, offers to make your kombucha its only kombucha, at 35% below your net grocery price after trade. Your national accounts team wants to sign. As VP, it's your call.
+
+**What you know.**
+- Volume: about 1.2M bottles a year, +40% on today's ~3M
+- Your margin at that price: about 5%, against 38% in grocery
+- Greenbowl's menu price: about $4.99, set by Greenbowl
+- Grocery buyers: hear about national-account prices through distributors, and two have asked for 'the Greenbowl price'
+- What Greenbowl wants: a lower-cost drink option and a healthier menu story
+
+**The decision.** What do you decide?
+
+**Options.**
+- A. Sign it. 40% more volume is worth a thinner margin. — *weak*
+  At about 5% margin the new volume earns almost nothing. And a price that deep won't stay private: two grocery buyers are already asking for it.
+- B. Sign it for one year only, with a full price review before renewal — *good*
+  It limits the term, not the leak. Once grocery buyers know the Greenbowl price, a review at renewal won't un-tell them.
+- C. Counter at 20% off, and ask for the brand named on every menu — *good*
+  A better number, and getting the name on the menu is smart. But it's the same trade: a deep net price that your grocery buyers will hear about and ask for.
+- D. Decline; counter with a featured, named drink at full price — *best*
+  Right. It answers what Greenbowl actually wants, a healthier menu story, with what your brand is worth, and tests it where it's cheap to learn. If the discount is the only deal on the table, walking away is the decision.
+
+**Reasoning.** Map the branches. Sign: 40% more volume at about 5% margin, plus a net price your grocery buyers will hear about and ask for on the other 3M bottles. That second effect is the real cost. Counter with a featured drink at full price: either Greenbowl says yes to a smaller, profitable test, or it says no and you've lost nothing you have today. The downside of walking away is small; the downside of signing lands on your whole business.
+
+**The principle.** A deep net price to one big customer rarely stays private. Know when to walk away.
+
+**Your next move.** Thank the national accounts team for the opening, then counter: your kombucha named on the menu as a featured drink at full price, in one region for 90 days, with support for Greenbowl's healthier-menu story. Agree what success looks like, and be ready to walk if price is the only thing they'll discuss.
+
+**The algorithm rule (Decision Trees).** Lay out the branches, weigh each one by its odds, roll the value back to today. Then compare that number with what pursuing costs.
+
+---
