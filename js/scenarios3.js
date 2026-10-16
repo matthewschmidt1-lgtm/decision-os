@@ -22,6 +22,17 @@ export const stages3 = ["Set", "Coach", "Correct", "Review", "Decide", "Recover"
 export const algorithmFor = { axis: "utility-and-trade-offs", hours: "utility-and-trade-offs", belief: "bayesian-updating", check: "value-of-information", curve: "optimization", forecast: "prediction-vs-decision" };
 // Both best and good are sound; "strongest" counts best only. No headline percent (see manage-progress.js).
 export const qualityScore3 = { best: 1, good: 1, weak: 0 };
+// Accountability starts before the meeting. Five questions a manager asks before a hard performance conversation; a case
+// with `before: n` puts question n in front of the learner before the pick, and the hub shows all five.
+export const beforeLine = "The quality of your accountability is set by the quality of your self-awareness before the conversation begins.";
+export const beforeQuestions = [
+  "Am I trying to solve the problem, or prove that I'm right?",
+  "What am I avoiding saying because it's uncomfortable?",
+  "What part of this have I contributed to?",
+  "Am I confusing accountability with punishment?",
+  "Can I hold a high standard and genuinely want this person to succeed?",
+];
+export const beforeThen = "Then walk in with clarity, evidence, a direct expectation, and a willingness to listen.";
 export const skills3 = {
   standard: { name: "Standards", blurb: "Say what good looks like, and hold it for everyone.", strong: "You set the bar in plain words and hold it, including for people you like.", watch: "You let a standard bend for people you like or numbers you need." },
   candor:   { name: "Candor", blurb: "Say the true thing, early, and kindly.", strong: "You say the hard thing early and plainly, and stay kind.", watch: "You soften or delay the hard thing until it is harder." },
@@ -88,7 +99,7 @@ export const strengths3 = {
 };
 export const scenarios3 = [
 {
-  id: "loved-not-delivering", who: "Sales manager (8 reps)", customer: "Dana, your rep", stage: "Correct", skill: "standard", theme: "follow-through", trade: ["candor", "loyalty"],
+  id: "loved-not-delivering", who: "Sales manager (8 reps)", customer: "Dana, your rep", stage: "Correct", skill: "standard", theme: "follow-through", before: 5, trade: ["candor", "loyalty"],
   picture: { kind: "axis", marks: [["A", 15], ["B", 60], ["C", 90], ["D", 70]], after: "Your pick and the strongest, from candor to loyalty." },
   lens: ["TDC", "Give honest feedback and build trust."],
   tension: ["HOM", "Useful metrics keep misses visible."],
@@ -108,7 +119,7 @@ export const scenarios3 = [
   nextMove: "Compare commit and actual for every rep. Book the talk.",
 },
 {
-  id: "top-rep-cuts-corners", who: "Sales manager (8 reps)", customer: "Marcus, your top rep", stage: "Correct", skill: "standard", theme: "values", trade: ["results", "integrity"],
+  id: "top-rep-cuts-corners", who: "Sales manager (8 reps)", customer: "Marcus, your top rep", stage: "Correct", skill: "standard", theme: "values", before: 4, trade: ["results", "integrity"],
   picture: { kind: "axis", marks: [["A", 85], ["B", 40], ["C", 60], ["D", 5]], after: "Your pick and the strongest, from results to integrity." },
   lens: ["HOM", "Clear expectations matter more than one person's results."],
   tension: ["TDC", "Honest feedback only works inside trust."],
@@ -128,7 +139,7 @@ export const scenarios3 = [
   nextMove: "Walk three “executed” displays you haven't seen.",
 },
 {
-  id: "inherited-slack-habits", who: "New sales manager", customer: "Your team", stage: "Set", skill: "standard", theme: "follow-through", trade: ["follow", "flex"],
+  id: "inherited-slack-habits", who: "New sales manager", customer: "Your team", stage: "Set", skill: "standard", theme: "follow-through", before: 3, trade: ["follow", "flex"],
   picture: { kind: "axis", marks: [["A", 30], ["B", 10], ["C", 85], ["D", 5]], after: "Your pick and the strongest, from follow to flex." },
   lens: ["HOM", "Effective processes start from clear expectations and a measure someone uses."],
   tension: ["HGW", "Give people context to decide."],
@@ -169,7 +180,7 @@ export const scenarios3 = [
   nextMove: "Ask each rep: what is Monday's call for?",
 },
 {
-  id: "veteran-gone-quiet", who: "Sales manager (9 reps)", customer: "Ray, 22 years in", stage: "Coach", skill: "candor", theme: "love", trade: ["candor", "patience"],
+  id: "veteran-gone-quiet", who: "Sales manager (9 reps)", customer: "Ray, 22 years in", stage: "Coach", skill: "candor", theme: "love", before: 2, trade: ["candor", "patience"],
   picture: { kind: "check", left: "Act now", right: "Ask first", marks: [["worth", 100, "6 hours a week"], ["cost", 33, "A 2-hour lunch"], ["A", 100], ["B", 25], ["C", 5], ["D", null]], after: "Two hours of lunch, against six hours a week.", note: "2 of 6 hours is 33; D (wait) is off the line" },
   lens: ["TDC", "Ask good questions and build trust before deciding what is wrong."],
   tension: ["CCL", "Stay curious; your story may be a reaction."],
@@ -190,7 +201,7 @@ export const scenarios3 = [
   nextMove: "Book a long lunch with the person who changed.",
 },
 {
-  id: "spouse-is-ill", who: "Sales manager (8 reps)", customer: "Tom, 6 years on your team", stage: "Coach", skill: "candor", theme: "values", trade: ["kindness", "team"],
+  id: "spouse-is-ill", who: "Sales manager (8 reps)", customer: "Tom, 6 years on your team", stage: "Coach", skill: "candor", theme: "values", before: 5, trade: ["kindness", "team"],
   picture: { kind: "axis", marks: [["A", 40], ["B", 15], ["C", 90], ["D", 75]], after: "Your pick and the strongest, from kindness to team." },
   lens: ["CCL", "Stay curious and own your reaction before you assume."],
   tension: ["HGW", "Transparency helps a team decide together."],
@@ -210,7 +221,7 @@ export const scenarios3 = [
   nextMove: "Learn today what leave and flexible-schedule options exist.",
 },
 {
-  id: "promoted-over-friend", who: "New sales manager, promoted from the team", customer: "Chris, your closest friend at work", stage: "Correct", skill: "candor", theme: "trust", trade: ["loyalty", "team"],
+  id: "promoted-over-friend", who: "New sales manager, promoted from the team", customer: "Chris, your closest friend at work", stage: "Correct", skill: "candor", theme: "trust", before: 4, trade: ["loyalty", "team"],
   picture: { kind: "axis", marks: [["A", 40], ["B", 80], ["C", 5], ["D", 95]], after: "Your pick and the strongest, from loyalty to team." },
   lens: ["CCL", "Notice guilt and ego in your reactions before you act."],
   tension: ["TDC", "Honest feedback builds trust, even between friends."],
@@ -230,7 +241,7 @@ export const scenarios3 = [
   nextMove: "List the three people you go easiest on. Book one talk.",
 },
 {
-  id: "distributor-rep-slipped", who: "Regional sales manager", customer: "Mike, route rep at Cascade Beverage", stage: "Correct", skill: "candor", theme: "teamwork", trade: ["candor", "trust"],
+  id: "distributor-rep-slipped", who: "Regional sales manager", customer: "Mike, route rep at Cascade Beverage", stage: "Correct", skill: "candor", theme: "teamwork", before: 3, trade: ["candor", "trust"],
   picture: { kind: "axis", marks: [["A", 15], ["B", 35], ["C", 95], ["D", 25]], after: "Your pick and the strongest, from candor to trust." },
   lens: ["TDC", "Give honest feedback and build trust."],
   tension: ["CEO", "Know how the other side makes money."],
@@ -250,7 +261,7 @@ export const scenarios3 = [
   nextMove: "Learn what's on your key distributor reps' plates first.",
 },
 {
-  id: "ready-for-promotion", who: "Sales manager (8 reps)", customer: "Lena, your strongest mid-level rep", stage: "Review", skill: "candor", theme: "dedication", trade: ["candor", "loyalty"],
+  id: "ready-for-promotion", who: "Sales manager (8 reps)", customer: "Lena, your strongest mid-level rep", stage: "Review", skill: "candor", theme: "dedication", before: 2, trade: ["candor", "loyalty"],
   picture: { kind: "axis", marks: [["A", 15], ["B", 75], ["C", 90], ["D", 60]], after: "Your pick and the strongest, from candor to loyalty, for Lena." },
   lens: ["TDC", "Give honest feedback and help talented people grow."],
   tension: ["CCL", "Take responsibility for your part."],
@@ -270,7 +281,7 @@ export const scenarios3 = [
   nextMove: "List every “next cycle” you've said. Make each a date or a no.",
 },
 {
-  id: "you-keep-rescuing", who: "Sales manager (8 reps)", customer: "Jess, a first-year rep", stage: "Coach", skill: "system", theme: "love", trade: ["speed", "growth"],
+  id: "you-keep-rescuing", who: "Sales manager (8 reps)", customer: "Jess, a first-year rep", stage: "Coach", skill: "system", theme: "love", before: 3, trade: ["speed", "growth"],
   picture: { kind: "curve", left: "None of your hours", right: "Four hours", marks: [["A", 25], ["B", 50], ["C", 50], ["D", 0], ["bend", 20, "Her learning stops"]], after: "Each extra hour of yours teaches her less.", note: "x is your hours on this proposal; a rebuild takes 2 (evidence); A is the 1 hour in its feedback" },
   lens: ["HOM", "Strong outcomes shouldn't depend on one person rescuing a broken process."],
   tension: ["TDC", "Helping people perform can mean being slower today."],
@@ -392,7 +403,7 @@ export const scenarios3 = [
   nextMove: "Tally each rep's “locks” against closes. Show them quarterly.",
 },
 {
-  id: "team-agrees", who: "Sales manager (7 reps)", customer: "Your team", stage: "Decide", skill: "trust", theme: "fears", trade: ["openness", "speed"],
+  id: "team-agrees", who: "Sales manager (7 reps)", customer: "Your team", stage: "Decide", skill: "trust", theme: "fears", before: 1, trade: ["openness", "speed"],
   picture: { kind: "belief", left: "They disagree", right: "They agree", marks: [["start", 60, "They usually agree"], ["e1", 63, "0 of 7 objected"], ["e2", 42, "2 hallway comments"], ["e3", 48, "Last pushback snapped"]], after: "Silence tells you little. Asking moves the bar." },
   lens: ["HGW", "Build an environment where speaking up is safe."],
   tension: ["PCA", "More perspectives keep you from missing the whole picture."],
@@ -412,7 +423,7 @@ export const scenarios3 = [
   nextMove: "Ask “what's the weakest part of this plan?” and wait.",
 },
 {
-  id: "one-explanation", who: "Sales manager (8 reps)", customer: "Karen, a six-year rep", stage: "Review", skill: "trust", theme: "fears", trade: ["patience", "results"],
+  id: "one-explanation", who: "Sales manager (8 reps)", customer: "Karen, a six-year rep", stage: "Review", skill: "trust", theme: "fears", before: 1, trade: ["patience", "results"],
   picture: { kind: "belief", left: "Not coasting", right: "Coasting", marks: [["start", 70, "Your instinct"], ["e1", 75, "Sales down 18%"], ["e2", 58, "Territory re-cut"], ["e3", 50, "Pay plan changed"], ["e4", 45, "Visits unchanged"]], after: "Checking before you judge keeps her trust." },
   lens: ["PCA", "Check economics, incentives and behavior before settling on a story about a person."],
   tension: ["CCL", "Stay curious; notice when ego writes the story."],
@@ -453,7 +464,7 @@ export const scenarios3 = [
   nextMove: "Block next week's non-negotiables first: sleep, one evening, one meal.",
 },
 {
-  id: "defensive-in-review", who: "Regional sales manager", customer: "Your director", stage: "Review", skill: "self", theme: "overconfidence", trade: ["confidence", "humility"],
+  id: "defensive-in-review", who: "Regional sales manager", customer: "Your director", stage: "Review", skill: "self", theme: "overconfidence", before: 1, trade: ["confidence", "humility"],
   picture: { kind: "axis", marks: [["A", 80], ["B", 30], ["C", 60], ["D", 5]], after: "Your pick and the strongest, from confidence to humility." },
   lens: ["CCL", "Take responsibility, and notice when defensiveness drives you."],
   tension: ["TDC", "A good leader welcomes honest feedback."],
@@ -617,7 +628,7 @@ export const scenarios3 = [
   nextMove: "Before closing a big deal, ask who else needs what it uses.",
 },
 {
-  id: "rookie-overpromises", who: "Sales manager (6 reps)", customer: "Jamal, four months in", stage: "Coach", skill: "grow", theme: "follow-through", trade: ["growth", "results"],
+  id: "rookie-overpromises", who: "Sales manager (6 reps)", customer: "Jamal, four months in", stage: "Coach", skill: "grow", theme: "follow-through", before: 4, trade: ["growth", "results"],
   picture: { kind: "axis", marks: [["A", 20], ["B", 75], ["C", 60], ["D", 35]], after: "Your pick and the strongest, from growth to results." },
   lens: ["TDC", "Help talented people do their best by asking and staying beside them."],
   tension: ["HOM", "Clear expectations keep outcomes from depending on one person."],
@@ -637,7 +648,7 @@ export const scenarios3 = [
   nextMove: "Write three questions to ask before promising a date or display.",
 },
 {
-  id: "quiet-says-fine", who: "Sales manager (7 reps)", customer: "Hana, a strong third-year rep", stage: "Coach", skill: "grow", theme: "fears", trade: ["patience", "candor"],
+  id: "quiet-says-fine", who: "Sales manager (7 reps)", customer: "Hana, a strong third-year rep", stage: "Coach", skill: "grow", theme: "fears", before: 2, trade: ["patience", "candor"],
   picture: { kind: "belief", left: "She's not fine", right: "She's fine", marks: [["start", 75, "Strong rep, on plan"], ["e1", 80, "103% of plan"], ["e2", 52, "Asked about moving"], ["e3", 44, "Five fines, moved on"]], after: "Asking about the move she raised tells her you listened." },
   lens: ["TDC", "Good questions and real attention show what is going on with people."],
   tension: ["CCL", "Stay curious about what you have avoided asking."],
@@ -678,7 +689,7 @@ export const scenarios3 = [
   nextMove: "Next five times he asks, answer “what do you think?” first.",
 },
 {
-  id: "burned-out-star", who: "Regional sales manager", customer: "Zoe, your top rep", stage: "Review", skill: "grow", theme: "dedication", trade: ["results", "rest"],
+  id: "burned-out-star", who: "Regional sales manager", customer: "Zoe, your top rep", stage: "Review", skill: "grow", theme: "dedication", before: 5, trade: ["results", "rest"],
   picture: { kind: "axis", marks: [["A", 75], ["B", 30], ["C", 55], ["D", 0]], after: "Your pick and the strongest, from results to rest." },
   lens: ["TDC", "Honest feedback, with trust behind it, helps talented people perform."],
   tension: ["CCL", "Take responsibility for how your own reactions land, praise included."],

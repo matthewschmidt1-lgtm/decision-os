@@ -1,5 +1,5 @@
 import { h, link, arrow, eyebrow, bar, disclose } from "../ui.js";
-import { scenarios3, skills3, tracks3, challengeIds3, stages3, themes3 } from "../scenarios3.js";
+import { scenarios3, skills3, tracks3, challengeIds3, stages3, themes3, beforeLine, beforeQuestions, beforeThen } from "../scenarios3.js";
 import { allResults3, setManage } from "../store.js";
 import { trackMark, skillRead, label as skillLabel, nextFor, weakestSkill, summary, valueReads, challengeList, nextUnplayed, isFixed } from "../manage-progress.js";
 import { setMeta, navigate } from "../app.js";
@@ -53,6 +53,11 @@ export default async function Manage() {
             vals.length >= 2 ? h("ul", { class: "m3-values", "aria-label": "Values you reach for" }, ...vals.map((v) => h("li", {}, h("span", {}, v.name), h("span", { class: "track" }, h("i", { style: { width: `${Math.round(v.share * 100)}%` } })), h("span", { class: "n" }, `${v.leaned} of ${v.onTable}`)))) : null)
             : h("p", { class: "m3-note", style: { marginTop: "16px" } }, "No score out of a hundred here. A sound answer is a sound answer. After five cases this panel names the values you reach for, and after three in a skill it says how many of your picks were sound.")))),
 
+    h("section", { class: "section reveal" },
+      h("div", { class: "card card-sunk m3-before" }, eyebrow("Accountability starts before the meeting"),
+        h("p", { class: "m3-before-line" }, beforeLine),
+        h("ol", { class: "m3-before-list" }, ...beforeQuestions.map((q) => h("li", {}, q))),
+        h("p", { class: "muted", style: { fontSize: "var(--fs-small)" } }, beforeThen, ` ${scenarios3.filter((s) => s.before).length} of the ${scenarios3.length} cases put one of these in front of you before you choose.`))),
     h("section", { class: "section" },
       h("div", { class: "section-head reveal" }, h("div", {}, eyebrow("Or pick a set"), h("h2", { style: { marginTop: "12px" } }, "Where does managing get hard for you?"))),
       h("div", { class: "grid grid-3" },

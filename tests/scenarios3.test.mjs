@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { scenarios3, tracks3, challengeIds3, skills3, stages3, patterns3, families3, strengths3, values3, themes3, algorithmFor, books3 } from "../js/scenarios3.js";
+import { scenarios3, tracks3, challengeIds3, skills3, stages3, patterns3, families3, strengths3, values3, themes3, algorithmFor, books3, beforeQuestions } from "../js/scenarios3.js";
 import { trackMark, summary, nextFor, valueReads } from "../js/manage-progress.js";
 
 test("every Module 3 case has four options, one best, at least one good, and sound picks lean on a trade value", () => {
@@ -34,6 +34,14 @@ test("Module 3 pictures are drawable and point at a Learn lesson", () => {
     if (p.kind === "belief") { const last = p.marks.filter(([k]) => /^e\d$/.test(k)).at(-1); assert.ok(last[1] >= 40 && last[1] <= 60, s.id + " belief ends in the middle"); }
     assert.ok(p.after && p.after.split(" ").length <= 20, s.id + " after caption");
   });
+});
+
+test("Module 3: the five before-the-meeting questions each sit on at least three cases", () => {
+  assert.equal(beforeQuestions.length, 5);
+  const withQ = scenarios3.filter(s => s.before);
+  withQ.forEach(s => assert.ok(Number.isInteger(s.before) && s.before >= 1 && s.before <= 5, s.id + " before"));
+  for (let n = 1; n <= 5; n++) assert.ok(withQ.filter(s => s.before === n).length >= 3, `question ${n} on 3+ cases`);
+  assert.ok(withQ.length >= 12 && withQ.length <= 20, "about half the cases");
 });
 
 test("Module 3 tracks cover every case exactly once and the challenge resolves", () => {

@@ -1,5 +1,5 @@
 import { h, link, arrow, eyebrow, evidence, evidenceUsed, reducedMotion, says, disclose } from "../ui.js";
-import { scenarios3, scenario3ById, skills3, tracks3, challengeIds3, patterns3, families3, strengths3, values3, themes3, algorithmFor } from "../scenarios3.js";
+import { scenarios3, scenario3ById, skills3, tracks3, challengeIds3, patterns3, families3, strengths3, values3, themes3, algorithmFor, beforeQuestions } from "../scenarios3.js";
 import { recordResult3, recordReplay3, getResult3, allResults3, getManage, setManage } from "../store.js";
 import { isFixed, nextFor, revisitList, nextUnplayed, nextUnplayedAfter, summary, sound, RANK } from "../manage-progress.js";
 import { drawPicture } from "../manage-pictures.js";
@@ -98,7 +98,10 @@ export default async function ManageScenario({ id, params }) {
     h("section", { class: "sc-step reveal" }, eyebrow("What you know"),
       h("div", { class: "card card-sunk sc-facts" }, evidence(s.evidence.map(([k, v]) => [k, v]), { optionTones: false }),
         h("p", { class: "sc-caveat" }, "Some of this is on paper. Some of it is only in your head."))),
-    h("section", { class: "sc-step reveal" }, eyebrow("Before you choose"), h("div", { class: "m3-pause" }, h("span", { class: "k" }, "Ask yourself"), h("span", {}, s.pause))),
+    h("section", { class: "sc-step reveal" }, eyebrow(s.before ? "Before the meeting" : "Before you choose"),
+      h("div", { class: "m3-pause" },
+        s.before ? h("p", { class: "row" }, h("span", { class: "k" }, `Ask yourself · ${s.before} of 5`), h("span", {}, beforeQuestions[s.before - 1])) : null,
+        h("p", { class: "row" }, h("span", { class: "k" }, s.before ? "And" : "Ask yourself"), h("span", {}, s.pause)))),
     h("section", { class: "sc-step reveal" }, eyebrow("Your call"), h("h2", { class: "sc-question" }, question), h("p", { class: "sc-hint" }, "Pick one. More than one answer here is defensible; you'll see what each protects."),
       h("div", { class: "choices", style: { marginTop: "18px" } }, ...optionEls), prior ? h("p", { class: "muted", style: { marginTop: "10px", fontSize: "var(--fs-micro)" } }, "You've played this one before. Replays don't change your record.") : null),
     h("section", { class: "section", style: { marginTop: "40px" } }, feedback, h("div", { style: { marginTop: "20px" } }, whyBtn)),

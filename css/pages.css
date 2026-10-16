@@ -473,8 +473,12 @@
 
 /* Module 3 · Manage: the pause before the pick, the picture after it, the values panel */
 .manage .option.preferred::before{content:"Strongest"}
-.m3-pause{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:0 var(--r-md) var(--r-md) 0;font-size:var(--fs-body);color:var(--ink)}
-.m3-pause .k{flex:none;font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:4px}
+.m3-pause{display:grid;gap:10px;padding:14px 18px;border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:0 var(--r-md) var(--r-md) 0;font-size:var(--fs-body);color:var(--ink)}
+.m3-pause .row{display:flex;gap:12px;align-items:flex-start;margin:0}
+.m3-pause .k{flex:none;min-width:11ch;font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:4px}
+.m3-before-line{margin-top:10px;font-size:1.125rem;line-height:1.45;max-width:var(--measure)}
+.m3-before-list{margin:12px 0 10px;padding-left:1.4em;display:grid;gap:6px;max-width:var(--measure)}.m3-before-list li{padding-left:4px}
+@media (max-width:620px){.m3-pause .row{flex-direction:column;gap:4px}.m3-pause .k{min-width:0}}
 .m3-pic{margin:0;padding:14px 16px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg-elev);max-width:none}
 .m3-pic figcaption{margin-top:8px;font-size:var(--fs-small);color:var(--ink-2)}
 .m3-svg{width:100%;height:auto}
