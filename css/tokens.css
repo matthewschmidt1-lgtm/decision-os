@@ -4,6 +4,7 @@
   --tier-bronze: #8a5a2b; --tier-silver: #5d6470; --tier-gold: #9a7400;
   /* Flight Deck (Portfolio cockpit): one midnight set, the same in both schemes. css/flightdeck.css maps these onto the house tokens. */
   --fd-sky: #0E1726; --fd-panel: #151E2E; --fd-sunk: #0A111D; --fd-border: transparent;
+  --fd-rail: #1E2A3C; /* the bottom sheet's header band: one step lighter than the panel, so the brand tabs sit on a lit shelf */
   --fd-ivory: #ECE7DA; --fd-ivory-2: #C9C4B8; --fd-muted: #8E9AAB;
   --fd-line: rgba(236, 231, 218, 0.14); --fd-line-strong: rgba(236, 231, 218, 0.26);
   --fd-terrain: #4F6B57; --fd-terrain-text: #8DB596; --fd-terrain-soft: rgba(141, 181, 150, 0.16);

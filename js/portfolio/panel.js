@@ -1,10 +1,11 @@
 // The inspection panel: everything about one brand, and its controls. On desktop it sits beside the map, sticky under
-// the deck. Under 1024px it is a non-modal bottom sheet with a mini-map rail, prev/next, expand, and Esc to close.
+// the deck. Under 1024px it is a non-modal bottom sheet: a grabber you tap or drag (up expands, down shrinks, down on a
+// short sheet closes), a rail of brand tabs (tap, or arrow keys) and Esc or × to close.
 // It never edits the plan itself: every control calls an action the page provides.
 import { h, s as svg } from "../ui.js";
 import * as S from "../sim.js";
 import { money } from "../models.js";
-import { $k, per$, pts, tone, verdictOf, gainOf } from "./fmt.js";
+import { $k, per$, pts, tone, verdictOf, gainOf, reduced } from "./fmt.js";
 import { CHANNELS, readOf, rangeText, rangeBar, confWord, requestScoutNote } from "./recon.js";
 // Category by brand letter, for the rail chips (the same in both years).
 const CATS = Object.fromEntries(S.simBrands(0).map((b) => [b.id, b.category]));
@@ -14,16 +15,19 @@ const put = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k !
 const narrow = () => matchMedia("(max-width: 1023px)").matches;
 
 export function createPanel({ actions, onSelect, onClose, extra }) {
-  const rail = h("div", { class: "fd-rail", role: "group", "aria-label": "Switch brand" });
-  const chips = Object.fromEntries(IDS.map((id) => [id, h("button", { type: "button", class: "fd-chip", onClick: () => onSelect(id) })]));
+  // The rail is the brand switcher: one tab per brand (roving tabindex, so Tab lands on the open brand and ← → move along).
+  const rail = h("div", { class: "fd-rail", role: "group", "aria-label": "Brands" });
+  const chips = Object.fromEntries(IDS.map((id) => [id, h("button", { type: "button", class: "fd-chip", tabindex: "-1", onClick: () => onSelect(id) })]));
   rail.append(...Object.values(chips));
-  const prevB = h("button", { type: "button", class: "fd-ctl", "aria-label": "Previous brand", onClick: () => step(-1) }, "‹");
-  const nextB = h("button", { type: "button", class: "fd-ctl", "aria-label": "Next brand", onClick: () => step(1) }, "›");
-  const tall = h("button", { type: "button", class: "fd-ctl fd-ctl-text", "aria-label": "Expand the panel", "aria-pressed": "false", onClick: () => { const on = !el.classList.contains("is-tall"); el.classList.toggle("is-tall", on); tall.setAttribute("aria-pressed", String(on)); tall.textContent = on ? "Shrink" : "Expand"; tall.setAttribute("aria-label", on ? "Shrink the panel" : "Expand the panel"); } }, "Expand");
-  const close = h("button", { type: "button", class: "fd-ctl", "aria-label": "Close", onClick: () => onClose() }, "×");
+  const railWrap = h("div", { class: "fd-railwrap" }, rail);
+  const eyebrow = h("p", { class: "fd-k fd-sheet-eyebrow", id: "fd-sheet-eyebrow" }, "Brands · tap to switch");
+  const grab = h("button", { type: "button", class: "fd-grab", "aria-label": "Expand the panel", "aria-pressed": "false" }, h("span", { class: "handle", "aria-hidden": "true" }));
+  const close = h("button", { type: "button", class: "fd-close", "aria-label": "Close", onClick: () => onClose() }, "×");
+  const top = h("div", { class: "fd-sheet-top" }, grab, close);
   const body = h("div", { class: "fd-panel-body" });
   const el = h("section", { class: "fd-panel fd-sheet", id: "fd-panel", role: "region", "aria-label": "Brand details" },
-    h("div", { class: "fd-sheet-head" }, rail, h("div", { class: "fd-sheet-ctl" }, prevB, nextB, tall, close)), body);
+    h("div", { class: "fd-sheet-head" }, top, eyebrow, railWrap), body);
+  rail.setAttribute("aria-labelledby", "fd-sheet-eyebrow");
   let id = null, ui = null;
   const step = (d) => onSelect(IDS[(IDS.indexOf(id) + d + IDS.length) % IDS.length]);
   const onKey = (e) => {
@@ -31,6 +35,55 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     if (e.key === "Escape" && narrow() && el.classList.contains("is-open")) { e.preventDefault(); onClose(); }
   };
   document.addEventListener("keydown", onKey);
+  rail.addEventListener("keydown", (e) => {
+    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!d) return;
+    e.preventDefault(); step(d); chips[id]?.focus({ preventScroll: true }); // update() reveals the new tab
+  });
+
+  // Keep the open brand's tab in view: slide the rail only as far as it needs (never the page, which scrollIntoView could move).
+  const reveal = () => {
+    const ch = id && chips[id]; if (!ch || !narrow() || !el.classList.contains("is-open")) return;
+    const left = ch.offsetLeft - 14, right = ch.offsetLeft + ch.offsetWidth + 14; // 14 = the rail's side padding
+    const to = left < rail.scrollLeft ? left : right > rail.scrollLeft + rail.clientWidth ? right - rail.clientWidth : null;
+    if (to != null) rail.scrollTo({ left: Math.max(0, to), behavior: reduced() ? "instant" : "smooth" });
+  };
+  // The fades at the rail's edges say "more brands this way"; each goes when there is nothing more that way.
+  const edges = () => { railWrap.classList.toggle("at-start", rail.scrollLeft <= 1); railWrap.classList.toggle("at-end", rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 1); };
+  rail.addEventListener("scroll", edges, { passive: true });
+
+  // The grabber: tap toggles tall; a drag up expands, down shrinks, and down on a short sheet (past 80px) closes.
+  const setTall = (on) => {
+    el.classList.toggle("is-tall", on);
+    grab.setAttribute("aria-pressed", String(on)); grab.setAttribute("aria-label", on ? "Shrink the panel" : "Expand the panel");
+    requestAnimationFrame(fitPage);
+  };
+  const DRAG = 40, CLOSE = 80;
+  let drag = null, swallowClick = false; // drag: { y0, moved }; swallowClick: the click that follows a drag is not a tap
+  grab.addEventListener("click", () => { if (swallowClick) return; setTall(!el.classList.contains("is-tall")); });
+  top.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 || close.contains(e.target) || !narrow()) return;
+    drag = { y0: e.clientY, moved: false };
+    (grab.contains(e.target) ? grab : top).setPointerCapture(e.pointerId); // capture on the grabber keeps its click a click
+  });
+  top.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const dy = e.clientY - drag.y0;
+    if (Math.abs(dy) > 6) drag.moved = true;
+    el.style.transform = dy > 0 ? `translateY(${Math.min(dy, 160)}px)` : ""; // the sheet follows a downward pull
+  });
+  const endDrag = (e) => {
+    if (!drag) return;
+    const dy = e.type === "pointercancel" ? 0 : e.clientY - drag.y0, tall = el.classList.contains("is-tall");
+    el.style.transform = "";
+    if (dy < -DRAG && !tall) setTall(true);
+    else if (dy > DRAG && tall) setTall(false);
+    else if (dy > CLOSE && !tall) onClose();
+    swallowClick = drag.moved; drag = null;
+    if (swallowClick) setTimeout(() => { swallowClick = false; }, 0);
+  };
+  top.addEventListener("pointerup", endDrag);
+  top.addEventListener("pointercancel", endDrag);
 
   // Build the brand's controls once, so focus stays put while the numbers update around it.
   function build(b, c) {
@@ -76,14 +129,17 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
   // c: { b, r (forecast row), rows, plan, free, freeDays, scoutsLeft, state, last (last quarter's row), qi, canFocus, canDays, finding }
   function update(c) {
     const { b, r, plan, state } = c;
-    if (id !== b.id || !ui || ui.canFocus !== c.canFocus || ui.canDays !== c.canDays) { id = b.id; ui = build(b, c); ui.canFocus = c.canFocus; ui.canDays = c.canDays; el.setAttribute("aria-label", `${b.name} details`); }
+    const switched = id !== b.id;
+    if (switched || !ui || ui.canFocus !== c.canFocus || ui.canDays !== c.canDays) { id = b.id; ui = build(b, c); ui.canFocus = c.canFocus; ui.canDays = c.canDays; el.setAttribute("aria-label", `${b.name} details`); }
     // Rail: every brand's letter, a Next $10K mark (shape and colour) and its funding, so the world stays in view.
     for (const row of c.rows) {
       const ch = chips[row.id], g = row.next >= 1.02 ? ["good", "▲", "earns"] : row.next <= 0.98 ? ["bad", "▼", "loses"] : ["even", "–", "breaks even"];
       ch.replaceChildren(h("b", {}, row.id), h("span", { class: "cat" }, CATS[row.id]), h("span", { class: `dot ${g[0]}`, "aria-hidden": "true" }, g[1]), h("span", { class: "num" }, $k(plan.trade[row.id] || 0)));
       ch.setAttribute("aria-label", `Brand ${row.id}, ${CATS[row.id]}, ${$k(plan.trade[row.id] || 0)}, next $10K ${g[2]}`);
       ch.setAttribute("aria-current", String(row.id === b.id));
+      ch.tabIndex = row.id === b.id ? 0 : -1;
     }
+    if (switched) reveal();
     const scouted = state.scouted[b.id] !== undefined;
     put(ui.note, scouted ? h("span", { class: "scouted" }, `Scouted in ${S.QUARTERS[state.scouted[b.id]].id}. `) : null, b.note);
     ui.finding.hidden = !c.finding;
@@ -148,8 +204,7 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     const below = document.documentElement.scrollHeight - (stage.getBoundingClientRect().bottom + scrollY);
     stage.style.paddingBottom = `${Math.max(0, Math.round(el.getBoundingClientRect().height - below))}px`;
   };
-  addEventListener("resize", () => { if (el.isConnected) fitPage(); });
-  tall.addEventListener("click", () => requestAnimationFrame(fitPage));
+  addEventListener("resize", () => { if (el.isConnected) { fitPage(); edges(); } });
   return {
     el, update,
     get id() { return id; },
@@ -157,9 +212,9 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     open(focus, slide = true) {
       if (slide && !el.classList.contains("is-open")) { el.classList.add("is-arriving"); el.addEventListener("animationend", () => el.classList.remove("is-arriving"), { once: true }); }
       el.classList.add("is-open"); if (focus && narrow()) ui?.title.focus({ preventScroll: true });
-      fitPage();
+      fitPage(); reveal(); edges();
     },
-    close() { el.classList.remove("is-open", "is-tall"); tall.setAttribute("aria-pressed", "false"); tall.textContent = "Expand"; tall.setAttribute("aria-label", "Expand the panel"); fitPage(); },
+    close() { el.classList.remove("is-open"); el.style.transform = ""; setTall(false); },
     focusTitle() { ui?.title.focus({ preventScroll: true }); },
   };
 }
