@@ -161,7 +161,7 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     ui.was.textContent = x === base ? "same as last year" : `${x > base ? "+" : "−"}${$k(Math.abs(x - base))} vs last year`;
     ui.plus.disabled = c.free < S.STEP.trade; ui.minus.disabled = x <= 0;
     ui.floorWarn.hidden = !(r.floor && r.xOff < r.floor);
-    ui.floorWarn.textContent = `Off-premise gets ${$k(r.xOff)} of the ${$k(x)}, and this brand needs ${$k(r.floor)} off-premise to hold its shelf space${r.floor > b.floor ? " this quarter" : ""}.${c.canFocus ? " Set it to Off-premise, or add $10K." : " Add $10K, or expect to lose some base volume."}`;
+    ui.floorWarn.textContent = `Below ${$k(r.floor)} off-premise this brand starts losing shelf space, not just promotion lift${r.floor > b.floor ? " (more than usual this quarter)" : ""}.${x ? ` It gets ${$k(r.xOff)} of the ${$k(x)} now.` : " It gets nothing now."}${c.canFocus ? " Set it to Off-premise, or add $10K." : " Add $10K, or expect to lose some base volume."}`;
     const mix = plan.focus[b.id] || "both";
     ui.split.textContent = x ? `Where ${b.name}'s ${$k(x)} goes: off-premise ${$k(r.xOff)} · on-premise ${$k(r.xOn)}${mix === "both" ? ` (Both = its usual ${Math.round(b.share * 100)}% on-premise mix)` : ""}` : `${b.name} gets nothing this quarter.`;
     ui.focus.forEach((f) => f.setAttribute("aria-pressed", String(f.dataset.k === mix)));

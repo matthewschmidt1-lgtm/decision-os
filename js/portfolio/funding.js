@@ -38,7 +38,7 @@ export function createFunding({ actions }) {
     u.sel.addEventListener("change", () => { u.src = u.sel.value; if (ctx) update(null, ctx); });
     u.moveBtn.addEventListener("click", () => { if (u.src) { rebase(); actions.move(u.src, id); } });
     u.root = h("div", { class: "fd-funding" },
-      h("div", { class: "fd-fund-head" }, u.amt, h("span", { class: "fd-k" }, "Next $10K at each amount · team forecast")),
+      h("div", { class: "fd-fund-head" }, u.amt, h("span", { class: "fd-cap" }, "What the next $10K returns, at each amount. The team's forecast.")),
       u.curve, u.range, h("div", { class: "fd-ends", "aria-hidden": "true" }, u.lo, u.hi), u.shelf, u.delta, u.keep,
       h("div", { class: "fd-move" }, h("label", { class: "fd-k" }, "Move $10K here from", u.sel), u.moveOut, u.moveBtn));
     ro.disconnect(); ro.observe(u.curve);
@@ -116,14 +116,18 @@ export function createFunding({ actions }) {
     const top = Math.max(2, ...pts.map((p) => p.hi)) * 1.05;
     const X = (v) => (max ? pad + (v / max) * (W - 2 * pad) : W / 2), Y = (m) => T + (1 - m / top) * (H - T - B);
     const g = s("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: "fd-curve-svg", role: "img",
-      "aria-label": `The team's forecast for the next $10K at every amount from $0 to ${$k(max)}. It is ${per$(pts[0]?.next || 0)} at $0 and ${per$(pts.at(-1)?.next || 0)} at ${$k(max)}; $1 back is breakeven.` });
+      "aria-label": `The team's forecast for the next $10K at every amount from $0 to ${$k(max)}. It is ${per$(pts[0]?.next || 0)} at $0 and ${per$(pts.at(-1)?.next || 0)} at ${$k(max)}; $1 back breaks even. Left of the amber line the brand starts losing shelf space.` });
     if (pts.length > 1) {
       g.append(s("polygon", { class: "band", points: [...pts.map((p) => `${X(p.x)},${Y(p.hi)}`), ...[...pts].reverse().map((p) => `${X(p.x)},${Y(p.lo)}`)].join(" ") }),
         s("polyline", { class: "line", points: pts.map((p) => `${X(p.x)},${Y(p.next)}`).join(" ") }));
     }
-    g.append(s("line", { class: "even", x1: pad, x2: W - pad, y1: Y(1), y2: Y(1) }), s("text", { class: "lbl", x: W - pad, y: Y(1) - 4, "text-anchor": "end" }, "$1 back: breakeven"));
+    // The breakeven line explains itself: above it another $10K earns, below it it loses.
+    g.append(s("line", { class: "even", x1: pad, x2: W - pad, y1: Y(1), y2: Y(1) }),
+      s("text", { class: "lbl", x: W - pad, y: Y(1) - 4, "text-anchor": "end" }, "$1 back · breaks even"),
+      s("text", { class: "lbl side good", x: pad + 2, y: Y(1) - 4, "text-anchor": "start" }, "earns ↑"),
+      s("text", { class: "lbl side bad", x: pad + 2, y: Y(1) + 11, "text-anchor": "start" }, "loses ↓"));
     const floor = pts[0]?.floor || 0, at = floor > 0 ? pts.find((p) => p.xOff >= floor) : null;
-    if (at) g.append(s("line", { class: "floor", x1: X(at.x), x2: X(at.x), y1: T, y2: H - B }), s("text", { class: "lbl floor-t", x: X(at.x) + 4, y: T + 8 }, "shelf floor"));
+    if (at) g.append(s("line", { class: "floor", x1: X(at.x), x2: X(at.x), y1: T, y2: H - B }), s("text", { class: "lbl floor-t", x: X(at.x) + 4, y: T + 8 }, "keeps its shelf"));
     const cur = pts.find((p) => p.x === x);
     if (cur) g.append(s("line", { class: "cur", x1: X(x), x2: X(x), y1: T, y2: H - B }), s("circle", { class: "cur-pt", cx: X(x), cy: Y(cur.next), r: 4 }));
     ui.curve.replaceChildren(g);

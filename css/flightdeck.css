@@ -207,6 +207,8 @@
 .fd-curve-svg .cur-pt{fill:var(--ink);stroke:var(--bg-elev);stroke-width:1.5}
 .fd-curve-svg .lbl{font-family:var(--mono);font-size:10px;fill:var(--muted)}
 .fd-curve-svg .floor-t{fill:var(--warn)}
+.fd-curve-svg .side.good{fill:var(--good)}.fd-curve-svg .side.bad{fill:var(--bad)}
+.fd-cap{font-size:var(--fs-micro);color:var(--muted)}
 .fd-throttle{height:32px}
 .fd-throttle::-webkit-slider-runnable-track{background:var(--line-strong)}
 .fd-throttle::-webkit-slider-thumb{background:var(--accent);border-color:var(--accent)}
