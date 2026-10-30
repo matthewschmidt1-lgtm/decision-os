@@ -138,6 +138,18 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     extra?.(ui.extra, c);
   }
 
+  // On phones the sheet covers the bottom of the window, so the page gets just enough bottom padding for the last tile to
+  // rise above the sheet: the sheet's height less whatever already sits under the stage (the page's own padding and the
+  // footer). A flat 60vh overshot by the footer's height and left a blank band above the sheet at the end of the page.
+  const fitPage = () => {
+    const stage = document.querySelector(".fd-stagewrap"); if (!stage) return;
+    if (!narrow() || !el.classList.contains("is-open")) { stage.style.paddingBottom = ""; return; }
+    stage.style.paddingBottom = "0px";
+    const below = document.documentElement.scrollHeight - (stage.getBoundingClientRect().bottom + scrollY);
+    stage.style.paddingBottom = `${Math.max(0, Math.round(el.getBoundingClientRect().height - below))}px`;
+  };
+  addEventListener("resize", () => { if (el.isConnected) fitPage(); });
+  tall.addEventListener("click", () => requestAnimationFrame(fitPage));
   return {
     el, update,
     get id() { return id; },
@@ -145,8 +157,9 @@ export function createPanel({ actions, onSelect, onClose, extra }) {
     open(focus, slide = true) {
       if (slide && !el.classList.contains("is-open")) { el.classList.add("is-arriving"); el.addEventListener("animationend", () => el.classList.remove("is-arriving"), { once: true }); }
       el.classList.add("is-open"); if (focus && narrow()) ui?.title.focus({ preventScroll: true });
+      fitPage();
     },
-    close() { el.classList.remove("is-open", "is-tall"); tall.setAttribute("aria-pressed", "false"); tall.textContent = "Expand"; tall.setAttribute("aria-label", "Expand the panel"); },
+    close() { el.classList.remove("is-open", "is-tall"); tall.setAttribute("aria-pressed", "false"); tall.textContent = "Expand"; tall.setAttribute("aria-label", "Expand the panel"); fitPage(); },
     focusTitle() { ui?.title.focus({ preventScroll: true }); },
   };
 }

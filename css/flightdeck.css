@@ -169,7 +169,10 @@
   .fd-rail::-webkit-scrollbar{display:none}
   .fd-sheet-ctl{display:flex;gap:4px}
   .fd-panel-body{overflow:auto;overscroll-behavior:contain;flex:1}
-  .fd:has(.fd-panel.is-open) .fd-stagewrap{padding-bottom:60vh}
+  /* The page's bottom padding while the sheet is open is set by panel.js (fitPage), sized to the sheet and the footer. */
+  /* Vertical swipes on the sheet's header stay on the sheet; the rail still pans sideways. */
+  .fd-sheet-head{touch-action:none}
+  .fd-rail{touch-action:pan-x}
 }
 @media (max-width:759px){
   .fd-panel{left:0;right:0}
