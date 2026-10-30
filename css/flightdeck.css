@@ -349,3 +349,12 @@
 .fd-dial .fill{fill:none;stroke:var(--fd-terrain-text);stroke-width:2.5;stroke-linecap:round;transition:stroke-dasharray .6s var(--ease)}
 .fd-dial .fill.bad{stroke:var(--bad)}
 @media (max-width:759px){.fd-dial{gap:6px}.fd-dial svg{width:22px;height:22px}}
+
+/* The throttle reads as something you drag: a cyan thumb with a dark ring, and the track fills to the amount set. */
+.fd-funding input[type=range].fd-throttle{height:32px}
+.fd-funding .fd-throttle::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--accent) var(--fill,0%),var(--line-strong) var(--fill,0%))}
+.fd-funding .fd-throttle::-moz-range-track{height:6px;border-radius:3px;background:var(--line-strong)}
+.fd-funding .fd-throttle::-moz-range-progress{height:6px;border-radius:3px;background:var(--accent)}
+.fd-funding .fd-throttle::-webkit-slider-thumb{width:26px;height:26px;margin-top:-10px;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 1.5px var(--accent),0 2px 8px var(--fd-shadow)}
+.fd-funding .fd-throttle::-moz-range-thumb{width:26px;height:26px;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 1.5px var(--accent),0 2px 8px var(--fd-shadow)}
+.fd-funding .fd-throttle:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ink);outline-offset:3px}

@@ -32,7 +32,8 @@ export function createFunding({ actions }) {
     u.range.addEventListener("pointerdown", rebase);
     u.range.addEventListener("keydown", (e) => { if (/^(Arrow|Page|Home|End)/.test(e.key)) rebase(); });
     // Readouts follow the throttle every frame; the plan is written through js/portfolio/plan.js.
-    u.range.addEventListener("input", () => { pending = +u.range.value; if (!raf) raf = requestAnimationFrame(() => { raf = 0; actions.setTrade(id, pending); }); });
+    const paint = () => u.range.style.setProperty("--fill", `${u.range.max > 0 ? (100 * u.range.value) / u.range.max : 0}%`);
+    u.range.addEventListener("input", () => { paint(); pending = +u.range.value; if (!raf) raf = requestAnimationFrame(() => { raf = 0; actions.setTrade(id, pending); }); });
     // The end of a gesture always lands, even where animation frames are paused (a background tab).
     u.range.addEventListener("change", () => { cancelAnimationFrame(raf); raf = 0; actions.setTrade(id, +u.range.value); });
     u.sel.addEventListener("change", () => { u.src = u.sel.value; if (ctx) update(null, ctx); });
@@ -55,6 +56,7 @@ export function createFunding({ actions }) {
     ui.amt.textContent = $k(x);
     ui.range.max = String(max);
     if (+ui.range.value !== x) ui.range.value = String(x);
+    ui.range.style.setProperty("--fill", `${ui.range.max > 0 ? (100 * x) / ui.range.max : 0}%`);
     ui.hi.textContent = $k(max);
     const nextWords = r.conf === "High" ? `about ${per$(r.next)} back` : `about ${per$(r.nextLo)} to ${per$(r.nextHi)} back, the team's range`;
     ui.range.setAttribute("aria-valuetext", `${$k(x)}. Next $10K ${nextWords}.`);
@@ -121,11 +123,17 @@ export function createFunding({ actions }) {
       g.append(s("polygon", { class: "band", points: [...pts.map((p) => `${X(p.x)},${Y(p.hi)}`), ...[...pts].reverse().map((p) => `${X(p.x)},${Y(p.lo)}`)].join(" ") }),
         s("polyline", { class: "line", points: pts.map((p) => `${X(p.x)},${Y(p.next)}`).join(" ") }));
     }
-    // The breakeven line explains itself: above it another $10K earns, below it it loses.
+    // The breakeven line explains itself: above it another $10K earns, below it it loses. The earns/loses tags sit on
+    // whichever end of the curve has more room between the curve and the line; the breakeven label takes the other end.
+    // A 10px label at baseline y covers y-10..y; it must not cross the curve's band (hi..lo) at that end of the chart.
+    const band = (p) => (p ? [Y(p.hi), Y(p.lo)] : [Y(1), Y(1)]), crosses = (y, [hi, lo]) => y >= hi - 1 && y - 10 <= lo + 1;
+    const place = (p) => { const b = band(p); let e = Y(1) - 4, l = Y(1) + 11; if (crosses(e, b)) e = b[0] - 4; if (crosses(l, b)) l = b[1] + 12; return { e: Math.max(T + 8, e), l: Math.min(H - B, l), moved: (e !== Y(1) - 4) + (l !== Y(1) + 11) }; };
+    const left = place(pts[0]), right = place(pts.at(-1));
+    const tagsLeft = left.moved <= right.moved, tags = tagsLeft ? left : right, tx = tagsLeft ? pad + 2 : W - pad, ta = tagsLeft ? "start" : "end";
     g.append(s("line", { class: "even", x1: pad, x2: W - pad, y1: Y(1), y2: Y(1) }),
-      s("text", { class: "lbl", x: W - pad, y: Y(1) - 4, "text-anchor": "end" }, "$1 back · breaks even"),
-      s("text", { class: "lbl side good", x: pad + 2, y: Y(1) - 4, "text-anchor": "start" }, "earns ↑"),
-      s("text", { class: "lbl side bad", x: pad + 2, y: Y(1) + 11, "text-anchor": "start" }, "loses ↓"));
+      s("text", { class: "lbl", x: tagsLeft ? W - pad : pad + 2, y: Y(1) - 4, "text-anchor": tagsLeft ? "end" : "start" }, "$1 back · breaks even"),
+      s("text", { class: "lbl side good", x: tx, y: tags.e, "text-anchor": ta }, "earns ↑"),
+      s("text", { class: "lbl side bad", x: tx, y: tags.l, "text-anchor": ta }, "loses ↓"));
     const floor = pts[0]?.floor || 0, at = floor > 0 ? pts.find((p) => p.xOff >= floor) : null;
     if (at) g.append(s("line", { class: "floor", x1: X(at.x), x2: X(at.x), y1: T, y2: H - B }), s("text", { class: "lbl floor-t", x: X(at.x) + 4, y: T + 8 }, "keeps its shelf"));
     const cur = pts.find((p) => p.x === x);
