@@ -55,6 +55,12 @@
 .loop-step.on{border-color:var(--accent)}
 .loop-step.on .n{color:var(--accent)}
 .loop-wrap[data-active="0"] .loop-arrow .line,.loop-wrap[data-active="0"] .loop-arrow .head{stroke:var(--accent)}
+/* The loop as a case stack: transparent render, so it sits on either theme; the caption reads like a shelf tag */
+.loop-stack{margin-top:clamp(40px,6vw,72px)}
+.loop-figure{margin:0;display:grid;justify-items:center;gap:14px}
+.loop-figure img{display:block;width:min(100%,920px);height:auto}
+.loop-figure figcaption{font-size:.9375rem;text-align:center;max-width:46ch}
+@media (max-width:600px){.loop-figure img{width:calc(100% + 32px);max-width:none;margin:0 -16px}}
 @keyframes loopDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 @keyframes loopFade{from{opacity:0}to{opacity:1}}
 @keyframes loopTravel{from{stroke-dashoffset:.14}to{stroke-dashoffset:-1}}

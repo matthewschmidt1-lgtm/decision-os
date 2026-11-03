@@ -101,6 +101,17 @@ function learningLoop() {
     wrap);
 }
 
+// The loop as a case stack: six cases on a pallet, the top one pointing back to 01.
+function loopStack() {
+  const img = h("img", { src: "/public/loop-stack.png", width: "1600", height: "1085", loading: "lazy", decoding: "async",
+    alt: "Six shipping cases stacked three, two, one on a pallet, printed 01 Recognize, 02 Diagnose, 03 Prioritize, 04 Act, 05 Defend, 06 Lead. A shelf sign on top reads Back to 01, every quarter." });
+  return h("section", { class: "section reveal loop-stack", "aria-labelledby": "stack-title" },
+    h("h2", { id: "stack-title", class: "sr-only" }, "The loop, stacked"),
+    h("figure", { class: "loop-figure" },
+      h("picture", {}, h("source", { srcset: "/public/loop-stack.webp", type: "image/webp" }), img),
+      h("figcaption", { class: "muted" }, "Every case builds on the one below it. The top one sends you back to the first.")));
+}
+
 export default function About() {
   setMeta({ title: "Learning Principles", description: "The rules Decision OS is built on." });
   return h("div", {},
@@ -115,6 +126,7 @@ export default function About() {
         ...p.body.map(t => h("p", { class: "muted", style: { fontSize: "1.0625rem" } }, t)),
         h("p", { style: { fontWeight: 500, marginTop: "20px" } }, p.tagline))))),
     learningLoop(),
+    loopStack(),
     h("section", { class: "section reveal" }, link("/learn", h("span", { class: "btn" }, "Visit the algorithm library ", arrow()))),
   );
 }
