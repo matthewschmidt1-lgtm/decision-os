@@ -1,4 +1,4 @@
-import { h, s, eyebrow, link, arrow, reducedMotion } from "../ui.js";
+import { h, eyebrow, link, arrow } from "../ui.js";
 import { setMeta } from "../app.js";
 
 const principles = [
@@ -23,90 +23,14 @@ const principles = [
   },
 ];
 
-// The Learning Loop: the six practice goals, each asking more than the last. Rendered as rising steps.
-const goals = [
-  ["Recognize", "See the pattern"],
-  ["Diagnose", "Understand what’s driving it"],
-  ["Prioritize", "Decide what matters most"],
-  ["Act", "Choose under uncertainty"],
-  ["Defend", "Make the case"],
-  ["Lead", "Change how decisions get made"],
-];
-
-const LOOP_STEP_MS = 1400;
-const LOOP_STAGGER_MS = 400, LOOP_FADE_MS = 400, LOOP_DRAW_MS = 1300; // keep the first two in step with the card transition in pages.css
-
-// "Six goals, one loop": the cards fade in 01 → 06 once, the arrow draws, then the steps light up 01 → 06
-// with a pulse back along the arrow, on repeat. The cycle runs only while the section is on screen;
-// under reduced motion everything shows at once and stays still with step 06 lit.
-function playLoop(wrap, ol, steps, arc) {
-  const reduce = reducedMotion();
-  let at = -1, timer = null, hold = false;
-  const show = (i) => { at = i; wrap.dataset.active = String(i); steps.forEach((el, j) => el.classList.toggle("on", j === i)); };
-  const stop = () => { clearInterval(timer); timer = null; };
-  const run = () => { stop(); timer = setInterval(() => { if (!ol.isConnected) stop(); else if (!hold && !document.hidden) show((at + 1) % steps.length); }, LOOP_STEP_MS); };
-
-  // The loop-back arrow runs from the top of step 06 to the top of step 01, measured so it follows the layout.
-  const draw = () => {
-    const w = wrap.getBoundingClientRect(), a = steps[0].getBoundingClientRect(), b = steps[steps.length - 1].getBoundingClientRect();
-    const x0 = a.left + a.width / 2 - w.left, y0 = a.top - w.top, x1 = b.left + b.width / 2 - w.left, y1 = b.top - w.top;
-    const d = `M${x1},${y1 - 3} C${x1},${y1 - 44} ${x0},${y0 - 70} ${x0},${y0 - 5}`;
-    arc.svg.setAttribute("viewBox", `0 0 ${w.width} ${w.height}`);
-    arc.line.setAttribute("d", d); arc.pulse.setAttribute("d", d);
-    arc.head.setAttribute("d", `M${x0 - 5},${y0 - 11} L${x0},${y0 - 4} L${x0 + 5},${y0 - 11}`);
-  };
-  requestAnimationFrame(draw);
-  if ("ResizeObserver" in window) new ResizeObserver(draw).observe(wrap); else addEventListener("resize", draw);
-
-  if (reduce || !("IntersectionObserver" in window)) { show(steps.length - 1); return; }
-  wrap.classList.add("anim", "pre");
-  steps.forEach((el, i) => {
-    el.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && timer) { hold = true; show(i); } });
-    el.addEventListener("pointerleave", () => { if (hold) { hold = false; run(); } });
-  });
-  let phase = "pre", visible = false;
-  const start = () => { if (at < 0) show(0); run(); };
-  // Cards finish fading in, then the arrow draws, then the cycle begins (if the section is still on screen).
-  const drawArrow = () => {
-    draw();
-    wrap.classList.remove("cards"); wrap.dataset.run = "";
-    setTimeout(() => { phase = "run"; if (visible) start(); }, LOOP_DRAW_MS);
-  };
-  new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
-    if (!visible) return stop();
-    if (phase === "pre") {
-      phase = "reveal";
-      wrap.classList.replace("pre", "cards");
-      setTimeout(drawArrow, (steps.length - 1) * LOOP_STAGGER_MS + LOOP_FADE_MS + 50);
-    } else if (phase === "run") start();
-  }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }).observe(wrap);
-}
-
-function learningLoop() {
-  const steps = goals.map(([name, goal], i) =>
-    h("li", { class: `loop-step${i === goals.length - 1 ? " top" : ""}`, dataset: { i: String(i) }, style: { "--i": String(i) } },
-      h("span", { class: "n" }, String(i + 1).padStart(2, "0")), h("b", {}, name), h("p", {}, goal)));
-  const ol = h("ol", { class: "loop-steps" }, steps);
-  const arc = { line: s("path", { class: "line", pathLength: "1" }), pulse: s("path", { class: "pulse", pathLength: "1" }), head: s("path", { class: "head" }) };
-  arc.svg = s("svg", { class: "loop-arrow", "aria-hidden": "true", focusable: "false" }, arc.line, arc.pulse, arc.head);
-  const wrap = h("div", { class: "loop-wrap" }, arc.svg, ol);
-  playLoop(wrap, ol, steps, arc);
-  // Only the heading block uses the site's scroll-reveal; the cards time themselves.
-  return h("section", { class: "section", "aria-labelledby": "loop-title" },
-    h("div", { class: "reveal" },
-      eyebrow("The Learning Loop"),
-      h("h2", { id: "loop-title", style: { marginTop: "10px" } }, "Six goals. One loop."),
-      h("p", { class: "lede", style: { marginTop: "10px", maxWidth: "var(--measure)" } }, "Make the call, see the evidence, learn the principle.")),
-    wrap);
-}
-
 // The loop as a case stack: six cases on a pallet, the top one pointing back to 01.
 function loopStack() {
   const img = h("img", { src: "/public/loop-stack.png", width: "1600", height: "1085", loading: "lazy", decoding: "async",
     alt: "Six shipping cases stacked three, two, one on a pallet, printed 01 Recognize, 02 Diagnose, 03 Prioritize, 04 Act, 05 Defend, 06 Lead. A shelf sign on top reads Back to 01, every quarter." });
-  return h("section", { class: "section reveal loop-stack", "aria-labelledby": "stack-title" },
-    h("h2", { id: "stack-title", class: "sr-only" }, "The loop, stacked"),
+  return h("section", { class: "section reveal loop-stack", "aria-labelledby": "loop-title" },
+    eyebrow("The Learning Loop"),
+    h("h2", { id: "loop-title", style: { marginTop: "10px" } }, "Six goals. One loop."),
+    h("p", { class: "lede", style: { marginTop: "10px", maxWidth: "var(--measure)" } }, "Make the call, see the evidence, learn the principle."),
     h("figure", { class: "loop-figure" },
       h("picture", {}, h("source", { srcset: "/public/loop-stack.webp", type: "image/webp" }), img),
       h("figcaption", { class: "muted" }, "Every case builds on the one below it. The top one sends you back to the first.")));
@@ -125,7 +49,6 @@ export default function About() {
         h("p", { class: "lede", style: { fontSize: "1.25rem", color: "var(--ink)" } }, p.lede),
         ...p.body.map(t => h("p", { class: "muted", style: { fontSize: "1.0625rem" } }, t)),
         h("p", { style: { fontWeight: 500, marginTop: "20px" } }, p.tagline))))),
-    learningLoop(),
     loopStack(),
     h("section", { class: "section reveal" }, link("/learn", h("span", { class: "btn" }, "Visit the algorithm library ", arrow()))),
   );
